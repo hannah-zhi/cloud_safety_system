@@ -1567,10 +1567,18 @@ h2 {
 .alarm-meta {
   display: flex;
   justify-content: space-between;
+  align-items: flex-start;
   gap: 10px;
   margin-top: 8px;
   color: #b4bdd1;
   font-size: 12px;
+}
+
+.alarm-station-name {
+  min-width: 0;
+  line-height: 1.35;
+  white-space: normal;
+  word-break: break-all;
 }
 
 .alarm-meta time {
