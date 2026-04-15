@@ -67,12 +67,45 @@
             </div>
           </div>
 
-          <div class="status-row" id="statusFilters" aria-label="状态筛选"></div>
-          <div class="result-meta">
-            <span id="resultText">共 110 个场站</span>
-            <button id="clearFilterBtn" type="button">清空筛选</button>
+          <div class="home-grid">
+            <div class="station-workbench">
+              <div class="status-row" id="statusFilters" aria-label="状态筛选"></div>
+              <div class="result-meta">
+                <span id="resultText">共 110 个场站</span>
+                <button id="clearFilterBtn" type="button">清空筛选</button>
+              </div>
+              <div id="stationGrid" class="station-grid" aria-live="polite"></div>
+            </div>
+
+            <aside class="alarm-panel" aria-label="场站告警">
+              <div class="alarm-head">
+                <div>
+                  <div class="panel-title"><span></span>场站告警</div>
+                  <p>按风险优先级滚动刷新</p>
+                </div>
+                <button class="alarm-filter-btn" type="button" aria-label="筛选告警">⌁</button>
+              </div>
+              <div class="alarm-tabs" id="alarmTabs">
+                <button class="active" data-type="all" type="button">全部</button>
+                <button data-type="fault" type="button">故障</button>
+                <button data-type="warning" type="button">警告</button>
+                <button data-type="tip" type="button">提示</button>
+              </div>
+              <label class="alarm-range">
+                <span>最近15天</span>
+                <select aria-label="告警时间范围">
+                  <option>最近15天</option>
+                  <option>最近7天</option>
+                  <option>最近30天</option>
+                </select>
+              </label>
+              <div class="alarm-summary">
+                <div><strong id="alarmTotal">--</strong><span>未闭环</span></div>
+                <div><strong id="alarmCritical">--</strong><span>高优先级</span></div>
+              </div>
+              <div id="alarmList" class="alarm-list"></div>
+            </aside>
           </div>
-          <div id="stationGrid" class="station-grid" aria-live="polite"></div>
         </section>
 
         <section id="detailView" class="view detail-view" aria-label="单站安全详情">
