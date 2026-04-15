@@ -105,6 +105,8 @@ function bindElements() {
     "alarmCountLevel1",
     "alarmCountLevel2",
     "alarmCountLevel3",
+    "alarmCloudCount",
+    "alarmStationCount",
     "clock",
   ].forEach((id) => {
     els[id] = document.getElementById(id);
@@ -470,11 +472,12 @@ function renderAlarms() {
   els.alarmCountLevel1.textContent = rangeAlarms.filter((alarm) => alarm.type === "level1").length;
   els.alarmCountLevel2.textContent = rangeAlarms.filter((alarm) => alarm.type === "level2").length;
   els.alarmCountLevel3.textContent = rangeAlarms.filter((alarm) => alarm.type === "level3").length;
+  els.alarmCloudCount.textContent = rangeAlarms.filter((alarm) => alarm.source === "云端").length;
+  els.alarmStationCount.textContent = rangeAlarms.filter((alarm) => alarm.source === "站端").length;
   els.alarmList.innerHTML = alarms
     .map(
       (alarm) => `
       <button class="alarm-item alarm-${alarm.type}" type="button" data-station="${alarm.stationId}">
-        <div class="alarm-icon" aria-hidden="true"></div>
         <div class="alarm-body">
           <div class="alarm-row">
             <div class="alarm-tags">
