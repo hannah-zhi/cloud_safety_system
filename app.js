@@ -34,6 +34,8 @@ const stationNames = [
   "阿拉善腾格里",
 ];
 
+const stationTypeLabels = ["配套储能", "独立储能", "工商业储能"];
+
 const state = {
   stations: [],
   filtered: [],
@@ -50,7 +52,7 @@ const els = {};
 
 document.addEventListener("DOMContentLoaded", () => {
   bindElements();
-  state.stations = createStations(110);
+  state.stations = createStations();
   renderFilters();
   applyFilters();
   bindEvents();
@@ -153,7 +155,11 @@ function bindEvents() {
   });
 }
 
-function createStations(count) {
+function createStations(count = 110) {
+  const configuredStations = Array.isArray(window.SITE_CONFIG_STATIONS) ? window.SITE_CONFIG_STATIONS : null;
+  if (configuredStations?.length) {
+    return configuredStations.map((item, index) => createStationFromConfig(item, index, configuredStations.length));
+  }
   return Array.from({ length: count }, (_, index) => {
     const n = index + 1;
     const name = stationNames[index % stationNames.length];
@@ -166,7 +172,6 @@ function createStations(count) {
     const active = run === "运行" ? round(rated * (0.32 + ((n % 9) / 16)), 2) : n % 6 === 0 ? round(rated * 0.08, 2) : 0;
     const energy = round(0.35 + ((n * 19) % 112) / 10, 2);
     const soc = round(Math.min(99.6, Math.max(3.8, (energy / Math.max(rated, 1)) * 18 + ((n * 3) % 34))), 2);
-    const types = ["独立储能", "配套储能", "工商业储能"];
     return {
       id: `K-${String(n).padStart(4, "0")}`,
       name: `${name}${n % 3 === 0 ? "项目" : ""}`,
@@ -180,10 +185,45 @@ function createStations(count) {
       energy,
       soc,
       subsystemCount: 12 + (n % 9) * 2,
-      stationType: types[n % types.length],
+      stationType: stationTypeForIndex(index, count),
       alarms: Math.max(0, riskMeta[risk].order === 3 ? n % 2 : 3 + (n % 9)),
     };
   });
+}
+
+function createStationFromConfig(item, index, total) {
+  const n = index + 1;
+  const sos = scoreFor(n);
+  const risk = getRisk(sos);
+  const comm = n % 13 === 0 || n % 17 === 0 ? "down" : n % 7 === 0 || n % 11 === 0 ? "partial" : "ok";
+  const run = comm === "down" && n % 2 === 0 ? "停机" : n % 5 === 0 ? "运行" : "待机";
+  const rated = Number(item.ratedCapacity);
+  const ratedEnergy = Number(item.ratedEnergy);
+  const subsystemCount = Number(item.subsystemCount);
+  return {
+    id: item.projectNo,
+    name: item.projectName,
+    sos,
+    risk,
+    comm,
+    run,
+    rated,
+    ratedEnergy,
+    active: run === "运行" ? round(rated * (0.32 + ((n % 9) / 16)), 2) : n % 6 === 0 ? round(rated * 0.08, 2) : 0,
+    energy: round(ratedEnergy * Math.min(0.98, 0.32 + ((n * 7) % 58) / 100), 2),
+    soc: round(Math.min(99.6, Math.max(3.8, 18 + ((n * 11) % 78))), 2),
+    subsystemCount,
+    stationType: stationTypeForIndex(index, total),
+    alarms: Math.max(0, riskMeta[risk].order === 3 ? n % 2 : 3 + (n % 9)),
+  };
+}
+
+function stationTypeForIndex(index, total) {
+  const pairedLimit = Math.round(total * 0.85);
+  const independentLimit = pairedLimit + Math.round(total * 0.1);
+  if (index < pairedLimit) return stationTypeLabels[0];
+  if (index < independentLimit) return stationTypeLabels[1];
+  return stationTypeLabels[2];
 }
 
 function createAlarms(stations) {
