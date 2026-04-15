@@ -1358,6 +1358,10 @@ h2 {
   border: 0;
   color: #9fa8ba;
   background: #292c38;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
 }
 
 .alarm-tabs button.active {
@@ -1365,59 +1369,71 @@ h2 {
   background: linear-gradient(180deg, #3b4050, #2b2f3c);
 }
 
-.alarm-range {
-  width: calc(100% - 8px);
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border: 1px solid rgba(85, 92, 113, 0.72);
-  background: rgba(12, 14, 22, 0.45);
-  padding: 0 10px;
-  color: #eef3fb;
-  font-size: 13px;
+.alarm-tabs button[data-type="level1"] span {
+  color: var(--red);
 }
 
-.alarm-range select {
-  width: 18px;
-  border: 0;
-  background: transparent;
-  color: transparent;
-  outline: 0;
+.alarm-tabs button[data-type="level2"] span {
+  color: var(--yellow);
 }
 
-.alarm-range select option {
-  color: #fff;
-  background: #1e202b;
+.alarm-tabs button[data-type="level3"] span {
+  color: var(--green);
 }
 
-.alarm-summary {
+.alarm-tabs span {
+  color: #eff5ff;
+  font-weight: 700;
+}
+
+.alarm-time-tools {
+  margin: 10px 8px 12px 0;
+}
+
+.alarm-quick-buttons {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  margin: 12px 8px 8px 0;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1px;
+  background: rgba(60, 65, 82, 0.54);
 }
 
-.alarm-summary div {
-  min-height: 54px;
-  padding: 8px 10px;
-  border: 1px solid rgba(57, 63, 82, 0.76);
-  background: rgba(12, 14, 22, 0.34);
-}
-
-.alarm-summary strong {
-  display: block;
-  font-size: 20px;
-  color: #f5f8ff;
-}
-
-.alarm-summary span {
-  color: #8994a9;
+.alarm-quick-buttons button {
+  height: 30px;
+  border: 0;
+  background: #242834;
+  color: #9fa8ba;
   font-size: 12px;
 }
 
+.alarm-quick-buttons button.active {
+  color: #fff;
+  background: linear-gradient(180deg, rgba(18, 152, 255, 0.34), rgba(36, 42, 58, 0.92));
+}
+
+.alarm-date-range {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  gap: 8px;
+  align-items: center;
+  margin-top: 8px;
+  color: #8f99ad;
+  font-size: 12px;
+}
+
+.alarm-date-range input {
+  width: 100%;
+  min-width: 0;
+  height: 32px;
+  border: 1px solid rgba(85, 92, 113, 0.72);
+  border-radius: 4px;
+  background: rgba(12, 14, 22, 0.45);
+  color: #eef3fb;
+  padding: 0 8px;
+  color-scheme: dark;
+}
+
 .alarm-list {
-  height: calc(100% - 174px);
+  height: calc(100% - 154px);
   overflow: auto;
   padding-right: 8px;
 }
@@ -1448,28 +1464,38 @@ h2 {
   border-bottom: 15px solid #8b93a7;
 }
 
-.alarm-fault .alarm-icon {
+.alarm-level1 .alarm-icon {
   border-bottom-color: var(--red);
   filter: drop-shadow(0 0 8px rgba(255, 63, 93, 0.52));
 }
 
-.alarm-warning .alarm-icon {
+.alarm-level2 .alarm-icon {
   border-bottom-color: var(--yellow);
   filter: drop-shadow(0 0 8px rgba(240, 166, 28, 0.48));
 }
 
-.alarm-tip .alarm-icon {
-  border-bottom-color: #98a0b3;
+.alarm-level3 .alarm-icon {
+  border-bottom-color: var(--green);
+  filter: drop-shadow(0 0 8px rgba(19, 199, 129, 0.42));
 }
 
 .alarm-body {
   min-width: 0;
 }
 
+.alarm-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+
 .alarm-tags {
   display: flex;
   gap: 4px;
-  margin-bottom: 8px;
+  min-width: 0;
+  flex-wrap: wrap;
 }
 
 .alarm-tags span {
@@ -1479,6 +1505,34 @@ h2 {
   padding: 0 8px;
   background: #303441;
   color: #aeb8ca;
+  font-size: 12px;
+}
+
+.alarm-level1 .alarm-level {
+  color: #fff;
+  background: linear-gradient(180deg, rgba(255, 61, 89, 0.86), rgba(132, 31, 54, 0.74));
+}
+
+.alarm-level2 .alarm-level {
+  color: #fff;
+  background: linear-gradient(180deg, rgba(244, 165, 28, 0.82), rgba(121, 78, 17, 0.72));
+}
+
+.alarm-level3 .alarm-level {
+  color: #fff;
+  background: linear-gradient(180deg, rgba(19, 199, 129, 0.76), rgba(16, 105, 76, 0.74));
+}
+
+.alarm-source {
+  height: 22px;
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 8px;
+  border: 1px solid rgba(18, 152, 255, 0.48);
+  border-radius: 4px;
+  background: rgba(18, 152, 255, 0.12);
+  color: #d9ecff;
   font-size: 12px;
 }
 
