@@ -258,30 +258,22 @@ function stationTypeForIndex(index, total) {
 
 function createAlarms(stations) {
   if (!stations.length) return [];
-  const titles = [
-    "子系统SOC不均衡提示",
-    "子系统BUNK间不均衡预警",
-    "变压器测控装置通讯状态",
-    "Rack温差越限预警",
-    "Pack单体电压离散度异常",
-    "消防联动信号待确认",
-    "PCS功率跟踪偏差",
-    "环控温湿度波动提示",
-  ];
-  const modules = ["电池系统", "电气系统", "环控系统", "消防系统"];
+  const templates = Array.isArray(window.RISK_LIST_TEMPLATES) ? window.RISK_LIST_TEMPLATES : [];
   const alarmTotal = 273;
   return Array.from({ length: alarmTotal }, (_, index) => {
       const station = stations[(index * 7 + index) % stations.length];
-      const type = index < 35 ? "level1" : index < 105 ? "level2" : "level3";
+      const template = pickRiskTemplate(templates, index);
+      const type = levelToType(template.level);
       const date = new Date(2026, 3, 15 - (index % 45), 11 - (index % 3), 21 + (index % 36));
       return {
         id: `${station.id}-${index}`,
         stationId: station.id,
         stationName: station.name,
-        title: titles[index % titles.length],
-        module: modules[index % modules.length],
+        title: template.name,
+        module: template.module,
         type,
-        level: { level1: "一级", level2: "二级", level3: "三级" }[type],
+        level: template.level,
+        location: createAlarmLocation(template.locationFormat, station, index),
         source: index % 4 === 0 ? "站端" : "云端",
         dateISO: formatDateInput(date),
         time: `${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")} ${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")} (+08:00)`,
@@ -489,6 +481,7 @@ function renderAlarms() {
             <span>${alarm.stationId.replace("K-", "K")}-${alarm.stationName.slice(0, 8)}</span>
             <time>${alarm.time}</time>
           </div>
+          <div class="alarm-location">预警位置：${alarm.location}</div>
         </div>
       </button>`
     )
@@ -844,6 +837,34 @@ function summarizeSubsystems(subsystems) {
 
 function alarmOrder(type) {
   return { level1: 0, level2: 1, level3: 2 }[type] ?? 3;
+}
+
+function levelToType(level) {
+  return { 一级: "level1", 二级: "level2", 三级: "level3" }[level] ?? "level3";
+}
+
+function pickRiskTemplate(templates, index) {
+  const fallback = { name: "子系统SOC不均衡提示", module: "电池系统", level: "三级", locationFormat: "#1子系统-Rack101-Pack1-Cell2" };
+  if (!templates.length) return fallback;
+  const level = index < 35 ? "一级" : index < 105 ? "二级" : "三级";
+  const pool = templates.filter((item) => item.level === level);
+  return (pool.length ? pool : templates)[index % (pool.length ? pool.length : templates.length)];
+}
+
+function createAlarmLocation(format, station, index) {
+  const subsystemTotal = Math.max(1, Number(station.subsystemCount) || 1);
+  const subsystem = 1 + (index % subsystemTotal);
+  const rack = `${index % 2 === 0 ? 1 : 2}${String(1 + ((index * 5) % 12)).padStart(2, "0")}`;
+  const pack = 1 + ((index * 3) % 8);
+  const cells = [0, 1, 2].map((offset) => 1 + ((index * 7 + offset * 9) % 28));
+  return format
+    .replace(/#\d+子系统/g, `#${subsystem}子系统`)
+    .replace(/Rack\d+/g, `Rack${rack}`)
+    .replace(/Pack\d+/g, `Pack${pack}`)
+    .replace(/Cell\d+(?:,\d+)*/g, (match) => {
+      const count = match.replace(/^Cell/, "").split(",").length;
+      return `Cell${cells.slice(0, count).join(",")}`;
+    });
 }
 
 function formatDateInput(date) {
