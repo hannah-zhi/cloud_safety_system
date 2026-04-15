@@ -41,6 +41,9 @@ const state = {
   filtered: [],
   alarms: [],
   activeAlarmType: "all",
+  activeAlarmDays: "all",
+  alarmStartDate: "",
+  alarmEndDate: "",
   activeFilter: "all",
   selectedStationIds: new Set(),
   selectedStation: null,
@@ -95,8 +98,13 @@ function bindElements() {
     "donutLegend",
     "alarmTabs",
     "alarmList",
-    "alarmTotal",
-    "alarmCritical",
+    "alarmTimeButtons",
+    "alarmStartDate",
+    "alarmEndDate",
+    "alarmCountAll",
+    "alarmCountLevel1",
+    "alarmCountLevel2",
+    "alarmCountLevel3",
     "clock",
   ].forEach((id) => {
     els[id] = document.getElementById(id);
@@ -135,6 +143,26 @@ function bindEvents() {
     state.activeAlarmType = button.dataset.type;
     els.alarmTabs.querySelectorAll("button").forEach((item) => item.classList.toggle("active", item === button));
     renderAlarms();
+  });
+  els.alarmTimeButtons.addEventListener("click", (event) => {
+    const button = event.target.closest("button[data-days]");
+    if (!button) return;
+    state.activeAlarmDays = button.dataset.days;
+    state.alarmStartDate = "";
+    state.alarmEndDate = "";
+    els.alarmStartDate.value = "";
+    els.alarmEndDate.value = "";
+    els.alarmTimeButtons.querySelectorAll("button").forEach((item) => item.classList.toggle("active", item === button));
+    renderAlarms();
+  });
+  [els.alarmStartDate, els.alarmEndDate].forEach((input) => {
+    input.addEventListener("change", () => {
+      state.activeAlarmDays = "custom";
+      state.alarmStartDate = els.alarmStartDate.value;
+      state.alarmEndDate = els.alarmEndDate.value;
+      els.alarmTimeButtons.querySelectorAll("button").forEach((item) => item.classList.remove("active"));
+      renderAlarms();
+    });
   });
   els.backBtn.addEventListener("click", showList);
   els.rangeButtons.addEventListener("click", (event) => {
@@ -237,11 +265,13 @@ function createAlarms(stations) {
     "PCS功率跟踪偏差",
     "环控温湿度波动提示",
   ];
-  const modules = ["设备告警", "电气异常", "通讯异常", "安全预警"];
+  const modules = ["电池系统", "电气系统", "环控系统", "消防系统"];
+  const sources = ["云端", "站端"];
   return stations
     .filter((station) => station.alarms > 0 || station.comm !== "ok" || station.risk !== "healthy")
     .map((station, index) => {
-      const type = station.risk === "high" || station.comm === "down" ? "fault" : station.risk === "mid" || station.comm === "partial" ? "warning" : "tip";
+      const type = station.risk === "high" || station.comm === "down" ? "level1" : station.risk === "mid" || station.comm === "partial" ? "level2" : "level3";
+      const date = new Date(2026, 3, 15 - (index % 28), 11 - (index % 3), 21 + (index % 36));
       return {
         id: `${station.id}-${index}`,
         stationId: station.id,
@@ -249,8 +279,10 @@ function createAlarms(stations) {
         title: titles[index % titles.length],
         module: modules[index % modules.length],
         type,
-        status: index % 4 === 0 ? "待确认" : "进行中",
-        time: `04-${String(15 - (index % 6)).padStart(2, "0")} ${String(11 - (index % 3)).padStart(2, "0")}:${String(21 + (index % 36)).padStart(2, "0")} (+08:00)`,
+        level: { level1: "一级", level2: "二级", level3: "三级" }[type],
+        source: sources[index % sources.length],
+        dateISO: formatDateInput(date),
+        time: `${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")} ${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")} (+08:00)`,
       };
     })
     .sort((a, b) => alarmOrder(a.type) - alarmOrder(b.type))
@@ -432,17 +464,23 @@ function positionStationPicker() {
 
 function renderAlarms() {
   if (!els.alarmList) return;
-  const alarms = state.alarms.filter((alarm) => state.activeAlarmType === "all" || alarm.type === state.activeAlarmType);
-  els.alarmTotal.textContent = state.alarms.length;
-  els.alarmCritical.textContent = state.alarms.filter((alarm) => alarm.type === "fault").length;
+  const rangeAlarms = filterAlarmsByTime(state.alarms);
+  const alarms = rangeAlarms.filter((alarm) => state.activeAlarmType === "all" || alarm.type === state.activeAlarmType);
+  els.alarmCountAll.textContent = rangeAlarms.length;
+  els.alarmCountLevel1.textContent = rangeAlarms.filter((alarm) => alarm.type === "level1").length;
+  els.alarmCountLevel2.textContent = rangeAlarms.filter((alarm) => alarm.type === "level2").length;
+  els.alarmCountLevel3.textContent = rangeAlarms.filter((alarm) => alarm.type === "level3").length;
   els.alarmList.innerHTML = alarms
     .map(
       (alarm) => `
       <button class="alarm-item alarm-${alarm.type}" type="button" data-station="${alarm.stationId}">
         <div class="alarm-icon" aria-hidden="true"></div>
         <div class="alarm-body">
-          <div class="alarm-tags">
-            <span>${alarm.status}</span><span>${alarm.module}</span>
+          <div class="alarm-row">
+            <div class="alarm-tags">
+              <span class="alarm-level">${alarm.level}</span><span>${alarm.module}</span>
+            </div>
+            <span class="alarm-source">${alarm.source}</span>
           </div>
           <strong>${alarm.title}</strong>
           <div class="alarm-meta">
@@ -455,6 +493,22 @@ function renderAlarms() {
     .join("");
   els.alarmList.querySelectorAll(".alarm-item").forEach((item) => {
     item.addEventListener("click", () => showDetail(item.dataset.station));
+  });
+}
+
+function filterAlarmsByTime(alarms) {
+  if (state.activeAlarmDays !== "custom") {
+    if (state.activeAlarmDays === "all") return alarms;
+    const days = Number(state.activeAlarmDays);
+    const boundary = new Date(2026, 3, 15);
+    boundary.setDate(boundary.getDate() - days + 1);
+    return alarms.filter((alarm) => new Date(`${alarm.dateISO}T00:00:00`) >= boundary);
+  }
+  const start = state.alarmStartDate ? new Date(`${state.alarmStartDate}T00:00:00`) : null;
+  const end = state.alarmEndDate ? new Date(`${state.alarmEndDate}T23:59:59`) : null;
+  return alarms.filter((alarm) => {
+    const date = new Date(`${alarm.dateISO}T12:00:00`);
+    return (!start || date >= start) && (!end || date <= end);
   });
 }
 
@@ -787,7 +841,11 @@ function summarizeSubsystems(subsystems) {
 }
 
 function alarmOrder(type) {
-  return { fault: 0, warning: 1, tip: 2 }[type] ?? 3;
+  return { level1: 0, level2: 1, level3: 2 }[type] ?? 3;
+}
+
+function formatDateInput(date) {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 }
 
 function scoreClass(score) {
