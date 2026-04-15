@@ -62,6 +62,9 @@ function bindElements() {
   [
     "stationGrid",
     "searchInput",
+    "stationPickerInput",
+    "stationPickerList",
+    "stationSelector",
     "sortSelect",
     "statusFilters",
     "selectedCount",
@@ -103,12 +106,15 @@ function bindElements() {
 
 function bindEvents() {
   els.searchInput.addEventListener("input", applyFilters);
+  els.stationPickerInput.addEventListener("input", renderStationPicker);
   els.sortSelect.addEventListener("change", applyFilters);
   els.clearFilterBtn.addEventListener("click", () => {
     state.activeFilter = "all";
     els.searchInput.value = "";
+    els.stationPickerInput.value = "";
     applyFilters();
     renderFilters();
+    renderStationPicker();
   });
   els.alarmTabs.addEventListener("click", (event) => {
     const button = event.target.closest("button[data-type]");
@@ -145,9 +151,11 @@ function createStations(count) {
     const comm = n % 13 === 0 || n % 17 === 0 ? "down" : n % 7 === 0 || n % 11 === 0 ? "partial" : "ok";
     const run = comm === "down" && n % 2 === 0 ? "停机" : n % 5 === 0 ? "运行" : "待机";
     const rated = round(1 + ((n * 7) % 18) * 0.55, 2);
+    const ratedEnergy = round(rated * (1.75 + (n % 6) * 0.18), 2);
     const active = run === "运行" ? round(rated * (0.32 + ((n % 9) / 16)), 2) : n % 6 === 0 ? round(rated * 0.08, 2) : 0;
     const energy = round(0.35 + ((n * 19) % 112) / 10, 2);
     const soc = round(Math.min(99.6, Math.max(3.8, (energy / Math.max(rated, 1)) * 18 + ((n * 3) % 34))), 2);
+    const types = ["独立储能", "配套储能", "工商业储能"];
     return {
       id: `K-${String(n).padStart(4, "0")}`,
       name: `${name}${n % 3 === 0 ? "项目" : ""}`,
@@ -156,9 +164,12 @@ function createStations(count) {
       comm,
       run,
       rated,
+      ratedEnergy,
       active,
       energy,
       soc,
+      subsystemCount: 12 + (n % 9) * 2,
+      stationType: types[n % types.length],
       alarms: Math.max(0, riskMeta[risk].order === 3 ? n % 2 : 3 + (n % 9)),
     };
   });
@@ -212,9 +223,6 @@ function getRisk(score) {
 function renderFilters() {
   const counts = summarize(state.stations);
   const filters = [
-    { key: "comm:ok", label: "通讯正常", count: counts.comm.ok, tone: commMeta.ok.tone },
-    { key: "comm:partial", label: "部分通讯中断", count: counts.comm.partial, tone: commMeta.partial.tone },
-    { key: "comm:down", label: "通讯中断", count: counts.comm.down, tone: commMeta.down.tone },
     { key: "risk:high", label: "高风险", count: counts.risk.high, tone: riskMeta.high.tone },
     { key: "risk:mid", label: "中风险", count: counts.risk.mid, tone: riskMeta.mid.tone },
     { key: "risk:low", label: "低风险", count: counts.risk.low, tone: riskMeta.low.tone },
@@ -273,10 +281,11 @@ function applyFilters() {
   renderStations(filtered);
   state.alarms = createAlarms(filtered.length ? filtered : state.stations);
   renderAlarms();
+  renderStationPicker();
 }
 
 function renderStations(stations) {
-  els.selectedCount.textContent = state.stations.length;
+  els.selectedCount.textContent = stations.length;
   els.resultText.textContent = `共 ${stations.length} 个场站`;
   if (!stations.length) {
     els.stationGrid.innerHTML = `<div class="empty">未找到匹配场站</div>`;
@@ -300,17 +309,48 @@ function createStationCard(station) {
         <span class="risk-dot ${risk.className}" title="${risk.label}"></span>
       </div>
       <div class="metrics">
-        <div class="metric"><span>场站通讯状态</span><strong>${commMeta[station.comm].label}</strong></div>
-        <div class="metric"><span>额定功率</span><strong>${station.rated} MW</strong></div>
-        <div class="metric"><span>场站有功功率</span><strong>${station.active} MW</strong></div>
-        <div class="metric"><span>剩余电量</span><strong>${station.energy} MWh</strong></div>
-        <div class="metric"><span>场站SOC</span><strong>${station.soc} %</strong></div>
+        <div class="metric"><span>通讯状态</span><strong>${commMeta[station.comm].label}</strong></div>
+        <div class="metric"><span>额定容量</span><strong>${station.rated} MW</strong></div>
+        <div class="metric"><span>额定能量</span><strong>${station.ratedEnergy} MWh</strong></div>
+        <div class="metric"><span>子系统数量</span><strong>${station.subsystemCount}</strong></div>
+        <div class="metric"><span>场站类型</span><strong>${station.stationType}</strong></div>
       </div>
       <div class="sos-line">
-        <span class="${scoreClass(station.sos)}">${station.sos}</span>
+        <span class="sos-label">SOS</span><span class="${scoreClass(station.sos)}">${station.sos}</span>
         <div class="sos-track"><div class="sos-fill" style="width:${station.sos}%;background:${fillColor}"></div></div>
       </div>
     </button>`;
+}
+
+function renderStationPicker() {
+  if (!els.stationPickerList) return;
+  const keyword = els.stationPickerInput.value.trim().toLowerCase();
+  const stations = state.stations
+    .filter((station) => !keyword || `${station.id}${station.name}`.toLowerCase().includes(keyword))
+    .slice(0, 40);
+  const allItem = `
+    <button class="selector-option" type="button" data-id="all">
+      <span>全部场站</span><strong>${state.stations.length}</strong>
+    </button>`;
+  els.stationPickerList.innerHTML =
+    allItem +
+    stations
+      .map(
+        (station) => `
+        <button class="selector-option" type="button" data-id="${station.id}">
+          <span>${station.id}${station.name}</span><strong>${riskMeta[station.risk].label}</strong>
+        </button>`
+      )
+      .join("");
+  els.stationPickerList.querySelectorAll(".selector-option").forEach((button) => {
+    button.addEventListener("click", () => {
+      const id = button.dataset.id;
+      els.searchInput.value = id === "all" ? "" : id;
+      els.stationPickerInput.value = "";
+      els.stationSelector.removeAttribute("open");
+      applyFilters();
+    });
+  });
 }
 
 function renderAlarms() {
@@ -349,7 +389,7 @@ function showDetail(id) {
   state.sortSubsystemDesc = false;
   els.listView.classList.remove("active-view");
   els.detailView.classList.add("active-view");
-  document.getElementById("pageTitle").textContent = "安全预警";
+  document.getElementById("pageTitle").textContent = "";
   renderDetail(station);
   window.scrollTo({ top: 0, behavior: "smooth" });
   const url = new URL(window.location.href);
