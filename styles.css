@@ -1432,17 +1432,43 @@ h2 {
   color-scheme: dark;
 }
 
+.alarm-summary {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 8px 8px 8px 0;
+}
+
+.alarm-summary div {
+  min-height: 42px;
+  padding: 7px 10px;
+  border: 1px solid rgba(57, 63, 82, 0.76);
+  background:
+    linear-gradient(180deg, rgba(31, 35, 48, 0.64), rgba(14, 17, 26, 0.54)),
+    rgba(12, 14, 22, 0.34);
+}
+
+.alarm-summary strong {
+  display: block;
+  font-size: 18px;
+  line-height: 1.1;
+  color: #f5f8ff;
+}
+
+.alarm-summary span {
+  color: #8994a9;
+  font-size: 12px;
+}
+
 .alarm-list {
-  height: calc(100% - 154px);
+  height: calc(100% - 204px);
   overflow: auto;
   padding-right: 8px;
 }
 
 .alarm-item {
   width: 100%;
-  display: grid;
-  grid-template-columns: 18px 1fr;
-  gap: 10px;
+  display: block;
   padding: 12px 0 14px;
   border: 0;
   border-bottom: 1px solid rgba(69, 73, 90, 0.55);
@@ -1453,30 +1479,6 @@ h2 {
 
 .alarm-item:hover {
   background: linear-gradient(90deg, rgba(18, 152, 255, 0.1), transparent);
-}
-
-.alarm-icon {
-  width: 0;
-  height: 0;
-  margin-top: 7px;
-  border-left: 8px solid transparent;
-  border-right: 8px solid transparent;
-  border-bottom: 15px solid #8b93a7;
-}
-
-.alarm-level1 .alarm-icon {
-  border-bottom-color: var(--red);
-  filter: drop-shadow(0 0 8px rgba(255, 63, 93, 0.52));
-}
-
-.alarm-level2 .alarm-icon {
-  border-bottom-color: var(--yellow);
-  filter: drop-shadow(0 0 8px rgba(240, 166, 28, 0.48));
-}
-
-.alarm-level3 .alarm-icon {
-  border-bottom-color: var(--green);
-  filter: drop-shadow(0 0 8px rgba(19, 199, 129, 0.42));
 }
 
 .alarm-body {
@@ -1509,18 +1511,21 @@ h2 {
 }
 
 .alarm-level1 .alarm-level {
-  color: #fff;
-  background: linear-gradient(180deg, rgba(255, 61, 89, 0.86), rgba(132, 31, 54, 0.74));
+  color: #ff8da0;
+  border: 1px solid rgba(255, 61, 89, 0.42);
+  background: linear-gradient(180deg, rgba(255, 61, 89, 0.18), rgba(255, 61, 89, 0.08));
 }
 
 .alarm-level2 .alarm-level {
-  color: #fff;
-  background: linear-gradient(180deg, rgba(244, 165, 28, 0.82), rgba(121, 78, 17, 0.72));
+  color: #ffd17a;
+  border: 1px solid rgba(244, 165, 28, 0.38);
+  background: linear-gradient(180deg, rgba(244, 165, 28, 0.17), rgba(244, 165, 28, 0.08));
 }
 
 .alarm-level3 .alarm-level {
-  color: #fff;
-  background: linear-gradient(180deg, rgba(19, 199, 129, 0.76), rgba(16, 105, 76, 0.74));
+  color: #69e6b2;
+  border: 1px solid rgba(19, 199, 129, 0.34);
+  background: linear-gradient(180deg, rgba(19, 199, 129, 0.15), rgba(19, 199, 129, 0.07));
 }
 
 .alarm-source {
