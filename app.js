@@ -62,7 +62,6 @@ function bindElements() {
   [
     "stationGrid",
     "searchInput",
-    "stationPickerInput",
     "stationPickerList",
     "stationSelector",
     "sortSelect",
@@ -106,12 +105,19 @@ function bindElements() {
 
 function bindEvents() {
   els.searchInput.addEventListener("input", applyFilters);
-  els.stationPickerInput.addEventListener("input", renderStationPicker);
+  els.searchInput.addEventListener("focus", () => {
+    els.stationSelector.classList.add("open");
+    renderStationPicker();
+  });
+  document.addEventListener("click", (event) => {
+    if (!els.stationSelector.contains(event.target)) {
+      els.stationSelector.classList.remove("open");
+    }
+  });
   els.sortSelect.addEventListener("change", applyFilters);
   els.clearFilterBtn.addEventListener("click", () => {
     state.activeFilter = "all";
     els.searchInput.value = "";
-    els.stationPickerInput.value = "";
     applyFilters();
     renderFilters();
     renderStationPicker();
@@ -207,10 +213,11 @@ function createAlarms(stations) {
 }
 
 function scoreFor(n) {
-  const base = 93 - ((n * 17) % 49);
-  const wave = Math.sin(n * 0.73) * 9;
-  const special = n % 13 === 0 ? -22 : n % 9 === 0 ? -12 : n % 8 === 0 ? 8 : 0;
-  return round(Math.min(100, Math.max(42, base + wave + special)), 2);
+  const wobble = Math.sin(n * 1.17) * 2.2;
+  if (n % 17 === 0) return round(50 + (n % 6) + wobble, 2);
+  if (n % 7 === 0 || n % 10 === 0) return round(66 + (n % 10) + wobble, 2);
+  if (n % 3 === 0 || n % 13 === 0) return round(92 + (n % 8) + wobble, 2);
+  return round(82 + (n % 7) + wobble, 2);
 }
 
 function getRisk(score) {
@@ -299,12 +306,10 @@ function renderStations(stations) {
 
 function createStationCard(station) {
   const risk = riskMeta[station.risk];
-  const runClass = station.run === "停机" ? "stop" : station.run === "运行" ? "run" : "";
   const fillColor = risk.color;
   return `
     <button class="station-card risk-${station.risk}" data-id="${station.id}" type="button">
       <div class="card-head">
-        <span class="run-badge ${runClass}">▣ ${station.run}</span>
         <span class="station-name" title="${station.id}${station.name}">${station.id}${station.name}</span>
         <span class="risk-dot ${risk.className}" title="${risk.label}"></span>
       </div>
@@ -324,7 +329,7 @@ function createStationCard(station) {
 
 function renderStationPicker() {
   if (!els.stationPickerList) return;
-  const keyword = els.stationPickerInput.value.trim().toLowerCase();
+  const keyword = els.searchInput.value.trim().toLowerCase();
   const stations = state.stations
     .filter((station) => !keyword || `${station.id}${station.name}`.toLowerCase().includes(keyword))
     .slice(0, 40);
@@ -346,8 +351,7 @@ function renderStationPicker() {
     button.addEventListener("click", () => {
       const id = button.dataset.id;
       els.searchInput.value = id === "all" ? "" : id;
-      els.stationPickerInput.value = "";
-      els.stationSelector.removeAttribute("open");
+      els.stationSelector.classList.remove("open");
       applyFilters();
     });
   });
