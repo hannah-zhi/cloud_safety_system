@@ -1534,11 +1534,20 @@ h2 {
   display: inline-flex;
   align-items: center;
   padding: 0 8px;
-  border: 1px solid rgba(18, 152, 255, 0.48);
   border-radius: 4px;
+  font-size: 12px;
+}
+
+.alarm-source-cloud {
+  border: 1px solid rgba(18, 152, 255, 0.52);
   background: rgba(18, 152, 255, 0.12);
   color: #d9ecff;
-  font-size: 12px;
+}
+
+.alarm-source-station {
+  border: 1px solid rgba(19, 199, 129, 0.48);
+  background: rgba(19, 199, 129, 0.11);
+  color: #b9f6dd;
 }
 
 .alarm-body strong {
