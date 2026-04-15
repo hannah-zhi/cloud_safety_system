@@ -62,6 +62,7 @@ function bindElements() {
   [
     "stationGrid",
     "searchInput",
+    "stationPickerMenu",
     "stationPickerList",
     "stationSelector",
     "sortSelect",
@@ -106,14 +107,16 @@ function bindElements() {
 function bindEvents() {
   els.searchInput.addEventListener("input", applyFilters);
   els.searchInput.addEventListener("focus", () => {
-    els.stationSelector.classList.add("open");
+    openStationPicker();
     renderStationPicker();
   });
   document.addEventListener("click", (event) => {
-    if (!els.stationSelector.contains(event.target)) {
-      els.stationSelector.classList.remove("open");
+    if (!els.stationSelector.contains(event.target) && !els.stationPickerMenu.contains(event.target)) {
+      closeStationPicker();
     }
   });
+  window.addEventListener("resize", positionStationPicker);
+  window.addEventListener("scroll", positionStationPicker, true);
   els.sortSelect.addEventListener("change", applyFilters);
   els.clearFilterBtn.addEventListener("click", () => {
     state.activeFilter = "all";
@@ -351,10 +354,29 @@ function renderStationPicker() {
     button.addEventListener("click", () => {
       const id = button.dataset.id;
       els.searchInput.value = id === "all" ? "" : id;
-      els.stationSelector.classList.remove("open");
+      closeStationPicker();
       applyFilters();
     });
   });
+}
+
+function openStationPicker() {
+  els.stationSelector.classList.add("open");
+  els.stationPickerMenu.classList.add("open");
+  positionStationPicker();
+}
+
+function closeStationPicker() {
+  els.stationSelector.classList.remove("open");
+  els.stationPickerMenu.classList.remove("open");
+}
+
+function positionStationPicker() {
+  if (!els.stationPickerMenu.classList.contains("open")) return;
+  const rect = els.stationSelector.getBoundingClientRect();
+  els.stationPickerMenu.style.left = `${Math.round(rect.left)}px`;
+  els.stationPickerMenu.style.top = `${Math.round(rect.bottom + 6)}px`;
+  els.stationPickerMenu.style.width = `${Math.round(rect.width)}px`;
 }
 
 function renderAlarms() {
