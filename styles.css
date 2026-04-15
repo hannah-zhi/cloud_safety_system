@@ -1362,6 +1362,7 @@ h2 {
   align-items: center;
   justify-content: center;
   gap: 6px;
+  font-size: 13px;
 }
 
 .alarm-tabs button.active {
@@ -1383,7 +1384,9 @@ h2 {
 
 .alarm-tabs span {
   color: #eff5ff;
-  font-weight: 700;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
 }
 
 .alarm-time-tools {
