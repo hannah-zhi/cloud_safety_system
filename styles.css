@@ -1472,6 +1472,7 @@ h2 {
 .alarm-item {
   width: 100%;
   display: block;
+  position: relative;
   padding: 12px 0 14px;
   border: 0;
   border-bottom: 1px solid rgba(69, 73, 90, 0.55);
@@ -1575,6 +1576,26 @@ h2 {
 .alarm-meta time {
   color: #c4ccdc;
   flex: 0 0 auto;
+}
+
+.alarm-location {
+  display: none;
+  margin-top: 9px;
+  padding: 7px 9px;
+  border: 1px solid rgba(18, 152, 255, 0.3);
+  border-radius: 4px;
+  background:
+    linear-gradient(90deg, rgba(18, 152, 255, 0.14), rgba(19, 199, 129, 0.08)),
+    rgba(10, 13, 22, 0.92);
+  color: #dceaff;
+  font-size: 12px;
+  line-height: 1.4;
+  word-break: break-all;
+}
+
+.alarm-item:hover .alarm-location,
+.alarm-item:focus .alarm-location {
+  display: block;
 }
 
 .panel {
