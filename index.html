@@ -43,34 +43,26 @@
 
         <section id="listView" class="view active-view" aria-labelledby="pageTitle">
           <div class="list-toolbar">
-            <div class="tabs">
-              <details class="station-selector" id="stationSelector">
-                <summary>已选 <strong id="selectedCount">110</strong></summary>
+            <div class="toolbar-left">
+              <div class="station-combo" id="stationSelector">
+                <label class="combo-input">
+                  <span aria-hidden="true">⌕</span>
+                  <input id="searchInput" type="search" placeholder="搜索场站" autocomplete="off" />
+                  <strong id="selectedCount">110</strong>
+                </label>
                 <div class="selector-menu">
-                  <label class="selector-search">
-                    <span aria-hidden="true">⌕</span>
-                    <input id="stationPickerInput" type="search" placeholder="搜索场站" autocomplete="off" />
-                  </label>
                   <div id="stationPickerList" class="selector-list"></div>
                 </div>
-              </details>
-            </div>
-            <div class="toolbar-actions">
-              <label class="search-box">
-                <span aria-hidden="true">⌕</span>
-                <input id="searchInput" type="search" placeholder="搜索场站" autocomplete="off" />
-              </label>
+              </div>
               <label class="sort-box">
                 <span aria-hidden="true">☷</span>
                 <select id="sortSelect" aria-label="排序">
-                  <option value="name">场站名称</option>
+                  <option value="name">场站序号</option>
                   <option value="sos">SOS 指数</option>
-                  <option value="risk">风险等级</option>
-                  <option value="soc">场站 SOC</option>
                 </select>
               </label>
-              <button class="icon-button" type="button" aria-label="卡片视图">▦</button>
             </div>
+            <div class="toolbar-actions"></div>
           </div>
 
           <div class="home-grid">
