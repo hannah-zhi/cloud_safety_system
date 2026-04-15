@@ -1,7 +1,7 @@
 window.SITE_CONFIG_STATIONS = [
   {
     "projectNo": "K-0005",
-    "projectName": "远景乌兰察布电网侧储能(自建）",
+    "projectName": "远景乌兰察布电网侧储能（自建）",
     "ratedCapacity": 3.35,
     "ratedEnergy": 6.7,
     "subsystemCount": 1
@@ -71,7 +71,7 @@ window.SITE_CONFIG_STATIONS = [
   },
   {
     "projectNo": "K-0036",
-    "projectName": "西丰平岗(自建)",
+    "projectName": "西丰平岗（自建）",
     "ratedCapacity": 5.0,
     "ratedEnergy": 5.0,
     "subsystemCount": 2
@@ -92,7 +92,7 @@ window.SITE_CONFIG_STATIONS = [
   },
   {
     "projectNo": "K-0042",
-    "projectName": "伊旗(自建)",
+    "projectName": "伊旗（自建）",
     "ratedCapacity": 60.0,
     "ratedEnergy": 120.0,
     "subsystemCount": 17
@@ -141,7 +141,7 @@ window.SITE_CONFIG_STATIONS = [
   },
   {
     "projectNo": "K-0050",
-    "projectName": "远丰定远万家(自建)",
+    "projectName": "远丰定远万家（自建）",
     "ratedCapacity": 5.265,
     "ratedEnergy": 5.265,
     "subsystemCount": 2
@@ -246,7 +246,7 @@ window.SITE_CONFIG_STATIONS = [
   },
   {
     "projectNo": "K-0066",
-    "projectName": "民勤红沙岗30万千瓦风电项目（A区）储能项目(自建）",
+    "projectName": "民勤红沙岗30万千瓦风电项目（A区）储能项目（自建）",
     "ratedCapacity": 60.0,
     "ratedEnergy": 120.0,
     "subsystemCount": 21
@@ -323,28 +323,28 @@ window.SITE_CONFIG_STATIONS = [
   },
   {
     "projectNo": "K-0075",
-    "projectName": "安徽定远共享(自建）",
+    "projectName": "安徽定远共享（自建）",
     "ratedCapacity": 154.5,
     "ratedEnergy": 309.0,
     "subsystemCount": 49
   },
   {
     "projectNo": "K-0083",
-    "projectName": "赤峰元宝山(自建）",
+    "projectName": "赤峰元宝山（自建）",
     "ratedCapacity": 18.75,
     "ratedEnergy": 75.0,
     "subsystemCount": 11
   },
   {
     "projectNo": "K-0080",
-    "projectName": "鄂尔多斯新电项目配储(自建）",
+    "projectName": "鄂尔多斯新电项目配储（自建）",
     "ratedCapacity": 10.0,
     "ratedEnergy": 20.0,
     "subsystemCount": 2
   },
   {
     "projectNo": "K-0089",
-    "projectName": "新疆哈密巴里坤(自建）",
+    "projectName": "新疆哈密巴里坤（自建）",
     "ratedCapacity": 100.0,
     "ratedEnergy": 400.0,
     "subsystemCount": 55
@@ -504,13 +504,6 @@ window.SITE_CONFIG_STATIONS = [
     "subsystemCount": 13
   },
   {
-    "projectNo": "待定",
-    "projectName": "远景能源丰宁“风电+储能+制氢”一体化示范（自建）",
-    "ratedCapacity": 46.0,
-    "ratedEnergy": 92.0,
-    "subsystemCount": 9
-  },
-  {
     "projectNo": "K-0234",
     "projectName": "沧县浮阳风电场项目（自建）",
     "ratedCapacity": 60.0,
@@ -526,7 +519,7 @@ window.SITE_CONFIG_STATIONS = [
   },
   {
     "projectNo": "K-0081",
-    "projectName": "鄂尔多斯零碳产业园500MW风光储一体化示范项目(自建）",
+    "projectName": "鄂尔多斯零碳产业园500MW风光储一体化示范项目（自建）",
     "ratedCapacity": 75.0,
     "ratedEnergy": 300.0,
     "subsystemCount": 30
@@ -908,13 +901,6 @@ window.SITE_CONFIG_STATIONS = [
     "ratedCapacity": 15.0,
     "ratedEnergy": 30.0,
     "subsystemCount": 6
-  },
-  {
-    "projectNo": "K-北方片区",
-    "projectName": "呼和浩特武川100 万千瓦/400 万千瓦时独立储能电站项目",
-    "ratedCapacity": 500.0,
-    "ratedEnergy": 2000.0,
-    "subsystemCount": 100
   },
   {
     "projectNo": "K-0335",
