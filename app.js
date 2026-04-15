@@ -40,6 +40,7 @@ const state = {
   alarms: [],
   activeAlarmType: "all",
   activeFilter: "all",
+  selectedStationIds: new Set(),
   selectedStation: null,
   trendRange: 7,
   sortSubsystemDesc: false,
@@ -120,6 +121,7 @@ function bindEvents() {
   els.sortSelect.addEventListener("change", applyFilters);
   els.clearFilterBtn.addEventListener("click", () => {
     state.activeFilter = "all";
+    state.selectedStationIds.clear();
     els.searchInput.value = "";
     applyFilters();
     renderFilters();
@@ -219,15 +221,15 @@ function scoreFor(n) {
   const wobble = Math.sin(n * 1.17) * 2.2;
   if (n % 17 === 0) return round(50 + (n % 6) + wobble, 2);
   if (n % 7 === 0 || n % 10 === 0) return round(66 + (n % 10) + wobble, 2);
-  if (n % 3 === 0 || n % 13 === 0) return round(92 + (n % 8) + wobble, 2);
-  return round(82 + (n % 7) + wobble, 2);
+  if (n % 3 === 0 || n % 13 === 0) return 100;
+  return round(Math.min(99.2, 82 + (n % 7) + wobble), 2);
 }
 
 function getRisk(score) {
   if (score < 60) return "high";
   if (score < 80) return "mid";
-  if (score < 90) return "low";
-  return "healthy";
+  if (score === 100) return "healthy";
+  return "low";
 }
 
 function renderFilters() {
@@ -271,12 +273,13 @@ function applyFilters() {
   const keyword = els.searchInput.value.trim().toLowerCase();
   const [filterType, filterValue] = state.activeFilter.split(":");
   let filtered = state.stations.filter((station) => {
-    const matchKeyword = !keyword || `${station.id}${station.name}`.toLowerCase().includes(keyword);
+    const matchSelected = !state.selectedStationIds.size || state.selectedStationIds.has(station.id);
+    const matchKeyword = state.selectedStationIds.size || !keyword || `${station.id}${station.name}`.toLowerCase().includes(keyword);
     const matchFilter =
       state.activeFilter === "all" ||
       (filterType === "comm" && station.comm === filterValue) ||
       (filterType === "risk" && station.risk === filterValue);
-    return matchKeyword && matchFilter;
+    return matchSelected && matchKeyword && matchFilter;
   });
 
   const sortBy = els.sortSelect.value;
@@ -295,7 +298,7 @@ function applyFilters() {
 }
 
 function renderStations(stations) {
-  els.selectedCount.textContent = stations.length;
+  els.selectedCount.textContent = state.selectedStationIds.size || stations.length;
   els.resultText.textContent = `共 ${stations.length} 个场站`;
   if (!stations.length) {
     els.stationGrid.innerHTML = `<div class="empty">未找到匹配场站</div>`;
@@ -338,6 +341,7 @@ function renderStationPicker() {
     .slice(0, 40);
   const allItem = `
     <button class="selector-option" type="button" data-id="all">
+      <span class="selector-check ${state.selectedStationIds.size ? "" : "checked"}"></span>
       <span>全部场站</span><strong>${state.stations.length}</strong>
     </button>`;
   els.stationPickerList.innerHTML =
@@ -345,7 +349,8 @@ function renderStationPicker() {
     stations
       .map(
         (station) => `
-        <button class="selector-option" type="button" data-id="${station.id}">
+        <button class="selector-option ${state.selectedStationIds.has(station.id) ? "selected" : ""}" type="button" data-id="${station.id}">
+          <span class="selector-check ${state.selectedStationIds.has(station.id) ? "checked" : ""}"></span>
           <span>${station.id}${station.name}</span><strong>${riskMeta[station.risk].label}</strong>
         </button>`
       )
@@ -353,8 +358,14 @@ function renderStationPicker() {
   els.stationPickerList.querySelectorAll(".selector-option").forEach((button) => {
     button.addEventListener("click", () => {
       const id = button.dataset.id;
-      els.searchInput.value = id === "all" ? "" : id;
-      closeStationPicker();
+      if (id === "all") {
+        state.selectedStationIds.clear();
+        els.searchInput.value = "";
+      } else if (state.selectedStationIds.has(id)) {
+        state.selectedStationIds.delete(id);
+      } else {
+        state.selectedStationIds.add(id);
+      }
       applyFilters();
     });
   });
