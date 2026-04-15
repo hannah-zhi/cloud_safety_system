@@ -257,6 +257,7 @@ function stationTypeForIndex(index, total) {
 }
 
 function createAlarms(stations) {
+  if (!stations.length) return [];
   const titles = [
     "子系统SOC不均衡提示",
     "子系统BUNK间不均衡预警",
@@ -269,11 +270,11 @@ function createAlarms(stations) {
   ];
   const modules = ["电池系统", "电气系统", "环控系统", "消防系统"];
   const sources = ["云端", "站端"];
-  return stations
-    .filter((station) => station.alarms > 0 || station.comm !== "ok" || station.risk !== "healthy")
-    .map((station, index) => {
-      const type = station.risk === "high" || station.comm === "down" ? "level1" : station.risk === "mid" || station.comm === "partial" ? "level2" : "level3";
-      const date = new Date(2026, 3, 15 - (index % 28), 11 - (index % 3), 21 + (index % 36));
+  const alarmTotal = 273;
+  return Array.from({ length: alarmTotal }, (_, index) => {
+      const station = stations[(index * 7 + index) % stations.length];
+      const type = index < 35 ? "level1" : index < 105 ? "level2" : "level3";
+      const date = new Date(2026, 3, 15 - (index % 45), 11 - (index % 3), 21 + (index % 36));
       return {
         id: `${station.id}-${index}`,
         stationId: station.id,
@@ -287,8 +288,7 @@ function createAlarms(stations) {
         time: `${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")} ${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")} (+08:00)`,
       };
     })
-    .sort((a, b) => alarmOrder(a.type) - alarmOrder(b.type))
-    .slice(0, 36);
+    .sort((a, b) => alarmOrder(a.type) - alarmOrder(b.type));
 }
 
 function scoreFor(n) {
@@ -401,7 +401,7 @@ function createStationCard(station) {
         <div class="metric"><span>场站类型</span><strong>${station.stationType}</strong></div>
       </div>
       <div class="sos-line">
-        <span class="sos-label">SOS</span><span class="${scoreClass(station.sos)}">${station.sos}</span>
+        <span class="sos-label">SOS</span><span class="${scoreClass(station.sos)}">${formatSosValue(station.sos)}</span>
         <div class="sos-track"><div class="sos-fill" style="width:${station.sos}%;background:${fillColor}"></div></div>
       </div>
     </button>`;
@@ -483,7 +483,7 @@ function renderAlarms() {
             <div class="alarm-tags">
               <span class="alarm-level">${alarm.level}</span><span>${alarm.module}</span>
             </div>
-            <span class="alarm-source">${alarm.source}</span>
+            <span class="alarm-source alarm-source-${alarm.source === "云端" ? "cloud" : "station"}">${alarm.source}</span>
           </div>
           <strong>${alarm.title}</strong>
           <div class="alarm-meta">
@@ -849,6 +849,10 @@ function alarmOrder(type) {
 
 function formatDateInput(date) {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+}
+
+function formatSosValue(value) {
+  return value === 100 ? "100" : Number(value).toFixed(2);
 }
 
 function scoreClass(score) {
