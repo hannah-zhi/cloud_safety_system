@@ -225,15 +225,6 @@ h2 {
   position: relative;
   width: 360px;
   height: 38px;
-  z-index: 110;
-}
-
-.station-combo.open {
-  z-index: 10000;
-}
-
-.station-combo:focus-within {
-  z-index: 10000;
 }
 
 .combo-input {
@@ -258,7 +249,7 @@ h2 {
 }
 
 .combo-input strong {
-  min-width: 32px;
+  min-width: 36px;
   color: #fff;
   font-size: 15px;
   text-align: right;
@@ -270,7 +261,7 @@ h2 {
   height: 7px;
   border-right: 2px solid #9aa4b8;
   border-bottom: 2px solid #9aa4b8;
-  margin: -4px 0 0 4px;
+  margin: -5px 2px 0 2px;
   transform: rotate(45deg);
   flex: 0 0 auto;
 }
@@ -285,11 +276,8 @@ h2 {
 }
 
 .selector-menu {
-  position: absolute;
-  z-index: 10001;
-  top: calc(100% + 6px);
-  left: 0;
-  width: 100%;
+  position: fixed;
+  z-index: 2147483000;
   display: none;
   padding: 8px;
   border: 1px solid rgba(69, 77, 98, 0.9);
@@ -297,11 +285,7 @@ h2 {
   box-shadow: 0 24px 52px rgba(0, 0, 0, 0.68), 0 0 0 1px rgba(18, 152, 255, 0.2);
 }
 
-.station-combo.open .selector-menu {
-  display: block;
-}
-
-.station-combo:focus-within .selector-menu {
+.selector-menu.open {
   display: block;
 }
 
