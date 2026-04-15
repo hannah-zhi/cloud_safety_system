@@ -185,6 +185,10 @@ h2 {
   font-size: 13px;
 }
 
+.topbar-spacer {
+  min-height: 1px;
+}
+
 .view {
   display: none;
   padding: 18px 24px 24px;
@@ -209,7 +213,116 @@ h2 {
 .tabs {
   display: flex;
   align-items: center;
-  min-width: 520px;
+  min-width: 294px;
+}
+
+.station-selector {
+  position: relative;
+  min-width: 294px;
+  height: 52px;
+  border-right: 1px solid rgba(8, 9, 16, 0.75);
+}
+
+.station-selector summary {
+  height: 52px;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 16px;
+  color: #dce0e8;
+  cursor: pointer;
+}
+
+.station-selector summary::-webkit-details-marker {
+  display: none;
+}
+
+.station-selector summary::after {
+  content: "⌄";
+  margin-left: auto;
+  color: #9aa4b8;
+}
+
+.station-selector[open] summary::after {
+  transform: rotate(180deg);
+}
+
+.station-selector strong {
+  color: #fff;
+  font-size: 17px;
+}
+
+.selector-menu {
+  position: absolute;
+  z-index: 20;
+  top: 52px;
+  left: 0;
+  width: 360px;
+  max-width: calc(100vw - 260px);
+  padding: 12px;
+  border: 1px solid rgba(69, 77, 98, 0.9);
+  background: linear-gradient(180deg, rgba(31, 34, 46, 0.98), rgba(16, 18, 27, 0.98));
+  box-shadow: 0 20px 42px rgba(0, 0, 0, 0.42);
+}
+
+.selector-search {
+  height: 34px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 10px;
+  border: 1px solid rgba(86, 94, 116, 0.72);
+  background: rgba(7, 9, 15, 0.72);
+  color: #8f98aa;
+}
+
+.selector-search input {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #edf3fb;
+}
+
+.selector-list {
+  display: grid;
+  gap: 2px;
+  margin-top: 8px;
+  max-height: 360px;
+  overflow: auto;
+}
+
+.selector-option {
+  min-height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border: 0;
+  background: transparent;
+  color: #d9e0ec;
+  padding: 0 8px;
+  text-align: left;
+}
+
+.selector-option:hover {
+  background: rgba(18, 152, 255, 0.12);
+}
+
+.selector-option span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.selector-option strong {
+  flex: 0 0 auto;
+  color: #9fb2c8;
+  font-size: 12px;
+  font-weight: 500;
 }
 
 .tab {
@@ -296,6 +409,12 @@ h2 {
   gap: 14px;
   flex-wrap: wrap;
   margin-bottom: 14px;
+}
+
+.sos-label {
+  color: #8d97aa;
+  font-size: 12px;
+  letter-spacing: 0;
 }
 
 .filter-chip {
@@ -1383,11 +1502,7 @@ th {
 
 @media (max-width: 1480px) {
   .tabs {
-    min-width: 500px;
-  }
-
-  .tab.wide {
-    min-width: 270px;
+    min-width: 294px;
   }
 
   .toolbar-actions {
