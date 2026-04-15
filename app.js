@@ -269,7 +269,6 @@ function createAlarms(stations) {
     "环控温湿度波动提示",
   ];
   const modules = ["电池系统", "电气系统", "环控系统", "消防系统"];
-  const sources = ["云端", "站端"];
   const alarmTotal = 273;
   return Array.from({ length: alarmTotal }, (_, index) => {
       const station = stations[(index * 7 + index) % stations.length];
@@ -283,7 +282,7 @@ function createAlarms(stations) {
         module: modules[index % modules.length],
         type,
         level: { level1: "一级", level2: "二级", level3: "三级" }[type],
-        source: sources[index % sources.length],
+        source: index % 4 === 0 ? "站端" : "云端",
         dateISO: formatDateInput(date),
         time: `${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")} ${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")} (+08:00)`,
       };
@@ -472,8 +471,8 @@ function renderAlarms() {
   els.alarmCountLevel1.textContent = rangeAlarms.filter((alarm) => alarm.type === "level1").length;
   els.alarmCountLevel2.textContent = rangeAlarms.filter((alarm) => alarm.type === "level2").length;
   els.alarmCountLevel3.textContent = rangeAlarms.filter((alarm) => alarm.type === "level3").length;
-  els.alarmCloudCount.textContent = rangeAlarms.filter((alarm) => alarm.source === "云端").length;
-  els.alarmStationCount.textContent = rangeAlarms.filter((alarm) => alarm.source === "站端").length;
+  els.alarmCloudCount.textContent = alarms.filter((alarm) => alarm.source === "云端").length;
+  els.alarmStationCount.textContent = alarms.filter((alarm) => alarm.source === "站端").length;
   els.alarmList.innerHTML = alarms
     .map(
       (alarm) => `
