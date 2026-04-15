@@ -37,6 +37,8 @@ const stationNames = [
 const state = {
   stations: [],
   filtered: [],
+  alarms: [],
+  activeAlarmType: "all",
   activeFilter: "all",
   selectedStation: null,
   trendRange: 7,
@@ -85,6 +87,10 @@ function bindElements() {
     "subsystemSortBtn",
     "alertTable",
     "donutLegend",
+    "alarmTabs",
+    "alarmList",
+    "alarmTotal",
+    "alarmCritical",
     "clock",
   ].forEach((id) => {
     els[id] = document.getElementById(id);
@@ -103,6 +109,13 @@ function bindEvents() {
     els.searchInput.value = "";
     applyFilters();
     renderFilters();
+  });
+  els.alarmTabs.addEventListener("click", (event) => {
+    const button = event.target.closest("button[data-type]");
+    if (!button) return;
+    state.activeAlarmType = button.dataset.type;
+    els.alarmTabs.querySelectorAll("button").forEach((item) => item.classList.toggle("active", item === button));
+    renderAlarms();
   });
   els.backBtn.addEventListener("click", showList);
   els.rangeButtons.addEventListener("click", (event) => {
@@ -149,6 +162,37 @@ function createStations(count) {
       alarms: Math.max(0, riskMeta[risk].order === 3 ? n % 2 : 3 + (n % 9)),
     };
   });
+}
+
+function createAlarms(stations) {
+  const titles = [
+    "子系统SOC不均衡提示",
+    "子系统BUNK间不均衡预警",
+    "变压器测控装置通讯状态",
+    "Rack温差越限预警",
+    "Pack单体电压离散度异常",
+    "消防联动信号待确认",
+    "PCS功率跟踪偏差",
+    "环控温湿度波动提示",
+  ];
+  const modules = ["设备告警", "电气异常", "通讯异常", "安全预警"];
+  return stations
+    .filter((station) => station.alarms > 0 || station.comm !== "ok" || station.risk !== "healthy")
+    .map((station, index) => {
+      const type = station.risk === "high" || station.comm === "down" ? "fault" : station.risk === "mid" || station.comm === "partial" ? "warning" : "tip";
+      return {
+        id: `${station.id}-${index}`,
+        stationId: station.id,
+        stationName: station.name,
+        title: titles[index % titles.length],
+        module: modules[index % modules.length],
+        type,
+        status: index % 4 === 0 ? "待确认" : "进行中",
+        time: `04-${String(15 - (index % 6)).padStart(2, "0")} ${String(11 - (index % 3)).padStart(2, "0")}:${String(21 + (index % 36)).padStart(2, "0")} (+08:00)`,
+      };
+    })
+    .sort((a, b) => alarmOrder(a.type) - alarmOrder(b.type))
+    .slice(0, 36);
 }
 
 function scoreFor(n) {
@@ -227,6 +271,8 @@ function applyFilters() {
 
   state.filtered = filtered;
   renderStations(filtered);
+  state.alarms = createAlarms(filtered.length ? filtered : state.stations);
+  renderAlarms();
 }
 
 function renderStations(stations) {
@@ -265,6 +311,34 @@ function createStationCard(station) {
         <div class="sos-track"><div class="sos-fill" style="width:${station.sos}%;background:${fillColor}"></div></div>
       </div>
     </button>`;
+}
+
+function renderAlarms() {
+  if (!els.alarmList) return;
+  const alarms = state.alarms.filter((alarm) => state.activeAlarmType === "all" || alarm.type === state.activeAlarmType);
+  els.alarmTotal.textContent = state.alarms.length;
+  els.alarmCritical.textContent = state.alarms.filter((alarm) => alarm.type === "fault").length;
+  els.alarmList.innerHTML = alarms
+    .map(
+      (alarm) => `
+      <button class="alarm-item alarm-${alarm.type}" type="button" data-station="${alarm.stationId}">
+        <div class="alarm-icon" aria-hidden="true"></div>
+        <div class="alarm-body">
+          <div class="alarm-tags">
+            <span>${alarm.status}</span><span>${alarm.module}</span>
+          </div>
+          <strong>${alarm.title}</strong>
+          <div class="alarm-meta">
+            <span>${alarm.stationId.replace("K-", "K")}-${alarm.stationName.slice(0, 8)}</span>
+            <time>${alarm.time}</time>
+          </div>
+        </div>
+      </button>`
+    )
+    .join("");
+  els.alarmList.querySelectorAll(".alarm-item").forEach((item) => {
+    item.addEventListener("click", () => showDetail(item.dataset.station));
+  });
 }
 
 function showDetail(id) {
@@ -593,6 +667,10 @@ function summarizeSubsystems(subsystems) {
     },
     { high: 0, mid: 0, low: 0, healthy: 0 }
   );
+}
+
+function alarmOrder(type) {
+  return { fault: 0, warning: 1, tip: 2 }[type] ?? 3;
 }
 
 function scoreClass(score) {
