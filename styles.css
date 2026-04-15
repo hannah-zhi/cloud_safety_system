@@ -300,8 +300,7 @@ h2 {
   min-height: 34px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+  gap: 8px;
   border: 0;
   background: transparent;
   color: #d9e0ec;
@@ -313,11 +312,47 @@ h2 {
   background: rgba(18, 152, 255, 0.12);
 }
 
+.selector-option.selected {
+  background: rgba(18, 152, 255, 0.16);
+}
+
+.selector-check {
+  width: 14px;
+  height: 14px;
+  flex: 0 0 14px;
+  border: 1px solid #687287;
+  background: rgba(7, 9, 15, 0.5);
+  position: relative;
+}
+
+.selector-check.checked {
+  border-color: var(--blue);
+  background: rgba(18, 152, 255, 0.24);
+}
+
+.selector-check.checked::after {
+  content: "";
+  position: absolute;
+  left: 3px;
+  top: 1px;
+  width: 5px;
+  height: 8px;
+  border-right: 2px solid #dff3ff;
+  border-bottom: 2px solid #dff3ff;
+  transform: rotate(45deg);
+}
+
 .selector-option span {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  flex: 1 1 auto;
+}
+
+.selector-option .selector-check {
+  min-width: 14px;
+  flex: 0 0 14px;
 }
 
 .selector-option strong {
@@ -506,7 +541,7 @@ h2 {
 
 .station-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fill, 286px);
   gap: 16px;
   max-height: calc(100vh - 205px);
   overflow: auto;
@@ -992,8 +1027,16 @@ tbody tr.selected {
   .station-grid,
   .dashboard-grid,
   .overview-strip {
-    grid-template-columns: 1fr;
     max-height: none;
+  }
+
+  .dashboard-grid,
+  .overview-strip {
+    grid-template-columns: 1fr;
+  }
+
+  .station-grid {
+    grid-template-columns: repeat(auto-fill, minmax(260px, 286px));
   }
 
   .subsystem-panel {
@@ -1189,7 +1232,7 @@ h2 {
 }
 
 .station-grid {
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fill, 286px);
   gap: 14px;
   max-height: calc(100vh - 220px);
 }
@@ -1510,7 +1553,7 @@ th {
   }
 
   .station-grid {
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    grid-template-columns: repeat(auto-fill, 286px);
   }
 }
 
