@@ -276,7 +276,7 @@ function createAlarms(stations) {
         location: createAlarmLocation(template.locationFormat, station, index),
         source: index % 4 === 0 ? "站端" : "云端",
         dateISO: formatDateInput(date),
-        time: `${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")} ${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")} (+08:00)`,
+        time: `${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")} ${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`,
       };
     })
     .sort((a, b) => alarmOrder(a.type) - alarmOrder(b.type));
@@ -478,7 +478,7 @@ function renderAlarms() {
           </div>
           <strong>${alarm.title}</strong>
           <div class="alarm-meta">
-            <span>${alarm.stationId.replace("K-", "K")}-${alarm.stationName.slice(0, 8)}</span>
+            <span class="alarm-station-name">${alarm.stationId.replace("K-", "K")}-${alarm.stationName}</span>
             <time>${alarm.time}</time>
           </div>
           <div class="alarm-location">预警位置：${alarm.location}</div>
