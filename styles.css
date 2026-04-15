@@ -208,6 +208,9 @@ h2 {
   padding: 0 18px 0 0;
   background: #20212c;
   border-bottom: 1px solid #2b2d3a;
+  position: relative;
+  z-index: 100;
+  overflow: visible;
 }
 
 .tabs,
@@ -222,6 +225,15 @@ h2 {
   position: relative;
   width: 360px;
   height: 38px;
+  z-index: 110;
+}
+
+.station-combo.open {
+  z-index: 10000;
+}
+
+.station-combo:focus-within {
+  z-index: 10000;
 }
 
 .combo-input {
@@ -253,9 +265,14 @@ h2 {
 }
 
 .combo-input::after {
-  content: "⌄";
-  color: #9aa4b8;
-  margin-left: 2px;
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-right: 2px solid #9aa4b8;
+  border-bottom: 2px solid #9aa4b8;
+  margin: -4px 0 0 4px;
+  transform: rotate(45deg);
+  flex: 0 0 auto;
 }
 
 .station-combo.open .combo-input {
@@ -263,23 +280,28 @@ h2 {
 }
 
 .station-combo.open .combo-input::after {
-  transform: rotate(180deg);
+  margin-top: 4px;
+  transform: rotate(225deg);
 }
 
 .selector-menu {
   position: absolute;
-  z-index: 1000;
-  top: 44px;
+  z-index: 10001;
+  top: calc(100% + 6px);
   left: 0;
   width: 100%;
   display: none;
   padding: 8px;
   border: 1px solid rgba(69, 77, 98, 0.9);
-  background: linear-gradient(180deg, rgba(31, 34, 46, 0.99), rgba(16, 18, 27, 0.99));
-  box-shadow: 0 20px 42px rgba(0, 0, 0, 0.48);
+  background: #171a24;
+  box-shadow: 0 24px 52px rgba(0, 0, 0, 0.68), 0 0 0 1px rgba(18, 152, 255, 0.2);
 }
 
 .station-combo.open .selector-menu {
+  display: block;
+}
+
+.station-combo:focus-within .selector-menu {
   display: block;
 }
 
@@ -374,6 +396,7 @@ h2 {
 
 .sort-box {
   min-width: 220px;
+  position: relative;
 }
 
 .search-box input,
@@ -384,6 +407,21 @@ h2 {
   background: transparent;
   color: #e9edf4;
   height: 100%;
+  appearance: none;
+  padding-right: 22px;
+}
+
+.sort-box::after {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-right: 2px solid #9aa4b8;
+  border-bottom: 2px solid #9aa4b8;
+  position: absolute;
+  right: 13px;
+  top: 13px;
+  transform: rotate(45deg);
+  pointer-events: none;
 }
 
 .sort-box select option {
@@ -1054,12 +1092,14 @@ h2 {
 
 .view {
   padding: 18px 24px 22px;
+  overflow: visible;
 }
 
 .list-toolbar {
   min-height: 52px;
   border-bottom-color: rgba(52, 58, 77, 0.68);
   box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2);
+  z-index: 500;
 }
 
 .tab {
@@ -1090,6 +1130,8 @@ h2 {
   grid-template-columns: minmax(0, 1fr) 392px;
   gap: 18px;
   align-items: start;
+  position: relative;
+  z-index: 1;
 }
 
 .station-workbench {
@@ -1198,6 +1240,7 @@ h2 {
   min-height: 216px;
   border-top-width: 1px;
   padding: 15px 14px;
+  z-index: 0;
 }
 
 .station-card:hover,
