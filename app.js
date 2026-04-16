@@ -45,6 +45,8 @@ const state = {
   activeAlarmDays: "all",
   alarmStartDate: "",
   alarmEndDate: "",
+  activePage: "overview",
+  selectedAlarm: null,
   activeFilter: "all",
   selectedStationIds: new Set(),
   selectedStation: null,
@@ -61,6 +63,7 @@ document.addEventListener("DOMContentLoaded", () => {
   renderFilters();
   applyFilters();
   bindEvents();
+  openPageFromUrl();
   openStationFromUrl();
   tickClock();
   setInterval(tickClock, 1000);
@@ -78,7 +81,10 @@ function bindElements() {
     "selectedCount",
     "resultText",
     "clearFilterBtn",
+    "pageTabs",
     "listView",
+    "riskView",
+    "alarmDetailView",
     "detailView",
     "backBtn",
     "detailTitle",
@@ -109,6 +115,21 @@ function bindElements() {
     "alarmCountLevel3",
     "alarmCloudCount",
     "alarmStationCount",
+    "riskAvgSos",
+    "riskWatchCount",
+    "riskAlarmTotal",
+    "riskLevelOne",
+    "riskPieLegend",
+    "alarmDetailKeyword",
+    "alarmDetailLevel",
+    "alarmDetailModule",
+    "alarmDetailSource",
+    "alarmDetailStart",
+    "alarmDetailEnd",
+    "alarmDetailReset",
+    "alarmDetailCount",
+    "alarmDetailTable",
+    "alarmInspectorBody",
     "clock",
   ].forEach((id) => {
     els[id] = document.getElementById(id);
@@ -117,9 +138,18 @@ function bindElements() {
   els.donutCanvas = document.getElementById("donutCanvas");
   els.barCanvas = document.getElementById("barCanvas");
   els.boxCanvas = document.getElementById("boxCanvas");
+  els.riskBarsCanvas = document.getElementById("riskBarsCanvas");
+  els.riskPieCanvas = document.getElementById("riskPieCanvas");
+  els.riskModuleCanvas = document.getElementById("riskModuleCanvas");
+  els.riskBandCanvas = document.getElementById("riskBandCanvas");
 }
 
 function bindEvents() {
+  els.pageTabs.addEventListener("click", (event) => {
+    const button = event.target.closest("button[data-page]");
+    if (!button) return;
+    showPage(button.dataset.page);
+  });
   els.searchInput.addEventListener("input", applyFilters);
   els.searchInput.addEventListener("focus", () => {
     openStationPicker();
@@ -168,6 +198,20 @@ function bindEvents() {
       renderAlarms();
     });
   });
+  [els.alarmDetailKeyword, els.alarmDetailLevel, els.alarmDetailModule, els.alarmDetailSource, els.alarmDetailStart, els.alarmDetailEnd].forEach((input) => {
+    input.addEventListener("input", renderAlarmDetailPage);
+    input.addEventListener("change", renderAlarmDetailPage);
+  });
+  els.alarmDetailReset.addEventListener("click", () => {
+    els.alarmDetailKeyword.value = "";
+    els.alarmDetailLevel.value = "all";
+    els.alarmDetailModule.value = "all";
+    els.alarmDetailSource.value = "all";
+    els.alarmDetailStart.value = "";
+    els.alarmDetailEnd.value = "";
+    state.selectedAlarm = null;
+    renderAlarmDetailPage();
+  });
   els.backBtn.addEventListener("click", showList);
   els.rangeButtons.addEventListener("click", (event) => {
     const button = event.target.closest("button[data-range]");
@@ -184,6 +228,7 @@ function bindEvents() {
   });
   window.addEventListener("resize", () => {
     if (state.selectedStation) renderDetailCharts(state.selectedStation);
+    if (state.activePage === "risk") renderRiskView();
   });
 }
 
@@ -361,7 +406,27 @@ function applyFilters() {
   renderStations(filtered);
   state.alarms = filterAlarmsByStations(filtered);
   renderAlarms();
+  if (state.activePage === "risk") renderRiskView();
+  if (state.activePage === "alarm") renderAlarmDetailPage();
   renderStationPicker();
+}
+
+function showPage(page) {
+  state.activePage = page;
+  state.selectedStation = null;
+  els.detailView.classList.remove("active-view");
+  els.listView.classList.toggle("active-view", page === "overview");
+  els.riskView.classList.toggle("active-view", page === "risk");
+  els.alarmDetailView.classList.toggle("active-view", page === "alarm");
+  els.pageTabs.querySelectorAll("button").forEach((button) => {
+    button.classList.toggle("active", button.dataset.page === page);
+  });
+  if (page === "risk") renderRiskView();
+  if (page === "alarm") renderAlarmDetailPage();
+  const url = new URL(window.location.href);
+  url.searchParams.delete("station");
+  url.searchParams.set("page", page);
+  window.history.replaceState({}, "", url);
 }
 
 function filterAlarmsByStations(stations) {
@@ -515,6 +580,194 @@ function filterAlarmsByTime(alarms) {
   });
 }
 
+function renderRiskView() {
+  const stations = state.filtered.length ? state.filtered : state.stations;
+  const alarms = state.alarms.length || state.filtered.length ? state.alarms : state.allAlarms;
+  const avg = stations.reduce((sum, station) => sum + station.sos, 0) / Math.max(1, stations.length);
+  els.riskAvgSos.textContent = formatSosValue(round(avg, 2));
+  els.riskWatchCount.textContent = stations.filter((station) => station.risk === "high" || station.risk === "mid").length;
+  els.riskAlarmTotal.textContent = alarms.length;
+  els.riskLevelOne.textContent = alarms.filter((alarm) => alarm.type === "level1").length;
+  renderRiskBars(stations);
+  renderRiskPie(stations);
+  renderRiskModules(alarms);
+  renderRiskBands(stations);
+}
+
+function renderRiskBars(stations) {
+  const canvas = setupCanvas(els.riskBarsCanvas);
+  const ctx = canvas.getContext("2d");
+  const data = [...stations].sort((a, b) => a.sos - b.sos).slice(0, 28);
+  const pad = { left: 42, right: 18, top: 28, bottom: 64 };
+  clear(ctx, canvas.width, canvas.height);
+  drawGrid(ctx, pad, canvas.width, canvas.height);
+  drawThreshold(ctx, pad, canvas.width, canvas.height, 60, "#ff3d59");
+  drawThreshold(ctx, pad, canvas.width, canvas.height, 80, "#f4a51c");
+  const gap = 6;
+  const barWidth = Math.max(8, (canvas.width - pad.left - pad.right) / Math.max(1, data.length) - gap);
+  data.forEach((station, index) => {
+    const x = pad.left + index * (barWidth + gap);
+    const y = valueY(station.sos, pad, canvas.height);
+    ctx.fillStyle = riskMeta[station.risk].color;
+    ctx.fillRect(x, y, barWidth, canvas.height - pad.bottom - y);
+    if (index % 3 === 0) {
+      ctx.save();
+      ctx.translate(x + barWidth / 2, canvas.height - 16);
+      ctx.rotate(-Math.PI / 5);
+      ctx.fillStyle = "#8f97a8";
+      ctx.font = "11px Microsoft YaHei";
+      ctx.textAlign = "right";
+      ctx.fillText(station.id, 0, 0);
+      ctx.restore();
+    }
+  });
+}
+
+function renderRiskPie(stations) {
+  const canvas = setupCanvas(els.riskPieCanvas);
+  const ctx = canvas.getContext("2d");
+  const counts = summarize(stations).risk;
+  const entries = ["high", "mid", "low", "healthy"].map((key) => [key, counts[key]]);
+  drawDonutChart(ctx, canvas, entries, (key) => riskMeta[key].color);
+  els.riskPieLegend.innerHTML = entries
+    .map(
+      ([key, count]) => `
+      <div class="legend-item" style="--legend-color:${riskMeta[key].color}">
+        <span>${riskMeta[key].label}</span><strong>${count}</strong>
+      </div>`
+    )
+    .join("");
+}
+
+function renderRiskModules(alarms) {
+  const canvas = setupCanvas(els.riskModuleCanvas);
+  const ctx = canvas.getContext("2d");
+  const modules = ["电池系统", "电气系统", "环控系统", "消防系统"];
+  const counts = modules.map((module) => alarms.filter((alarm) => alarm.module === module).length);
+  const max = Math.max(1, ...counts);
+  const pad = { left: 62, right: 24, top: 28, bottom: 36 };
+  clear(ctx, canvas.width, canvas.height);
+  modules.forEach((module, index) => {
+    const y = pad.top + index * 52;
+    const width = (counts[index] / max) * (canvas.width - pad.left - pad.right);
+    ctx.fillStyle = "rgba(18, 152, 255, 0.16)";
+    ctx.fillRect(pad.left, y, canvas.width - pad.left - pad.right, 22);
+    ctx.fillStyle = index === 0 ? "#1689ff" : index === 1 ? "#13c781" : index === 2 ? "#f4a51c" : "#ff3d59";
+    ctx.fillRect(pad.left, y, width, 22);
+    ctx.fillStyle = "#aeb8ca";
+    ctx.font = "12px Microsoft YaHei";
+    ctx.textAlign = "right";
+    ctx.fillText(module, pad.left - 10, y + 15);
+    ctx.textAlign = "left";
+    ctx.fillStyle = "#eef3fb";
+    ctx.fillText(String(counts[index]), pad.left + width + 8, y + 15);
+  });
+}
+
+function renderRiskBands(stations) {
+  const canvas = setupCanvas(els.riskBandCanvas);
+  const ctx = canvas.getContext("2d");
+  const bands = [
+    { label: "<60", count: stations.filter((station) => station.sos < 60).length, color: "#ff3d59" },
+    { label: "60-79", count: stations.filter((station) => station.sos >= 60 && station.sos < 80).length, color: "#f4a51c" },
+    { label: "80-89", count: stations.filter((station) => station.sos >= 80 && station.sos < 90).length, color: "#13c781" },
+    { label: "90-99", count: stations.filter((station) => station.sos >= 90 && station.sos < 100).length, color: "#23b0ff" },
+    { label: "100", count: stations.filter((station) => station.sos === 100).length, color: "#1689ff" },
+  ];
+  const max = Math.max(1, ...bands.map((band) => band.count));
+  const pad = { left: 42, right: 24, top: 26, bottom: 42 };
+  clear(ctx, canvas.width, canvas.height);
+  bands.forEach((band, index) => {
+    const slot = (canvas.width - pad.left - pad.right) / bands.length;
+    const barWidth = Math.min(86, slot * 0.52);
+    const x = pad.left + index * slot + (slot - barWidth) / 2;
+    const h = (band.count / max) * (canvas.height - pad.top - pad.bottom);
+    const y = canvas.height - pad.bottom - h;
+    ctx.fillStyle = band.color;
+    ctx.fillRect(x, y, barWidth, h);
+    ctx.fillStyle = "#eef3fb";
+    ctx.font = "18px Microsoft YaHei";
+    ctx.textAlign = "center";
+    ctx.fillText(String(band.count), x + barWidth / 2, y - 8);
+    ctx.fillStyle = "#8f97a8";
+    ctx.font = "12px Microsoft YaHei";
+    ctx.fillText(band.label, x + barWidth / 2, canvas.height - 14);
+  });
+}
+
+function renderAlarmDetailPage() {
+  const alarms = filterAlarmDetailItems();
+  els.alarmDetailCount.textContent = alarms.length;
+  els.alarmDetailTable.innerHTML = alarms
+    .map(
+      (alarm) => `
+      <tr data-alarm-id="${alarm.id}">
+        <td><span class="alarm-level-table alarm-${alarm.type}">${alarm.level}</span></td>
+        <td>${alarm.title}</td>
+        <td>${alarm.module}</td>
+        <td>${alarm.stationId}${alarm.stationName}</td>
+        <td><span class="alarm-source alarm-source-${alarm.source === "云端" ? "cloud" : "station"}">${alarm.source}</span></td>
+        <td>${alarm.time}</td>
+        <td>${alarm.location}</td>
+      </tr>`
+    )
+    .join("");
+  els.alarmDetailTable.querySelectorAll("tr").forEach((row) => {
+    row.addEventListener("click", () => {
+      const alarm = alarms.find((item) => item.id === row.dataset.alarmId);
+      state.selectedAlarm = alarm;
+      renderAlarmInspector(alarm);
+      els.alarmDetailTable.querySelectorAll("tr").forEach((item) => item.classList.remove("selected"));
+      row.classList.add("selected");
+    });
+  });
+  if (!alarms.length) {
+    els.alarmDetailTable.innerHTML = `<tr><td colspan="7">未找到匹配预警</td></tr>`;
+  }
+  if (!state.selectedAlarm || !alarms.some((alarm) => alarm.id === state.selectedAlarm.id)) {
+    state.selectedAlarm = alarms[0] || null;
+  }
+  renderAlarmInspector(state.selectedAlarm);
+}
+
+function filterAlarmDetailItems() {
+  const keyword = els.alarmDetailKeyword.value.trim().toLowerCase();
+  const level = els.alarmDetailLevel.value;
+  const module = els.alarmDetailModule.value;
+  const source = els.alarmDetailSource.value;
+  const start = els.alarmDetailStart.value ? new Date(`${els.alarmDetailStart.value}T00:00:00`) : null;
+  const end = els.alarmDetailEnd.value ? new Date(`${els.alarmDetailEnd.value}T23:59:59`) : null;
+  return state.alarms.filter((alarm) => {
+    const haystack = `${alarm.title}${alarm.module}${alarm.stationId}${alarm.stationName}${alarm.location}`.toLowerCase();
+    const date = new Date(`${alarm.dateISO}T12:00:00`);
+    return (
+      (!keyword || haystack.includes(keyword)) &&
+      (level === "all" || alarm.type === level) &&
+      (module === "all" || alarm.module === module) &&
+      (source === "all" || alarm.source === source) &&
+      (!start || date >= start) &&
+      (!end || date <= end)
+    );
+  });
+}
+
+function renderAlarmInspector(alarm) {
+  if (!alarm) {
+    els.alarmInspectorBody.textContent = "点击任意预警查看完整内容";
+    return;
+  }
+  els.alarmInspectorBody.innerHTML = `
+    <div><span>预警名称</span><strong>${alarm.title}</strong></div>
+    <div><span>风险等级</span><strong>${alarm.level}</strong></div>
+    <div><span>系统模块</span><strong>${alarm.module}</strong></div>
+    <div><span>所属场站</span><strong>${alarm.stationId}${alarm.stationName}</strong></div>
+    <div><span>预警来源</span><strong>${alarm.source}</strong></div>
+    <div><span>发生时间</span><strong>${alarm.time}</strong></div>
+    <div><span>预警位置</span><strong>${alarm.location}</strong></div>
+    <div><span>处置建议</span><strong>${alarm.level === "一级" ? "立即复核云端诊断结果并安排现场排查。" : alarm.level === "二级" ? "持续观察趋势，纳入当班巡检计划。" : "记录风险变化，按计划跟踪闭环。"}</strong></div>
+  `;
+}
+
 function showDetail(id) {
   const station = state.stations.find((item) => item.id === id);
   if (!station) return;
@@ -522,7 +775,10 @@ function showDetail(id) {
   state.trendRange = 7;
   state.sortSubsystemDesc = false;
   els.listView.classList.remove("active-view");
+  els.riskView.classList.remove("active-view");
+  els.alarmDetailView.classList.remove("active-view");
   els.detailView.classList.add("active-view");
+  els.pageTabs.querySelectorAll("button").forEach((button) => button.classList.remove("active"));
   document.getElementById("pageTitle").textContent = "";
   renderDetail(station);
   window.scrollTo({ top: 0, behavior: "smooth" });
@@ -533,7 +789,7 @@ function showDetail(id) {
 
 function showList() {
   els.detailView.classList.remove("active-view");
-  els.listView.classList.add("active-view");
+  showPage(state.activePage || "overview");
   state.selectedStation = null;
   const url = new URL(window.location.href);
   url.searchParams.delete("station");
@@ -647,16 +903,7 @@ function renderDonut(subsystems) {
   ];
   const total = subsystems.length;
   clear(ctx, canvas.width, canvas.height);
-  let start = -Math.PI / 2;
-  entries.forEach(([key, count]) => {
-    const angle = (count / total) * Math.PI * 2;
-    ctx.beginPath();
-    ctx.strokeStyle = riskMeta[key].color;
-    ctx.lineWidth = 36;
-    ctx.arc(canvas.width / 2, canvas.height / 2, 70, start, start + angle);
-    ctx.stroke();
-    start += angle;
-  });
+  drawDonutChart(ctx, canvas, entries, (key) => riskMeta[key].color);
   ctx.fillStyle = "#f1f3f7";
   ctx.font = "24px Microsoft YaHei";
   ctx.textAlign = "center";
@@ -669,6 +916,25 @@ function renderDonut(subsystems) {
       </div>`
     )
     .join("");
+}
+
+function drawDonutChart(ctx, canvas, entries, colorForKey) {
+  const total = entries.reduce((sum, [, count]) => sum + count, 0) || 1;
+  clear(ctx, canvas.width, canvas.height);
+  let start = -Math.PI / 2;
+  entries.forEach(([key, count]) => {
+    const angle = (count / total) * Math.PI * 2;
+    ctx.beginPath();
+    ctx.strokeStyle = colorForKey(key);
+    ctx.lineWidth = 36;
+    ctx.arc(canvas.width / 2, canvas.height / 2, 70, start, start + angle);
+    ctx.stroke();
+    start += angle;
+  });
+  ctx.fillStyle = "#f1f3f7";
+  ctx.font = "24px Microsoft YaHei";
+  ctx.textAlign = "center";
+  ctx.fillText(String(total), canvas.width / 2, canvas.height / 2 + 8);
 }
 
 function renderBars(subsystems, desc) {
@@ -903,6 +1169,11 @@ function tickClock() {
     second: "2-digit",
     hour12: false,
   });
+}
+
+function openPageFromUrl() {
+  const page = new URLSearchParams(window.location.search).get("page");
+  if (["overview", "risk", "alarm"].includes(page)) showPage(page);
 }
 
 function openStationFromUrl() {
