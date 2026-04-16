@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>安全预警 - 远景数智运营系统</title>
-    <link rel="stylesheet" href="styles.css?v=20260416-risk-view7" />
+    <link rel="stylesheet" href="styles.css?v=20260416-risk-view8" />
   </head>
   <body>
     <div class="shell">
@@ -122,9 +122,8 @@
             <article class="panel risk-avg-panel">
               <div class="panel-title"><span></span>全量场站平均 SOS</div>
               <div class="risk-avg-gauge" id="riskAvgGauge">
-                <div class="risk-gauge-arc"></div>
+                <canvas id="riskAvgGaugeCanvas" width="300" height="180"></canvas>
                 <strong id="riskAvgSos">--</strong>
-                <span id="riskAvgLabel">当前风险等级：--</span>
               </div>
             </article>
             <article class="panel">
@@ -140,7 +139,7 @@
           <div class="risk-sos-grid">
             <article class="panel risk-trend-panel">
               <div class="panel-title-row">
-                <div class="panel-title"><span></span>SOS 趋势</div>
+                <div class="panel-title"><span></span>全量场站SOS趋势</div>
                 <div class="range-buttons" id="riskTrendButtons">
                   <button class="active" data-range="7" type="button">7天</button>
                   <button data-range="15" type="button">15天</button>
@@ -160,11 +159,19 @@
             <article class="panel risk-bars-panel">
               <div class="panel-title-row">
                 <div class="panel-title"><span></span>场站SOS分布</div>
-                <div class="risk-legend">
-                  <span class="legend-red">高风险</span>
-                  <span class="legend-yellow">中风险</span>
-                  <span class="legend-green">低风险</span>
-                  <span class="legend-blue">健康</span>
+                <div class="risk-bars-tools">
+                  <div class="risk-legend">
+                    <span class="legend-red">高风险</span>
+                    <span class="legend-yellow">中风险</span>
+                    <span class="legend-green">低风险</span>
+                    <span class="legend-blue">健康</span>
+                  </div>
+                  <select id="riskBarSort" class="risk-sort-select" aria-label="场站SOS分布排序">
+                    <option value="idAsc">场站编号-顺序</option>
+                    <option value="idDesc">场站编号-倒序</option>
+                    <option value="sosAsc">SOS数值-从低到高</option>
+                    <option value="sosDesc">SOS数值-从高到低</option>
+                  </select>
                 </div>
               </div>
               <div class="risk-bars-viewport" id="riskBarsViewport">
@@ -191,7 +198,7 @@
               </div>
             </article>
             <article class="panel risk-alarm-top-panel">
-              <div class="panel-title"><span></span>告警名称 TOP5</div>
+              <div class="panel-title"><span></span>告警类型 TOP5</div>
               <div id="riskAlarmNameTopList" class="risk-alarm-top-list"></div>
             </article>
           </div>
@@ -369,6 +376,6 @@
 
     <script src="site-data.js?v=20260415-siteconfig3"></script>
     <script src="risk-data.js?v=20260415-risk-list1"></script>
-    <script src="app.js?v=20260416-risk-view7"></script>
+    <script src="app.js?v=20260416-risk-view8"></script>
   </body>
 </html>
