@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>安全预警 - 远景数智运营系统</title>
-    <link rel="stylesheet" href="styles.css?v=20260416-risk-view4" />
+    <link rel="stylesheet" href="styles.css?v=20260416-risk-view5" />
   </head>
   <body>
     <div class="shell">
@@ -126,6 +126,13 @@
                 <div id="riskPieLegend" class="legend"></div>
               </div>
             </article>
+            <article class="panel risk-avg-panel">
+              <div class="panel-title"><span></span>全量场站平均 SOS</div>
+              <div class="risk-avg-value">
+                <strong id="riskAvgSos">--</strong>
+                <span>当前筛选场站均值</span>
+              </div>
+            </article>
           </div>
 
           <div class="risk-section-title">SOS 透视</div>
@@ -139,10 +146,6 @@
                   <button data-range="30" type="button">30天</button>
                 </div>
               </div>
-              <div class="risk-trend-summary">
-                <span>全量场站平均 SOS</span>
-                <strong id="riskAvgSos">--</strong>
-              </div>
               <div class="risk-trend-legend">
                 <span class="trend-avg">全量场站均值</span>
                 <span class="trend-max">最大值</span>
@@ -155,7 +158,7 @@
             </article>
             <article class="panel risk-bars-panel">
               <div class="panel-title-row">
-                <div class="panel-title"><span></span>场站 SOS 安全指数</div>
+                <div class="panel-title"><span></span>场站SOS分布</div>
                 <div class="risk-legend">
                   <span class="legend-red">高风险</span>
                   <span class="legend-yellow">中风险</span>
@@ -358,6 +361,6 @@
 
     <script src="site-data.js?v=20260415-siteconfig3"></script>
     <script src="risk-data.js?v=20260415-risk-list1"></script>
-    <script src="app.js?v=20260416-risk-view4"></script>
+    <script src="app.js?v=20260416-risk-view5"></script>
   </body>
 </html>
