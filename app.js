@@ -357,7 +357,7 @@ function applyFilters() {
 
   state.filtered = filtered;
   renderStations(filtered);
-  state.alarms = createAlarms(filtered.length ? filtered : state.stations);
+  state.alarms = createAlarms(filtered);
   renderAlarms();
   renderStationPicker();
 }
@@ -478,7 +478,7 @@ function renderAlarms() {
           </div>
           <strong>${alarm.title}</strong>
           <div class="alarm-meta">
-            <span class="alarm-station-name">${alarm.stationId.replace("K-", "K")}-${alarm.stationName}</span>
+            <span class="alarm-station-name">${alarm.stationId}${alarm.stationName}</span>
             <time>${alarm.time}</time>
           </div>
           <div class="alarm-location">预警位置：${alarm.location}</div>
