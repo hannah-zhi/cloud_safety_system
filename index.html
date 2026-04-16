@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>安全预警 - 远景数智运营系统</title>
-    <link rel="stylesheet" href="styles.css?v=20260416-risk-view6" />
+    <link rel="stylesheet" href="styles.css?v=20260416-risk-view7" />
   </head>
   <body>
     <div class="shell">
@@ -121,8 +121,10 @@
             </article>
             <article class="panel risk-avg-panel">
               <div class="panel-title"><span></span>全量场站平均 SOS</div>
-              <div class="risk-avg-value">
+              <div class="risk-avg-gauge" id="riskAvgGauge">
+                <div class="risk-gauge-arc"></div>
                 <strong id="riskAvgSos">--</strong>
+                <span id="riskAvgLabel">当前风险等级：--</span>
               </div>
             </article>
             <article class="panel">
@@ -146,7 +148,7 @@
                 </div>
               </div>
               <div class="risk-trend-legend">
-                <span class="trend-avg">全量场站均值</span>
+                <span class="trend-avg">全量场站平均值</span>
                 <span class="trend-max">最大值</span>
                 <span class="trend-min">最小值</span>
               </div>
@@ -183,7 +185,14 @@
             </article>
             <article class="panel risk-wide-panel">
               <div class="panel-title"><span></span>预警模块分布</div>
-              <canvas id="riskModuleCanvas" width="860" height="280"></canvas>
+              <div class="donut-wrap">
+                <canvas id="riskModuleCanvas" width="300" height="250"></canvas>
+                <div id="riskModuleLegend" class="legend"></div>
+              </div>
+            </article>
+            <article class="panel risk-alarm-top-panel">
+              <div class="panel-title"><span></span>告警名称 TOP5</div>
+              <div id="riskAlarmNameTopList" class="risk-alarm-top-list"></div>
             </article>
           </div>
         </section>
@@ -360,6 +369,6 @@
 
     <script src="site-data.js?v=20260415-siteconfig3"></script>
     <script src="risk-data.js?v=20260415-risk-list1"></script>
-    <script src="app.js?v=20260416-risk-view6"></script>
+    <script src="app.js?v=20260416-risk-view7"></script>
   </body>
 </html>
