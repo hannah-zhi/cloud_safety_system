@@ -1634,7 +1634,7 @@ h2 {
 
 .risk-summary-layout {
   display: grid;
-  grid-template-columns: minmax(0, 2fr) minmax(220px, 0.7fr) minmax(220px, 0.7fr);
+  grid-template-columns: minmax(0, 1.55fr) minmax(240px, 0.75fr) minmax(240px, 0.75fr);
   gap: 14px;
   margin-bottom: 14px;
 }
@@ -1645,14 +1645,18 @@ h2 {
 
 .risk-top-list {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 8px;
+  grid-template-columns: 1fr;
+  gap: 7px;
   margin-top: 12px;
 }
 
 .risk-top-list button {
-  min-height: 96px;
-  padding: 10px;
+  min-height: 44px;
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr) 58px;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 10px;
   border: 1px solid rgba(57, 63, 82, 0.76);
   border-radius: 4px;
   background:
@@ -1676,25 +1680,44 @@ h2 {
 
 .risk-top-list strong {
   display: block;
-  margin-top: 8px;
   line-height: 1.25;
-  white-space: normal;
-  overflow: visible;
-  word-break: break-all;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   font-size: 12px;
+}
+
+.risk-top-main {
+  min-width: 0;
+}
+
+.risk-top-track {
+  height: 4px;
+  margin-top: 6px;
+  background: rgba(105, 112, 134, 0.34);
+}
+
+.risk-top-track i {
+  display: block;
+  height: 100%;
 }
 
 .risk-top-list em {
   display: block;
-  margin-top: 6px;
+  text-align: right;
   font-style: normal;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 700;
 }
 
 .risk-kpi {
   min-height: 116px;
   padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
 }
 
 .risk-kpi span {
@@ -1704,7 +1727,7 @@ h2 {
 
 .risk-kpi strong {
   display: block;
-  margin-top: 10px;
+  margin-top: 12px;
   font-size: 32px;
   color: #f4f8ff;
 }
@@ -1750,6 +1773,13 @@ h2 {
   min-height: 330px;
 }
 
+.risk-sos-grid .donut-wrap,
+.risk-alarm-grid .donut-wrap {
+  min-height: 270px;
+  height: calc(100% - 28px);
+  align-items: center;
+}
+
 .risk-legend {
   display: flex;
   gap: 14px;
@@ -1784,10 +1814,12 @@ h2 {
 
 .risk-bars-viewport {
   position: relative;
-  overflow-x: auto;
+  overflow-x: scroll;
   overflow-y: hidden;
   margin-top: 8px;
-  padding-bottom: 8px;
+  padding-bottom: 14px;
+  scrollbar-color: rgba(143, 151, 168, 0.88) rgba(48, 52, 64, 0.56);
+  scrollbar-width: auto;
 }
 
 .risk-bars-viewport canvas {
@@ -1795,7 +1827,7 @@ h2 {
 }
 
 .risk-bars-viewport::-webkit-scrollbar {
-  height: 8px;
+  height: 13px;
 }
 
 .risk-bars-viewport::-webkit-scrollbar-track {
@@ -1811,13 +1843,15 @@ h2 {
   display: none;
   position: absolute;
   z-index: 5;
-  max-width: 260px;
+  width: 230px;
+  max-width: 230px;
   padding: 10px 12px;
   border: 1px solid rgba(18, 152, 255, 0.28);
   border-radius: 4px;
   background: rgba(12, 14, 22, 0.94);
   box-shadow: 0 12px 28px rgba(0, 0, 0, 0.34);
   pointer-events: none;
+  word-break: break-all;
 }
 
 .risk-bars-tooltip.show {
@@ -1840,6 +1874,40 @@ h2 {
   color: #23b0ff;
   font-size: 14px;
   font-weight: 700;
+}
+
+.risk-trend-chart {
+  position: relative;
+}
+
+.risk-trend-legend {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+  margin: 8px 14px -6px 0;
+  color: #c8d0dc;
+  font-size: 12px;
+}
+
+.risk-trend-legend span::before {
+  content: "";
+  display: inline-block;
+  width: 18px;
+  height: 3px;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+.trend-avg::before {
+  background: var(--blue);
+}
+
+.trend-max::before {
+  background: var(--green);
+}
+
+.trend-min::before {
+  background: var(--red);
 }
 
 .alarm-detail-layout {
