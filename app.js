@@ -49,6 +49,7 @@ const state = {
   selectedAlarm: null,
   riskTrendRange: 7,
   riskBarHitboxes: [],
+  riskTrendHitboxes: [],
   activeFilter: "all",
   selectedStationIds: new Set(),
   selectedStation: null,
@@ -123,6 +124,8 @@ function bindElements() {
     "riskTrendButtons",
     "riskBarsViewport",
     "riskBarsTooltip",
+    "riskTrendChart",
+    "riskTrendTooltip",
     "riskPieLegend",
     "riskAlarmPieLegend",
     "alarmDetailKeyword",
@@ -229,6 +232,10 @@ function bindEvents() {
   els.riskBarsCanvas.addEventListener("mousemove", handleRiskBarHover);
   els.riskBarsCanvas.addEventListener("mouseleave", () => {
     els.riskBarsTooltip.classList.remove("show");
+  });
+  els.riskTrendCanvas.addEventListener("mousemove", handleRiskTrendHover);
+  els.riskTrendCanvas.addEventListener("mouseleave", () => {
+    els.riskTrendTooltip.classList.remove("show");
   });
   els.backBtn.addEventListener("click", showList);
   els.rangeButtons.addEventListener("click", (event) => {
@@ -604,13 +611,21 @@ function renderRiskView() {
   const avg = stations.reduce((sum, station) => sum + station.sos, 0) / Math.max(1, stations.length);
   els.riskAvgSos.textContent = formatSosValue(round(avg, 2));
   els.riskWatchCount.textContent = stations.filter((station) => station.risk === "high" || station.risk === "mid").length;
-  renderRiskTopList(stations);
-  renderRiskBars(stations);
-  renderRiskPie(stations);
-  renderRiskTrend(stations, state.riskTrendRange);
-  renderRiskAlarmPie(alarms);
-  renderRiskModules(alarms);
-  renderRiskBands(stations);
+  renderSafely(() => renderRiskTopList(stations));
+  renderSafely(() => renderRiskBars(stations));
+  renderSafely(() => renderRiskPie(stations));
+  renderSafely(() => renderRiskTrend(stations, state.riskTrendRange));
+  renderSafely(() => renderRiskAlarmPie(alarms));
+  renderSafely(() => renderRiskModules(alarms));
+  renderSafely(() => renderRiskBands(stations));
+}
+
+function renderSafely(renderFn) {
+  try {
+    renderFn();
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 function renderRiskTopList(stations) {
@@ -620,7 +635,10 @@ function renderRiskTopList(stations) {
       (station, index) => `
       <button type="button" data-station="${station.id}">
         <span>${index + 1}</span>
-        <strong title="${station.id}${station.name}">${station.id}${station.name}</strong>
+        <div class="risk-top-main">
+          <strong title="${station.id}${station.name}">${station.id}${station.name}</strong>
+          <div class="risk-top-track"><i style="width:${station.sos}%;background:${riskMeta[station.risk].color}"></i></div>
+        </div>
         <em class="${scoreClass(station.sos)}">${formatSosValue(station.sos)}</em>
       </button>`
     )
@@ -715,9 +733,10 @@ function renderRiskTrend(stations, range) {
   const series = createRiskTrendSeries(stations, range);
   clear(ctx, canvas.width, canvas.height);
   drawGrid(ctx, pad, canvas.width, canvas.height);
-  drawTrendLine(ctx, series.avg, pad, canvas, "#1689ff", "全量场站均值");
-  drawTrendLine(ctx, series.max, pad, canvas, "#13c781", "最大值");
-  drawTrendLine(ctx, series.min, pad, canvas, "#ff3d59", "最小值");
+  state.riskTrendHitboxes = [];
+  drawTrendLine(ctx, series.avg, pad, canvas, "#1689ff", "全量场站均值", series.labels);
+  drawTrendLine(ctx, series.max, pad, canvas, "#13c781", "最大值", series.labels);
+  drawTrendLine(ctx, series.min, pad, canvas, "#ff3d59", "最小值", series.labels);
   ctx.fillStyle = "#8f97a8";
   ctx.font = "12px Microsoft YaHei";
   ctx.textAlign = "center";
@@ -727,11 +746,6 @@ function renderRiskTrend(stations, range) {
       ctx.fillText(label, x, canvas.height - 12);
     }
   });
-  drawTrendLegend(ctx, canvas, [
-    ["全量场站均值", "#1689ff"],
-    ["最大值", "#13c781"],
-    ["最小值", "#ff3d59"],
-  ]);
 }
 
 function createRiskTrendSeries(stations, range) {
@@ -753,7 +767,7 @@ function createRiskTrendSeries(stations, range) {
   return { labels, avg, max, min };
 }
 
-function drawTrendLine(ctx, values, pad, canvas, color) {
+function drawTrendLine(ctx, values, pad, canvas, color, label, labels = []) {
   ctx.strokeStyle = color;
   ctx.lineWidth = 2;
   ctx.beginPath();
@@ -772,19 +786,7 @@ function drawTrendLine(ctx, values, pad, canvas, color) {
       ctx.arc(x, y, 3, 0, Math.PI * 2);
       ctx.fill();
     }
-  });
-}
-
-function drawTrendLegend(ctx, canvas, entries) {
-  ctx.font = "12px Microsoft YaHei";
-  ctx.textAlign = "left";
-  let x = canvas.width - 260;
-  entries.forEach(([label, color]) => {
-    ctx.fillStyle = color;
-    ctx.fillRect(x, 12, 16, 3);
-    ctx.fillStyle = "#c8d0dc";
-    ctx.fillText(label, x + 22, 17);
-    x += 88;
+    state.riskTrendHitboxes.push({ x, y, value, label, date: labels[index] || "", color });
   });
 }
 
@@ -794,11 +796,11 @@ function renderRiskModules(alarms) {
   const modules = ["电池系统", "电气系统", "环控系统", "消防系统"];
   const counts = modules.map((module) => alarms.filter((alarm) => alarm.module === module).length);
   const max = Math.max(1, ...counts);
-  const pad = { left: 62, right: 24, top: 28, bottom: 36 };
+  const pad = { left: 62, right: 54, top: 28, bottom: 36 };
   clear(ctx, canvas.width, canvas.height);
   modules.forEach((module, index) => {
     const y = pad.top + index * 52;
-    const width = (counts[index] / max) * (canvas.width - pad.left - pad.right);
+    const width = (counts[index] / max) * (canvas.width - pad.left - pad.right - 20);
     ctx.fillStyle = "rgba(18, 152, 255, 0.16)";
     ctx.fillRect(pad.left, y, canvas.width - pad.left - pad.right, 22);
     ctx.fillStyle = index === 0 ? "#1689ff" : index === 1 ? "#13c781" : index === 2 ? "#f4a51c" : "#ff3d59";
@@ -809,7 +811,8 @@ function renderRiskModules(alarms) {
     ctx.fillText(module, pad.left - 10, y + 15);
     ctx.textAlign = "left";
     ctx.fillStyle = "#eef3fb";
-    ctx.fillText(String(counts[index]), pad.left + width + 8, y + 15);
+    const textX = Math.min(canvas.width - 32, pad.left + width + 8);
+    ctx.fillText(String(counts[index]), textX, y + 15);
   });
 }
 
@@ -855,9 +858,6 @@ function drawMiniBrush(ctx, pad, width, height, data) {
     index === 0 ? ctx.moveTo(x, wave) : ctx.lineTo(x, wave);
   });
   ctx.stroke();
-  ctx.fillStyle = "rgba(143, 151, 168, 0.65)";
-  ctx.fillRect(pad.left, y - 12, 4, 24);
-  ctx.fillRect(Math.min(width - pad.right - 8, pad.left + 280), y - 12, 4, 24);
 }
 
 function handleRiskBarHover(event) {
@@ -876,9 +876,37 @@ function handleRiskBarHover(event) {
     <span>SOS ${formatSosValue(hit.station.sos)}</span>
   `;
   const viewportRect = els.riskBarsViewport.getBoundingClientRect();
-  els.riskBarsTooltip.style.left = `${event.clientX - viewportRect.left + els.riskBarsViewport.scrollLeft + 14}px`;
+  const tooltipWidth = 230;
+  const rawLeft = event.clientX - viewportRect.left + els.riskBarsViewport.scrollLeft + 14;
+  const minLeft = els.riskBarsViewport.scrollLeft + 8;
+  const maxLeft = els.riskBarsViewport.scrollLeft + els.riskBarsViewport.clientWidth - tooltipWidth - 8;
+  els.riskBarsTooltip.style.left = `${Math.max(minLeft, Math.min(maxLeft, rawLeft))}px`;
   els.riskBarsTooltip.style.top = `${event.clientY - viewportRect.top + 12}px`;
   els.riskBarsTooltip.classList.add("show");
+}
+
+function handleRiskTrendHover(event) {
+  const rect = els.riskTrendCanvas.getBoundingClientRect();
+  const scaleX = els.riskTrendCanvas.width / rect.width;
+  const scaleY = els.riskTrendCanvas.height / rect.height;
+  const x = (event.clientX - rect.left) * scaleX;
+  const y = (event.clientY - rect.top) * scaleY;
+  const hit = state.riskTrendHitboxes.find((point) => Math.abs(point.x - x) <= 8 && Math.abs(point.y - y) <= 8);
+  if (!hit) {
+    els.riskTrendTooltip.classList.remove("show");
+    return;
+  }
+  els.riskTrendTooltip.innerHTML = `
+    <strong>${hit.date} ${hit.label}</strong>
+    <span>SOS ${formatSosValue(hit.value)}</span>
+  `;
+  const box = els.riskTrendChart.getBoundingClientRect();
+  const tooltipWidth = 210;
+  const rawLeft = event.clientX - box.left + 14;
+  const maxLeft = els.riskTrendChart.clientWidth - tooltipWidth - 8;
+  els.riskTrendTooltip.style.left = `${Math.max(8, Math.min(maxLeft, rawLeft))}px`;
+  els.riskTrendTooltip.style.top = `${event.clientY - box.top + 12}px`;
+  els.riskTrendTooltip.classList.add("show");
 }
 
 function renderAlarmDetailPage() {
