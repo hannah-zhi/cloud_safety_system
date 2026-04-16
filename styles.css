@@ -1634,9 +1634,10 @@ h2 {
 
 .risk-summary-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1.55fr) minmax(240px, 0.75fr) minmax(240px, 0.75fr);
+  grid-template-columns: minmax(0, 1.15fr) minmax(380px, 0.85fr);
   gap: 14px;
   margin-bottom: 14px;
+  align-items: stretch;
 }
 
 .risk-top-panel {
@@ -1710,28 +1711,6 @@ h2 {
   font-weight: 700;
 }
 
-.risk-kpi {
-  min-height: 116px;
-  padding: 16px 18px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-}
-
-.risk-kpi span {
-  color: #8791a7;
-  font-size: 13px;
-}
-
-.risk-kpi strong {
-  display: block;
-  margin-top: 12px;
-  font-size: 32px;
-  color: #f4f8ff;
-}
-
 .risk-section-title {
   margin: 18px 0 10px;
   color: #d8e8ff;
@@ -1746,7 +1725,7 @@ h2 {
 }
 
 .risk-sos-grid {
-  grid-template-columns: minmax(0, 2fr) minmax(360px, 0.9fr);
+  grid-template-columns: 1fr;
 }
 
 .risk-alarm-grid {
@@ -1764,16 +1743,7 @@ h2 {
   min-height: 360px;
 }
 
-.risk-sos-grid .risk-bars-panel,
-.risk-sos-grid .risk-trend-panel {
-  grid-column: 1 / 2;
-}
-
-.risk-sos-grid > .panel:not(.risk-bars-panel):not(.risk-trend-panel) {
-  min-height: 330px;
-}
-
-.risk-sos-grid .donut-wrap,
+.risk-summary-layout .donut-wrap,
 .risk-alarm-grid .donut-wrap {
   min-height: 270px;
   height: calc(100% - 28px);
@@ -1823,7 +1793,9 @@ h2 {
 }
 
 .risk-bars-viewport canvas {
+  width: auto;
   min-width: 100%;
+  max-width: none;
 }
 
 .risk-bars-viewport::-webkit-scrollbar {
@@ -1880,11 +1852,36 @@ h2 {
   position: relative;
 }
 
+.risk-trend-summary {
+  display: inline-grid;
+  grid-template-columns: auto auto;
+  align-items: baseline;
+  gap: 10px;
+  margin: 12px 0 0 14px;
+  padding: 8px 12px;
+  border: 1px solid rgba(18, 152, 255, 0.24);
+  border-radius: 4px;
+  background:
+    linear-gradient(90deg, rgba(18, 152, 255, 0.14), rgba(19, 199, 129, 0.07)),
+    rgba(9, 13, 22, 0.54);
+}
+
+.risk-trend-summary span {
+  color: #8f9ab0;
+  font-size: 12px;
+}
+
+.risk-trend-summary strong {
+  color: #f4f8ff;
+  font-size: 26px;
+  line-height: 1;
+}
+
 .risk-trend-legend {
   display: flex;
   justify-content: flex-end;
   gap: 16px;
-  margin: 8px 14px -6px 0;
+  margin: -28px 14px 2px 0;
   color: #c8d0dc;
   font-size: 12px;
 }
