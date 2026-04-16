@@ -121,6 +121,8 @@ function bindElements() {
     "alarmCloudCount",
     "alarmStationCount",
     "riskAvgSos",
+    "riskAvgGauge",
+    "riskAvgLabel",
     "riskTopList",
     "riskTrendButtons",
     "riskBarsViewport",
@@ -129,6 +131,8 @@ function bindElements() {
     "riskTrendTooltip",
     "riskPieLegend",
     "riskAlarmPieLegend",
+    "riskModuleLegend",
+    "riskAlarmNameTopList",
     "alarmDetailKeyword",
     "alarmDetailLevel",
     "alarmDetailModule",
@@ -614,12 +618,14 @@ function renderRiskView() {
   const alarms = state.alarms;
   const avg = state.stations.reduce((sum, station) => sum + station.sos, 0) / Math.max(1, state.stations.length);
   els.riskAvgSos.textContent = formatSosValue(round(avg, 2));
+  renderRiskAvgGauge(avg);
   renderSafely(() => renderRiskTopList(stations));
   renderSafely(() => renderRiskPie(stations));
   renderSafely(() => renderRiskTrend(stations, state.riskTrendRange));
   renderSafely(() => renderRiskBars(stations));
   renderSafely(() => renderRiskAlarmPie(alarms));
   renderSafely(() => renderRiskModules(alarms));
+  renderSafely(() => renderRiskAlarmNameTop(alarms));
 }
 
 function renderSafely(renderFn) {
@@ -648,6 +654,13 @@ function renderRiskTopList(stations) {
   els.riskTopList.querySelectorAll("button").forEach((button) => {
     button.addEventListener("click", () => showDetail(button.dataset.station));
   });
+}
+
+function renderRiskAvgGauge(avg) {
+  const risk = riskMeta[getRisk(avg)];
+  els.riskAvgGauge.style.setProperty("--angle", `${Math.max(0, Math.min(180, avg * 1.8))}deg`);
+  els.riskAvgLabel.textContent = `当前风险等级：${risk.label}`;
+  els.riskAvgLabel.style.color = risk.color;
 }
 
 function renderRiskBars(stations) {
@@ -694,7 +707,6 @@ function renderRiskBars(stations) {
       ctx.restore();
     }
   });
-  drawMiniBrush(ctx, pad, canvas.width, canvas.height, data);
 }
 
 function renderRiskPie(stations) {
@@ -741,10 +753,12 @@ function renderRiskTrend(stations, range) {
   const series = createRiskTrendSeries(stations, range);
   clear(ctx, canvas.width, canvas.height);
   drawGrid(ctx, pad, canvas.width, canvas.height);
+  drawThreshold(ctx, pad, canvas.width, canvas.height, 60, "#ff3d59");
+  drawThreshold(ctx, pad, canvas.width, canvas.height, 80, "#f4a51c");
   state.riskTrendHitboxes = [];
   drawTrendGuide(ctx, pad, canvas, series);
   drawTrendLine(ctx, series.max, pad, canvas, "#13c781", "最大值", series.labels, "max");
-  drawTrendLine(ctx, series.avg, pad, canvas, "#1689ff", "全量场站均值", series.labels, "avg");
+  drawTrendLine(ctx, series.avg, pad, canvas, "#1689ff", "平均值", series.labels, "avg");
   drawTrendLine(ctx, series.min, pad, canvas, "#ff3d59", "最小值", series.labels, "min");
   ctx.fillStyle = "#8f97a8";
   ctx.font = "12px Microsoft YaHei";
@@ -836,26 +850,39 @@ function renderRiskModules(alarms) {
   const canvas = setupCanvas(els.riskModuleCanvas);
   const ctx = canvas.getContext("2d");
   const modules = ["电池系统", "电气系统", "环控系统", "消防系统"];
-  const counts = modules.map((module) => alarms.filter((alarm) => alarm.module === module).length);
-  const max = Math.max(1, ...counts);
-  const pad = { left: 62, right: 54, top: 28, bottom: 36 };
-  clear(ctx, canvas.width, canvas.height);
-  modules.forEach((module, index) => {
-    const y = pad.top + index * 52;
-    const width = (counts[index] / max) * (canvas.width - pad.left - pad.right - 20);
-    ctx.fillStyle = "rgba(18, 152, 255, 0.16)";
-    ctx.fillRect(pad.left, y, canvas.width - pad.left - pad.right, 22);
-    ctx.fillStyle = index === 0 ? "#1689ff" : index === 1 ? "#13c781" : index === 2 ? "#f4a51c" : "#ff3d59";
-    ctx.fillRect(pad.left, y, width, 22);
-    ctx.fillStyle = "#aeb8ca";
-    ctx.font = "12px Microsoft YaHei";
-    ctx.textAlign = "right";
-    ctx.fillText(module, pad.left - 10, y + 15);
-    ctx.textAlign = "left";
-    ctx.fillStyle = "#eef3fb";
-    const textX = Math.min(canvas.width - 32, pad.left + width + 8);
-    ctx.fillText(String(counts[index]), textX, y + 15);
-  });
+  const colors = ["#1689ff", "#13c781", "#f4a51c", "#ff3d59"];
+  const entries = modules.map((module) => [module, alarms.filter((alarm) => alarm.module === module).length]);
+  drawDonutChart(ctx, canvas, entries, (key) => colors[modules.indexOf(key)] || "#1689ff");
+  els.riskModuleLegend.innerHTML = entries
+    .map(
+      ([module, count], index) => `
+      <div class="legend-item" style="--legend-color:${colors[index]}">
+        <span>${module}</span><strong>${count}</strong>
+      </div>`
+    )
+    .join("");
+}
+
+function renderRiskAlarmNameTop(alarms) {
+  const colorSet = ["#00d7ff", "#7b61ff", "#13c781", "#f4a51c", "#ff5f8a"];
+  const counts = new Map();
+  alarms.forEach((alarm) => counts.set(alarm.title, (counts.get(alarm.title) || 0) + 1));
+  const top = [...counts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5);
+  const max = Math.max(1, ...top.map(([, count]) => count));
+  els.riskAlarmNameTopList.innerHTML = top
+    .map(([name, count], index) => {
+      const color = colorSet[index % colorSet.length];
+      return `
+        <div class="alarm-name-top-row" style="--top-color:${color}">
+          <span>${index + 1}</span>
+          <div class="alarm-name-top-main">
+            <strong title="${name}">${name}</strong>
+            <div class="alarm-name-top-track"><i style="width:${(count / max) * 100}%"></i></div>
+          </div>
+          <em>${count}</em>
+        </div>`;
+    })
+    .join("");
 }
 
 function renderRiskBands(stations) {
