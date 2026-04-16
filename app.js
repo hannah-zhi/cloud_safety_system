@@ -47,6 +47,8 @@ const state = {
   alarmEndDate: "",
   activePage: "overview",
   selectedAlarm: null,
+  riskTrendRange: 7,
+  riskBarHitboxes: [],
   activeFilter: "all",
   selectedStationIds: new Set(),
   selectedStation: null,
@@ -117,9 +119,12 @@ function bindElements() {
     "alarmStationCount",
     "riskAvgSos",
     "riskWatchCount",
-    "riskAlarmTotal",
-    "riskLevelOne",
+    "riskTopList",
+    "riskTrendButtons",
+    "riskBarsViewport",
+    "riskBarsTooltip",
     "riskPieLegend",
+    "riskAlarmPieLegend",
     "alarmDetailKeyword",
     "alarmDetailLevel",
     "alarmDetailModule",
@@ -140,6 +145,8 @@ function bindElements() {
   els.boxCanvas = document.getElementById("boxCanvas");
   els.riskBarsCanvas = document.getElementById("riskBarsCanvas");
   els.riskPieCanvas = document.getElementById("riskPieCanvas");
+  els.riskTrendCanvas = document.getElementById("riskTrendCanvas");
+  els.riskAlarmPieCanvas = document.getElementById("riskAlarmPieCanvas");
   els.riskModuleCanvas = document.getElementById("riskModuleCanvas");
   els.riskBandCanvas = document.getElementById("riskBandCanvas");
 }
@@ -211,6 +218,17 @@ function bindEvents() {
     els.alarmDetailEnd.value = "";
     state.selectedAlarm = null;
     renderAlarmDetailPage();
+  });
+  els.riskTrendButtons.addEventListener("click", (event) => {
+    const button = event.target.closest("button[data-range]");
+    if (!button) return;
+    state.riskTrendRange = Number(button.dataset.range);
+    els.riskTrendButtons.querySelectorAll("button").forEach((item) => item.classList.toggle("active", item === button));
+    renderRiskView();
+  });
+  els.riskBarsCanvas.addEventListener("mousemove", handleRiskBarHover);
+  els.riskBarsCanvas.addEventListener("mouseleave", () => {
+    els.riskBarsTooltip.classList.remove("show");
   });
   els.backBtn.addEventListener("click", showList);
   els.rangeButtons.addEventListener("click", (event) => {
@@ -581,46 +599,76 @@ function filterAlarmsByTime(alarms) {
 }
 
 function renderRiskView() {
-  const stations = state.filtered.length ? state.filtered : state.stations;
-  const alarms = state.alarms.length || state.filtered.length ? state.alarms : state.allAlarms;
+  const stations = state.filtered;
+  const alarms = state.alarms;
   const avg = stations.reduce((sum, station) => sum + station.sos, 0) / Math.max(1, stations.length);
   els.riskAvgSos.textContent = formatSosValue(round(avg, 2));
   els.riskWatchCount.textContent = stations.filter((station) => station.risk === "high" || station.risk === "mid").length;
-  els.riskAlarmTotal.textContent = alarms.length;
-  els.riskLevelOne.textContent = alarms.filter((alarm) => alarm.type === "level1").length;
+  renderRiskTopList(stations);
   renderRiskBars(stations);
   renderRiskPie(stations);
+  renderRiskTrend(stations, state.riskTrendRange);
+  renderRiskAlarmPie(alarms);
   renderRiskModules(alarms);
   renderRiskBands(stations);
 }
 
+function renderRiskTopList(stations) {
+  const top = [...stations].sort((a, b) => a.sos - b.sos).slice(0, 5);
+  els.riskTopList.innerHTML = top
+    .map(
+      (station, index) => `
+      <button type="button" data-station="${station.id}">
+        <span>${index + 1}</span>
+        <strong title="${station.id}${station.name}">${station.id}${station.name}</strong>
+        <em class="${scoreClass(station.sos)}">${formatSosValue(station.sos)}</em>
+      </button>`
+    )
+    .join("");
+  els.riskTopList.querySelectorAll("button").forEach((button) => {
+    button.addEventListener("click", () => showDetail(button.dataset.station));
+  });
+}
+
 function renderRiskBars(stations) {
+  const data = [...stations].sort((a, b) => a.id.localeCompare(b.id, "zh-CN"));
+  const desiredWidth = Math.max(1120, data.length * 13 + 110);
+  els.riskBarsCanvas.style.width = `${desiredWidth}px`;
   const canvas = setupCanvas(els.riskBarsCanvas);
   const ctx = canvas.getContext("2d");
-  const data = [...stations].sort((a, b) => a.sos - b.sos).slice(0, 28);
-  const pad = { left: 42, right: 18, top: 28, bottom: 64 };
+  const pad = { left: 46, right: 20, top: 40, bottom: 54 };
   clear(ctx, canvas.width, canvas.height);
   drawGrid(ctx, pad, canvas.width, canvas.height);
   drawThreshold(ctx, pad, canvas.width, canvas.height, 60, "#ff3d59");
   drawThreshold(ctx, pad, canvas.width, canvas.height, 80, "#f4a51c");
-  const gap = 6;
-  const barWidth = Math.max(8, (canvas.width - pad.left - pad.right) / Math.max(1, data.length) - gap);
+  const gap = 7;
+  const barWidth = 5;
+  state.riskBarHitboxes = [];
   data.forEach((station, index) => {
     const x = pad.left + index * (barWidth + gap);
     const y = valueY(station.sos, pad, canvas.height);
-    ctx.fillStyle = riskMeta[station.risk].color;
-    ctx.fillRect(x, y, barWidth, canvas.height - pad.bottom - y);
-    if (index % 3 === 0) {
+    const h = canvas.height - pad.bottom - y;
+    const gradient = ctx.createLinearGradient(0, y, 0, canvas.height - pad.bottom);
+    gradient.addColorStop(0, riskMeta[station.risk].color);
+    gradient.addColorStop(1, "rgba(255,255,255,0.05)");
+    ctx.fillStyle = gradient;
+    ctx.fillRect(x, y, barWidth, h);
+    ctx.shadowColor = riskMeta[station.risk].color;
+    ctx.shadowBlur = 5;
+    ctx.fillRect(x, y, barWidth, Math.min(3, h));
+    ctx.shadowBlur = 0;
+    state.riskBarHitboxes.push({ x: x - 4, y, width: barWidth + 8, height: h, station });
+    if (index % 10 === 0 || index === data.length - 1) {
       ctx.save();
       ctx.translate(x + barWidth / 2, canvas.height - 16);
-      ctx.rotate(-Math.PI / 5);
       ctx.fillStyle = "#8f97a8";
       ctx.font = "11px Microsoft YaHei";
-      ctx.textAlign = "right";
+      ctx.textAlign = "center";
       ctx.fillText(station.id, 0, 0);
       ctx.restore();
     }
   });
+  drawMiniBrush(ctx, pad, canvas.width, canvas.height, data);
 }
 
 function renderRiskPie(stations) {
@@ -637,6 +685,107 @@ function renderRiskPie(stations) {
       </div>`
     )
     .join("");
+}
+
+function renderRiskAlarmPie(alarms) {
+  const canvas = setupCanvas(els.riskAlarmPieCanvas);
+  const ctx = canvas.getContext("2d");
+  const entries = [
+    ["level1", alarms.filter((alarm) => alarm.type === "level1").length],
+    ["level2", alarms.filter((alarm) => alarm.type === "level2").length],
+    ["level3", alarms.filter((alarm) => alarm.type === "level3").length],
+  ];
+  const colors = { level1: "#ff3d59", level2: "#f4a51c", level3: "#13c781" };
+  const labels = { level1: "一级", level2: "二级", level3: "三级" };
+  drawDonutChart(ctx, canvas, entries, (key) => colors[key]);
+  els.riskAlarmPieLegend.innerHTML = entries
+    .map(
+      ([key, count]) => `
+      <div class="legend-item" style="--legend-color:${colors[key]}">
+        <span>${labels[key]}</span><strong>${count}</strong>
+      </div>`
+    )
+    .join("");
+}
+
+function renderRiskTrend(stations, range) {
+  const canvas = setupCanvas(els.riskTrendCanvas);
+  const ctx = canvas.getContext("2d");
+  const pad = { left: 46, right: 28, top: 30, bottom: 38 };
+  const series = createRiskTrendSeries(stations, range);
+  clear(ctx, canvas.width, canvas.height);
+  drawGrid(ctx, pad, canvas.width, canvas.height);
+  drawTrendLine(ctx, series.avg, pad, canvas, "#1689ff", "全量场站均值");
+  drawTrendLine(ctx, series.max, pad, canvas, "#13c781", "最大值");
+  drawTrendLine(ctx, series.min, pad, canvas, "#ff3d59", "最小值");
+  ctx.fillStyle = "#8f97a8";
+  ctx.font = "12px Microsoft YaHei";
+  ctx.textAlign = "center";
+  series.labels.forEach((label, index) => {
+    if (range <= 15 || index % 3 === 0) {
+      const x = pad.left + (index / Math.max(1, range - 1)) * (canvas.width - pad.left - pad.right);
+      ctx.fillText(label, x, canvas.height - 12);
+    }
+  });
+  drawTrendLegend(ctx, canvas, [
+    ["全量场站均值", "#1689ff"],
+    ["最大值", "#13c781"],
+    ["最小值", "#ff3d59"],
+  ]);
+}
+
+function createRiskTrendSeries(stations, range) {
+  const labels = [];
+  const avg = [];
+  const max = [];
+  const min = [];
+  Array.from({ length: range }, (_, index) => {
+    const day = 16 - range + index;
+    const values = stations.map((station, stationIndex) => {
+      const drift = Math.sin((index + 1) * 0.8 + stationIndex * 0.31) * 2.2 - (index % 9 === 0 ? 1.2 : 0);
+      return Math.max(35, Math.min(100, station.sos + drift));
+    });
+    labels.push(`04-${String(day).padStart(2, "0")}`);
+    avg.push(round(values.reduce((sum, value) => sum + value, 0) / Math.max(1, values.length), 2));
+    max.push(round(Math.max(...values, 0), 2));
+    min.push(round(Math.min(...values, 100), 2));
+  });
+  return { labels, avg, max, min };
+}
+
+function drawTrendLine(ctx, values, pad, canvas, color) {
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  values.forEach((value, index) => {
+    const x = pad.left + (index / Math.max(1, values.length - 1)) * (canvas.width - pad.left - pad.right);
+    const y = valueY(value, pad, canvas.height);
+    index === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  });
+  ctx.stroke();
+  values.forEach((value, index) => {
+    if (index % Math.ceil(values.length / 8) === 0 || index === values.length - 1) {
+      const x = pad.left + (index / Math.max(1, values.length - 1)) * (canvas.width - pad.left - pad.right);
+      const y = valueY(value, pad, canvas.height);
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.arc(x, y, 3, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  });
+}
+
+function drawTrendLegend(ctx, canvas, entries) {
+  ctx.font = "12px Microsoft YaHei";
+  ctx.textAlign = "left";
+  let x = canvas.width - 260;
+  entries.forEach(([label, color]) => {
+    ctx.fillStyle = color;
+    ctx.fillRect(x, 12, 16, 3);
+    ctx.fillStyle = "#c8d0dc";
+    ctx.fillText(label, x + 22, 17);
+    x += 88;
+  });
 }
 
 function renderRiskModules(alarms) {
@@ -693,6 +842,43 @@ function renderRiskBands(stations) {
     ctx.font = "12px Microsoft YaHei";
     ctx.fillText(band.label, x + barWidth / 2, canvas.height - 14);
   });
+}
+
+function drawMiniBrush(ctx, pad, width, height, data) {
+  const y = height - 18;
+  ctx.strokeStyle = "rgba(143, 151, 168, 0.25)";
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  data.forEach((station, index) => {
+    const x = pad.left + index * 12;
+    const wave = y - 8 + Math.sin(index * 0.5) * 2 + (100 - station.sos) / 40;
+    index === 0 ? ctx.moveTo(x, wave) : ctx.lineTo(x, wave);
+  });
+  ctx.stroke();
+  ctx.fillStyle = "rgba(143, 151, 168, 0.65)";
+  ctx.fillRect(pad.left, y - 12, 4, 24);
+  ctx.fillRect(Math.min(width - pad.right - 8, pad.left + 280), y - 12, 4, 24);
+}
+
+function handleRiskBarHover(event) {
+  const rect = els.riskBarsCanvas.getBoundingClientRect();
+  const scaleX = els.riskBarsCanvas.width / rect.width;
+  const scaleY = els.riskBarsCanvas.height / rect.height;
+  const x = (event.clientX - rect.left) * scaleX;
+  const y = (event.clientY - rect.top) * scaleY;
+  const hit = state.riskBarHitboxes.find((box) => x >= box.x && x <= box.x + box.width && y >= box.y && y <= box.y + box.height);
+  if (!hit) {
+    els.riskBarsTooltip.classList.remove("show");
+    return;
+  }
+  els.riskBarsTooltip.innerHTML = `
+    <strong>${hit.station.id}${hit.station.name}</strong>
+    <span>SOS ${formatSosValue(hit.station.sos)}</span>
+  `;
+  const viewportRect = els.riskBarsViewport.getBoundingClientRect();
+  els.riskBarsTooltip.style.left = `${event.clientX - viewportRect.left + els.riskBarsViewport.scrollLeft + 14}px`;
+  els.riskBarsTooltip.style.top = `${event.clientY - viewportRect.top + 12}px`;
+  els.riskBarsTooltip.classList.add("show");
 }
 
 function renderAlarmDetailPage() {
