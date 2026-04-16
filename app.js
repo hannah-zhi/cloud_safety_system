@@ -51,6 +51,7 @@ const state = {
   riskBarHitboxes: [],
   riskTrendHitboxes: [],
   riskBarHoverId: null,
+  riskTrendHover: null,
   activeFilter: "all",
   selectedStationIds: new Set(),
   selectedStation: null,
@@ -236,6 +237,8 @@ function bindEvents() {
   });
   els.riskTrendCanvas.addEventListener("mousemove", handleRiskTrendHover);
   els.riskTrendCanvas.addEventListener("mouseleave", () => {
+    state.riskTrendHover = null;
+    renderSafely(() => renderRiskTrend(state.filtered, state.riskTrendRange));
     els.riskTrendTooltip.classList.remove("show");
   });
   els.backBtn.addEventListener("click", showList);
@@ -649,23 +652,27 @@ function renderRiskTopList(stations) {
 
 function renderRiskBars(stations) {
   const data = [...stations].sort((a, b) => a.id.localeCompare(b.id, "zh-CN"));
-  const desiredWidth = Math.max(1280, data.length * 14 + 130);
+  const pad = { left: 46, right: 20, top: 40, bottom: 54 };
+  const gap = 7;
+  const barWidth = 5;
+  const desiredWidth = Math.max(1280, pad.left + pad.right + data.length * (barWidth + gap) + 18);
   els.riskBarsCanvas.style.width = `${desiredWidth}px`;
   const canvas = setupCanvas(els.riskBarsCanvas);
   const ctx = canvas.getContext("2d");
-  const pad = { left: 46, right: 20, top: 40, bottom: 54 };
   clear(ctx, canvas.width, canvas.height);
   drawGrid(ctx, pad, canvas.width, canvas.height);
   drawThreshold(ctx, pad, canvas.width, canvas.height, 60, "#ff3d59");
   drawThreshold(ctx, pad, canvas.width, canvas.height, 80, "#f4a51c");
-  const gap = 7;
-  const barWidth = 5;
   state.riskBarHitboxes = [];
   data.forEach((station, index) => {
     const x = pad.left + index * (barWidth + gap);
     const y = valueY(station.sos, pad, canvas.height);
     const h = canvas.height - pad.bottom - y;
     const isHover = state.riskBarHoverId === station.id;
+    if (isHover) {
+      ctx.fillStyle = "rgba(255, 255, 255, 0.08)";
+      ctx.fillRect(x - 10, pad.top, barWidth + 24, canvas.height - pad.top - pad.bottom);
+    }
     const gradient = ctx.createLinearGradient(0, y, 0, canvas.height - pad.bottom);
     gradient.addColorStop(0, riskMeta[station.risk].color);
     gradient.addColorStop(1, "rgba(255,255,255,0.05)");
@@ -673,11 +680,7 @@ function renderRiskBars(stations) {
     ctx.fillRect(x, y, isHover ? barWidth + 2 : barWidth, h);
     ctx.shadowColor = riskMeta[station.risk].color;
     ctx.shadowBlur = isHover ? 16 : 5;
-    if (isHover) {
-      ctx.strokeStyle = "#eef7ff";
-      ctx.lineWidth = 1.5;
-      ctx.strokeRect(x - 2, y - 2, barWidth + 5, h + 3);
-    }
+    ctx.fillStyle = gradient;
     ctx.fillRect(x, y, isHover ? barWidth + 2 : barWidth, Math.min(3, h));
     ctx.shadowBlur = 0;
     state.riskBarHitboxes.push({ x: x - 4, y, width: barWidth + 8, height: h, station });
@@ -758,13 +761,15 @@ function createRiskTrendSeries(stations, range) {
   const avg = [];
   const max = [];
   const min = [];
+  const endDate = new Date(2026, 3, 15);
   Array.from({ length: range }, (_, index) => {
-    const day = 16 - range + index;
+    const date = new Date(endDate);
+    date.setDate(endDate.getDate() - range + 1 + index);
     const values = stations.map((station, stationIndex) => {
       const drift = Math.sin((index + 1) * 0.82 + stationIndex * 0.31) * 2.6 + Math.cos(index * 0.45 + stationIndex * 0.13) * 0.9;
       return Math.max(35, Math.min(100, station.sos + drift));
     });
-    labels.push(`04-${String(day).padStart(2, "0")}`);
+    labels.push(`${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`);
     avg.push(round(values.reduce((sum, value) => sum + value, 0) / Math.max(1, values.length), 2));
     max.push(round(Math.max(...values, 0), 2));
     min.push(round(Math.min(...values, 100), 2));
@@ -791,20 +796,21 @@ function drawTrendLine(ctx, values, pad, canvas, color, label, labels = [], key 
   ctx.stroke();
   ctx.shadowBlur = 0;
   points.forEach(({ x, y, value, index }) => {
+    const isHover = state.riskTrendHover && state.riskTrendHover.key === key && state.riskTrendHover.index === index;
     ctx.fillStyle = "#111622";
     ctx.beginPath();
-    ctx.arc(x, y, 4.2, 0, Math.PI * 2);
+    ctx.arc(x, y, isHover ? 6.2 : 4.2, 0, Math.PI * 2);
     ctx.fill();
     ctx.strokeStyle = color;
-    ctx.lineWidth = 2;
+    ctx.lineWidth = isHover ? 3 : 2;
     ctx.beginPath();
-    ctx.arc(x, y, 4.2, 0, Math.PI * 2);
+    ctx.arc(x, y, isHover ? 6.2 : 4.2, 0, Math.PI * 2);
     ctx.stroke();
     ctx.fillStyle = color;
     ctx.beginPath();
-    ctx.arc(x, y, 2.1, 0, Math.PI * 2);
+    ctx.arc(x, y, isHover ? 3.3 : 2.1, 0, Math.PI * 2);
     ctx.fill();
-    state.riskTrendHitboxes.push({ x, y, value, label, date: labels[index] || "", color });
+    state.riskTrendHitboxes.push({ x, y, value, label, date: labels[index] || "", color, key, index });
   });
   ctx.restore();
 }
@@ -918,10 +924,20 @@ function handleRiskTrendHover(event) {
   const scaleY = els.riskTrendCanvas.height / rect.height;
   const x = (event.clientX - rect.left) * scaleX;
   const y = (event.clientY - rect.top) * scaleY;
-  const hit = state.riskTrendHitboxes.find((point) => Math.abs(point.x - x) <= 8 && Math.abs(point.y - y) <= 8);
-  if (!hit) {
+  const hit = state.riskTrendHitboxes
+    .map((point) => ({ ...point, distance: Math.hypot(point.x - x, point.y - y) }))
+    .sort((a, b) => a.distance - b.distance)[0];
+  if (!hit || hit.distance > 10) {
+    if (state.riskTrendHover) {
+      state.riskTrendHover = null;
+      renderSafely(() => renderRiskTrend(state.filtered, state.riskTrendRange));
+    }
     els.riskTrendTooltip.classList.remove("show");
     return;
+  }
+  if (!state.riskTrendHover || state.riskTrendHover.key !== hit.key || state.riskTrendHover.index !== hit.index) {
+    state.riskTrendHover = { key: hit.key, index: hit.index };
+    renderSafely(() => renderRiskTrend(state.filtered, state.riskTrendRange));
   }
   els.riskTrendTooltip.innerHTML = `
     <strong>${hit.date} ${hit.label}</strong>
