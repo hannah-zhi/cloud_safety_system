@@ -668,20 +668,20 @@ function renderRiskAvgGauge(avg) {
   const ctx = canvas.getContext("2d");
   clear(ctx, canvas.width, canvas.height);
   const centerX = canvas.width / 2;
-  const centerY = canvas.height - 26;
-  const radius = Math.min(canvas.width * 0.42, 112);
+  const centerY = canvas.height - 22;
+  const radius = Math.min(canvas.width * 0.46, 132);
   const start = Math.PI;
   const end = Math.PI * 2;
   const activeEnd = start + (Math.max(0, Math.min(100, avg)) / 100) * Math.PI;
-  const totalTicks = 64;
+  const totalTicks = 44;
   for (let i = 0; i < totalTicks; i += 1) {
     const tickStart = start + (i / totalTicks) * Math.PI;
-    const tickEnd = start + ((i + 0.62) / totalTicks) * Math.PI;
+    const tickEnd = start + ((i + 0.7) / totalTicks) * Math.PI;
     const mid = (tickStart + tickEnd) / 2;
-    const inner = radius - 22;
+    const inner = radius - 26;
     const outer = radius;
     ctx.beginPath();
-    ctx.lineWidth = 5;
+    ctx.lineWidth = 7;
     ctx.lineCap = "round";
     ctx.strokeStyle = mid <= activeEnd ? gaugeColor(i / (totalTicks - 1)) : "rgba(48, 52, 64, 0.8)";
     ctx.moveTo(centerX + Math.cos(tickStart) * inner, centerY + Math.sin(tickStart) * inner);
@@ -690,10 +690,10 @@ function renderRiskAvgGauge(avg) {
   }
   ctx.strokeStyle = "rgba(238, 247, 255, 0.42)";
   ctx.lineWidth = 1.2;
-  for (let i = 0; i <= 10; i += 1) {
-    const angle = start + (i / 10) * Math.PI;
-    const inner = radius - 42;
-    const outer = radius - 34;
+  for (let i = 0; i <= 8; i += 1) {
+    const angle = start + (i / 8) * Math.PI;
+    const inner = radius - 52;
+    const outer = radius - 43;
     ctx.beginPath();
     ctx.moveTo(centerX + Math.cos(angle) * inner, centerY + Math.sin(angle) * inner);
     ctx.lineTo(centerX + Math.cos(angle) * outer, centerY + Math.sin(angle) * outer);
@@ -925,7 +925,7 @@ function renderRiskModules(alarms) {
 }
 
 function renderRiskAlarmNameTop(alarms) {
-  const colorSet = ["#ff3d59", "#f4a51c", "#f4a51c", "#00d7ff", "#a66bff"];
+  const colorSet = ["#ff3d59", "#f4a51c", "#13c781", "#00d7ff", "#a66bff"];
   const counts = new Map();
   alarms.forEach((alarm) => counts.set(alarm.title, (counts.get(alarm.title) || 0) + 1));
   const top = [...counts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5);
@@ -1298,8 +1298,8 @@ function drawDonutChart(ctx, canvas, entries, colorForKey) {
     const angle = (count / total) * Math.PI * 2;
     ctx.beginPath();
     ctx.strokeStyle = colorForKey(key);
-    ctx.lineWidth = 36;
-    ctx.arc(canvas.width / 2, canvas.height / 2, 70, start, start + angle);
+    ctx.lineWidth = 42;
+    ctx.arc(canvas.width / 2, canvas.height / 2, 82, start, start + angle);
     ctx.stroke();
     start += angle;
   });
