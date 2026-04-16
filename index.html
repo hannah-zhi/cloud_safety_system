@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>安全预警 - 远景数智运营系统</title>
-    <link rel="stylesheet" href="styles.css?v=20260416-risk-view5" />
+    <link rel="stylesheet" href="styles.css?v=20260416-risk-view6" />
   </head>
   <body>
     <div class="shell">
@@ -119,18 +119,17 @@
               <div class="panel-title"><span></span>风险场站 TOP5</div>
               <div id="riskTopList" class="risk-top-list"></div>
             </article>
+            <article class="panel risk-avg-panel">
+              <div class="panel-title"><span></span>全量场站平均 SOS</div>
+              <div class="risk-avg-value">
+                <strong id="riskAvgSos">--</strong>
+              </div>
+            </article>
             <article class="panel">
               <div class="panel-title"><span></span>场站风险等级占比</div>
               <div class="donut-wrap">
                 <canvas id="riskPieCanvas" width="300" height="250"></canvas>
                 <div id="riskPieLegend" class="legend"></div>
-              </div>
-            </article>
-            <article class="panel risk-avg-panel">
-              <div class="panel-title"><span></span>全量场站平均 SOS</div>
-              <div class="risk-avg-value">
-                <strong id="riskAvgSos">--</strong>
-                <span>当前筛选场站均值</span>
               </div>
             </article>
           </div>
@@ -361,6 +360,6 @@
 
     <script src="site-data.js?v=20260415-siteconfig3"></script>
     <script src="risk-data.js?v=20260415-risk-list1"></script>
-    <script src="app.js?v=20260416-risk-view5"></script>
+    <script src="app.js?v=20260416-risk-view6"></script>
   </body>
 </html>
