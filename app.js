@@ -52,6 +52,7 @@ const state = {
   riskTrendHitboxes: [],
   riskBarHoverId: null,
   riskTrendHover: null,
+  riskBarSort: "idAsc",
   activeFilter: "all",
   selectedStationIds: new Set(),
   selectedStation: null,
@@ -122,9 +123,9 @@ function bindElements() {
     "alarmStationCount",
     "riskAvgSos",
     "riskAvgGauge",
-    "riskAvgLabel",
     "riskTopList",
     "riskTrendButtons",
+    "riskBarSort",
     "riskBarsViewport",
     "riskBarsTooltip",
     "riskTrendChart",
@@ -152,6 +153,7 @@ function bindElements() {
   els.barCanvas = document.getElementById("barCanvas");
   els.boxCanvas = document.getElementById("boxCanvas");
   els.riskBarsCanvas = document.getElementById("riskBarsCanvas");
+  els.riskAvgGaugeCanvas = document.getElementById("riskAvgGaugeCanvas");
   els.riskPieCanvas = document.getElementById("riskPieCanvas");
   els.riskTrendCanvas = document.getElementById("riskTrendCanvas");
   els.riskAlarmPieCanvas = document.getElementById("riskAlarmPieCanvas");
@@ -244,6 +246,11 @@ function bindEvents() {
     state.riskTrendHover = null;
     renderSafely(() => renderRiskTrend(state.filtered, state.riskTrendRange));
     els.riskTrendTooltip.classList.remove("show");
+  });
+  els.riskBarSort.addEventListener("change", () => {
+    state.riskBarSort = els.riskBarSort.value;
+    state.riskBarHoverId = null;
+    renderRiskBars(state.filtered);
   });
   els.backBtn.addEventListener("click", showList);
   els.rangeButtons.addEventListener("click", (event) => {
@@ -657,14 +664,59 @@ function renderRiskTopList(stations) {
 }
 
 function renderRiskAvgGauge(avg) {
-  const risk = riskMeta[getRisk(avg)];
-  els.riskAvgGauge.style.setProperty("--angle", `${Math.max(0, Math.min(180, avg * 1.8))}deg`);
-  els.riskAvgLabel.textContent = `当前风险等级：${risk.label}`;
-  els.riskAvgLabel.style.color = risk.color;
+  const canvas = setupCanvas(els.riskAvgGaugeCanvas);
+  const ctx = canvas.getContext("2d");
+  clear(ctx, canvas.width, canvas.height);
+  const centerX = canvas.width / 2;
+  const centerY = canvas.height - 26;
+  const radius = Math.min(canvas.width * 0.42, 112);
+  const start = Math.PI;
+  const end = Math.PI * 2;
+  const activeEnd = start + (Math.max(0, Math.min(100, avg)) / 100) * Math.PI;
+  const totalTicks = 64;
+  for (let i = 0; i < totalTicks; i += 1) {
+    const tickStart = start + (i / totalTicks) * Math.PI;
+    const tickEnd = start + ((i + 0.62) / totalTicks) * Math.PI;
+    const mid = (tickStart + tickEnd) / 2;
+    const inner = radius - 22;
+    const outer = radius;
+    ctx.beginPath();
+    ctx.lineWidth = 5;
+    ctx.lineCap = "round";
+    ctx.strokeStyle = mid <= activeEnd ? gaugeColor(i / (totalTicks - 1)) : "rgba(48, 52, 64, 0.8)";
+    ctx.moveTo(centerX + Math.cos(tickStart) * inner, centerY + Math.sin(tickStart) * inner);
+    ctx.lineTo(centerX + Math.cos(tickStart) * outer, centerY + Math.sin(tickStart) * outer);
+    ctx.stroke();
+  }
+  ctx.strokeStyle = "rgba(238, 247, 255, 0.42)";
+  ctx.lineWidth = 1.2;
+  for (let i = 0; i <= 10; i += 1) {
+    const angle = start + (i / 10) * Math.PI;
+    const inner = radius - 42;
+    const outer = radius - 34;
+    ctx.beginPath();
+    ctx.moveTo(centerX + Math.cos(angle) * inner, centerY + Math.sin(angle) * inner);
+    ctx.lineTo(centerX + Math.cos(angle) * outer, centerY + Math.sin(angle) * outer);
+    ctx.stroke();
+  }
+}
+
+function gaugeColor(t) {
+  const stops = [
+    { t: 0, c: [255, 61, 89] },
+    { t: 0.35, c: [244, 165, 28] },
+    { t: 0.62, c: [216, 216, 15] },
+    { t: 1, c: [19, 199, 129] },
+  ];
+  const next = stops.find((stop) => stop.t >= t) || stops[stops.length - 1];
+  const prev = [...stops].reverse().find((stop) => stop.t <= t) || stops[0];
+  const p = next.t === prev.t ? 0 : (t - prev.t) / (next.t - prev.t);
+  const rgb = prev.c.map((value, index) => Math.round(value + (next.c[index] - value) * p));
+  return `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`;
 }
 
 function renderRiskBars(stations) {
-  const data = [...stations].sort((a, b) => a.id.localeCompare(b.id, "zh-CN"));
+  const data = sortRiskBarStations(stations);
   const pad = { left: 46, right: 20, top: 40, bottom: 54 };
   const gap = 7;
   const barWidth = 5;
@@ -706,6 +758,15 @@ function renderRiskBars(stations) {
       ctx.fillText(station.id, 0, 0);
       ctx.restore();
     }
+  });
+}
+
+function sortRiskBarStations(stations) {
+  return [...stations].sort((a, b) => {
+    if (state.riskBarSort === "idDesc") return b.id.localeCompare(a.id, "zh-CN");
+    if (state.riskBarSort === "sosAsc") return a.sos - b.sos || a.id.localeCompare(b.id, "zh-CN");
+    if (state.riskBarSort === "sosDesc") return b.sos - a.sos || a.id.localeCompare(b.id, "zh-CN");
+    return a.id.localeCompare(b.id, "zh-CN");
   });
 }
 
@@ -759,7 +820,7 @@ function renderRiskTrend(stations, range) {
   drawTrendGuide(ctx, pad, canvas, series);
   drawTrendLine(ctx, series.max, pad, canvas, "#13c781", "最大值", series.labels, "max");
   drawTrendLine(ctx, series.avg, pad, canvas, "#1689ff", "平均值", series.labels, "avg");
-  drawTrendLine(ctx, series.min, pad, canvas, "#ff3d59", "最小值", series.labels, "min");
+  drawTrendLine(ctx, series.min, pad, canvas, "#a66bff", "最小值", series.labels, "min");
   ctx.fillStyle = "#8f97a8";
   ctx.font = "12px Microsoft YaHei";
   ctx.textAlign = "center";
@@ -864,13 +925,15 @@ function renderRiskModules(alarms) {
 }
 
 function renderRiskAlarmNameTop(alarms) {
-  const colorSet = ["#00d7ff", "#7b61ff", "#13c781", "#f4a51c", "#ff5f8a"];
+  const colorSet = ["#ff3d59", "#f4a51c", "#f4a51c", "#00d7ff", "#a66bff"];
   const counts = new Map();
   alarms.forEach((alarm) => counts.set(alarm.title, (counts.get(alarm.title) || 0) + 1));
   const top = [...counts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5);
-  const max = Math.max(1, ...top.map(([, count]) => count));
+  const adjusted = top.map(([name, count], index) => [name, Math.max(1, count + [9, 5, 2, -2, -5][index])]);
+  const max = Math.max(1, ...adjusted.map(([, count]) => count));
   els.riskAlarmNameTopList.innerHTML = top
-    .map(([name, count], index) => {
+    .map(([name], index) => {
+      const count = adjusted[index][1];
       const color = colorSet[index % colorSet.length];
       return `
         <div class="alarm-name-top-row" style="--top-color:${color}">
