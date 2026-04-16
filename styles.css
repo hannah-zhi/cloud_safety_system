@@ -1651,7 +1651,6 @@ h2 {
 }
 
 .risk-avg-gauge {
-  --angle: 147deg;
   flex: 1;
   position: relative;
   display: grid;
@@ -1663,51 +1662,24 @@ h2 {
   overflow: hidden;
 }
 
-.risk-gauge-arc {
+.risk-avg-gauge canvas {
   position: absolute;
-  width: 230px;
-  height: 116px;
-  top: 38px;
+  top: 28px;
   left: 50%;
+  width: 260px;
+  height: 156px;
+  max-width: none;
   transform: translateX(-50%);
-  border-radius: 230px 230px 0 0;
-  background:
-    repeating-conic-gradient(from 270deg at 50% 100%, transparent 0deg 2.4deg, rgba(13, 16, 25, 0.92) 2.4deg 4deg),
-    radial-gradient(circle at 50% 100%, #191c26 0 50%, transparent 51%),
-    conic-gradient(from 270deg at 50% 100%, #ff3d59 0 44deg, #f4a51c 44deg 86deg, #d8d80f 86deg 112deg, #13c781 112deg var(--angle), #2a2d38 var(--angle) 180deg, transparent 180deg);
-}
-
-.risk-gauge-arc::after {
-  content: "";
-  position: absolute;
-  left: 18%;
-  right: 18%;
-  bottom: 0;
-  height: 45%;
-  background: #191c26;
-  border-radius: 150px 150px 0 0;
 }
 
 .risk-avg-gauge strong {
   position: relative;
   z-index: 1;
-  margin-top: 40px;
+  margin-top: 56px;
   color: #f4f8ff;
   font-size: 34px;
   line-height: 1;
   letter-spacing: 0;
-}
-
-.risk-avg-gauge span {
-  position: absolute;
-  z-index: 1;
-  bottom: 36px;
-  padding: 6px 12px;
-  border: 1px solid rgba(19, 199, 129, 0.25);
-  border-radius: 3px;
-  background: rgba(19, 199, 129, 0.12);
-  color: #67d9b0;
-  font-size: 13px;
 }
 
 .risk-top-list {
@@ -1824,6 +1796,24 @@ h2 {
   gap: 14px;
   color: #aab3c7;
   font-size: 12px;
+}
+
+.risk-bars-tools {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.risk-sort-select {
+  width: 220px;
+  height: 34px;
+  border: 1px solid rgba(85, 92, 113, 0.78);
+  border-radius: 4px;
+  background: rgba(12, 14, 22, 0.58);
+  color: #dbe4f2;
+  padding: 0 34px 0 12px;
+  color-scheme: dark;
+  font-size: 13px;
 }
 
 .risk-legend span::before {
@@ -1948,7 +1938,7 @@ h2 {
 }
 
 .trend-min::before {
-  background: var(--red);
+  background: #a66bff;
 }
 
 .risk-alarm-top-panel {
