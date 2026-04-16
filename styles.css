@@ -1664,10 +1664,10 @@ h2 {
 
 .risk-avg-gauge canvas {
   position: absolute;
-  top: 28px;
+  top: 16px;
   left: 50%;
-  width: 260px;
-  height: 156px;
+  width: 292px;
+  height: 174px;
   max-width: none;
   transform: translateX(-50%);
 }
@@ -1675,9 +1675,9 @@ h2 {
 .risk-avg-gauge strong {
   position: relative;
   z-index: 1;
-  margin-top: 56px;
+  margin-top: 68px;
   color: #f4f8ff;
-  font-size: 34px;
+  font-size: 36px;
   line-height: 1;
   letter-spacing: 0;
 }
@@ -1783,7 +1783,7 @@ h2 {
 
 .risk-summary-layout .donut-wrap,
 .risk-alarm-grid .donut-wrap {
-  grid-template-columns: 220px 112px;
+  grid-template-columns: 248px 112px;
   justify-content: center;
   min-height: 270px;
   height: calc(100% - 28px);
