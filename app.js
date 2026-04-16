@@ -40,6 +40,7 @@ const state = {
   stations: [],
   filtered: [],
   alarms: [],
+  allAlarms: [],
   activeAlarmType: "all",
   activeAlarmDays: "all",
   alarmStartDate: "",
@@ -56,6 +57,7 @@ const els = {};
 document.addEventListener("DOMContentLoaded", () => {
   bindElements();
   state.stations = createStations();
+  state.allAlarms = createAlarms(state.stations);
   renderFilters();
   applyFilters();
   bindEvents();
@@ -261,7 +263,7 @@ function createAlarms(stations) {
   const templates = Array.isArray(window.RISK_LIST_TEMPLATES) ? window.RISK_LIST_TEMPLATES : [];
   const alarmTotal = 273;
   return Array.from({ length: alarmTotal }, (_, index) => {
-      const station = stations[(index * 7 + index) % stations.length];
+      const station = stations[(index * 37) % stations.length];
       const template = pickRiskTemplate(templates, index);
       const type = levelToType(template.level);
       const date = new Date(2026, 3, 15 - (index % 45), 11 - (index % 3), 21 + (index % 36));
@@ -285,8 +287,8 @@ function createAlarms(stations) {
 function scoreFor(n) {
   const wobble = Math.sin(n * 1.17) * 2.2;
   if (n % 17 === 0) return round(50 + (n % 6) + wobble, 2);
-  if (n % 7 === 0 || n % 10 === 0) return round(66 + (n % 10) + wobble, 2);
-  if (n % 3 === 0 || n % 13 === 0) return 100;
+  if ((n % 7 === 0 && n !== 154) || n === 1) return 100;
+  if (n % 5 === 0 || n % 11 === 0) return round(66 + (n % 10) + wobble, 2);
   return round(Math.min(99.2, 82 + (n % 7) + wobble), 2);
 }
 
@@ -357,9 +359,15 @@ function applyFilters() {
 
   state.filtered = filtered;
   renderStations(filtered);
-  state.alarms = createAlarms(filtered);
+  state.alarms = filterAlarmsByStations(filtered);
   renderAlarms();
   renderStationPicker();
+}
+
+function filterAlarmsByStations(stations) {
+  if (!stations.length) return [];
+  const stationIds = new Set(stations.map((station) => station.id));
+  return state.allAlarms.filter((alarm) => stationIds.has(alarm.stationId));
 }
 
 function renderStations(stations) {
