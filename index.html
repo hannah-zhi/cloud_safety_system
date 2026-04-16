@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>安全预警 - 远景数智运营系统</title>
-    <link rel="stylesheet" href="styles.css?v=20260416-risk-view3" />
+    <link rel="stylesheet" href="styles.css?v=20260416-risk-view4" />
   </head>
   <body>
     <div class="shell">
@@ -119,18 +119,40 @@
               <div class="panel-title"><span></span>风险场站 TOP5</div>
               <div id="riskTopList" class="risk-top-list"></div>
             </article>
-            <article class="panel risk-kpi">
-              <span>全量场站平均 SOS</span>
-              <strong id="riskAvgSos">--</strong>
-            </article>
-            <article class="panel risk-kpi">
-              <span>高/中风险场站</span>
-              <strong id="riskWatchCount">--</strong>
+            <article class="panel">
+              <div class="panel-title"><span></span>场站风险等级占比</div>
+              <div class="donut-wrap">
+                <canvas id="riskPieCanvas" width="300" height="250"></canvas>
+                <div id="riskPieLegend" class="legend"></div>
+              </div>
             </article>
           </div>
 
           <div class="risk-section-title">SOS 透视</div>
           <div class="risk-sos-grid">
+            <article class="panel risk-trend-panel">
+              <div class="panel-title-row">
+                <div class="panel-title"><span></span>SOS 趋势</div>
+                <div class="range-buttons" id="riskTrendButtons">
+                  <button class="active" data-range="7" type="button">7天</button>
+                  <button data-range="15" type="button">15天</button>
+                  <button data-range="30" type="button">30天</button>
+                </div>
+              </div>
+              <div class="risk-trend-summary">
+                <span>全量场站平均 SOS</span>
+                <strong id="riskAvgSos">--</strong>
+              </div>
+              <div class="risk-trend-legend">
+                <span class="trend-avg">全量场站均值</span>
+                <span class="trend-max">最大值</span>
+                <span class="trend-min">最小值</span>
+              </div>
+              <div class="risk-trend-chart" id="riskTrendChart">
+                <canvas id="riskTrendCanvas" width="860" height="300"></canvas>
+                <div id="riskTrendTooltip" class="risk-bars-tooltip"></div>
+              </div>
+            </article>
             <article class="panel risk-bars-panel">
               <div class="panel-title-row">
                 <div class="panel-title"><span></span>场站 SOS 安全指数</div>
@@ -145,36 +167,6 @@
                 <canvas id="riskBarsCanvas" width="1600" height="360"></canvas>
                 <div id="riskBarsTooltip" class="risk-bars-tooltip"></div>
               </div>
-            </article>
-            <article class="panel">
-              <div class="panel-title"><span></span>场站风险等级占比</div>
-              <div class="donut-wrap">
-                <canvas id="riskPieCanvas" width="300" height="250"></canvas>
-                <div id="riskPieLegend" class="legend"></div>
-              </div>
-            </article>
-            <article class="panel risk-trend-panel">
-              <div class="panel-title-row">
-                <div class="panel-title"><span></span>SOS 趋势</div>
-                <div class="range-buttons" id="riskTrendButtons">
-                  <button class="active" data-range="7" type="button">7天</button>
-                  <button data-range="15" type="button">15天</button>
-                  <button data-range="30" type="button">30天</button>
-                </div>
-              </div>
-              <div class="risk-trend-legend">
-                <span class="trend-avg">全量场站均值</span>
-                <span class="trend-max">最大值</span>
-                <span class="trend-min">最小值</span>
-              </div>
-              <div class="risk-trend-chart" id="riskTrendChart">
-                <canvas id="riskTrendCanvas" width="860" height="300"></canvas>
-                <div id="riskTrendTooltip" class="risk-bars-tooltip"></div>
-              </div>
-            </article>
-            <article class="panel">
-              <div class="panel-title"><span></span>SOS 分段统计</div>
-              <canvas id="riskBandCanvas" width="430" height="300"></canvas>
             </article>
           </div>
 
@@ -366,6 +358,6 @@
 
     <script src="site-data.js?v=20260415-siteconfig3"></script>
     <script src="risk-data.js?v=20260415-risk-list1"></script>
-    <script src="app.js?v=20260416-risk-view3"></script>
+    <script src="app.js?v=20260416-risk-view4"></script>
   </body>
 </html>
