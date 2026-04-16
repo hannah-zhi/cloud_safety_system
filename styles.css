@@ -1634,7 +1634,7 @@ h2 {
 
 .risk-summary-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1.15fr) minmax(380px, 0.85fr);
+  grid-template-columns: minmax(0, 1.25fr) minmax(360px, 0.82fr) minmax(260px, 0.52fr);
   gap: 14px;
   margin-bottom: 14px;
   align-items: stretch;
@@ -1642,6 +1642,37 @@ h2 {
 
 .risk-top-panel {
   padding: 16px;
+}
+
+.risk-avg-panel {
+  min-height: 270px;
+  display: flex;
+  flex-direction: column;
+}
+
+.risk-avg-value {
+  flex: 1;
+  display: flex;
+  min-height: 190px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background:
+    radial-gradient(circle at center, rgba(18, 152, 255, 0.16), transparent 54%),
+    linear-gradient(180deg, rgba(18, 152, 255, 0.08), rgba(19, 199, 129, 0.04));
+}
+
+.risk-avg-value strong {
+  color: #f4f8ff;
+  font-size: 44px;
+  line-height: 1;
+  letter-spacing: 0;
+}
+
+.risk-avg-value span {
+  color: #8f9ab0;
+  font-size: 12px;
 }
 
 .risk-top-list {
@@ -1852,36 +1883,11 @@ h2 {
   position: relative;
 }
 
-.risk-trend-summary {
-  display: inline-grid;
-  grid-template-columns: auto auto;
-  align-items: baseline;
-  gap: 10px;
-  margin: 12px 0 0 14px;
-  padding: 8px 12px;
-  border: 1px solid rgba(18, 152, 255, 0.24);
-  border-radius: 4px;
-  background:
-    linear-gradient(90deg, rgba(18, 152, 255, 0.14), rgba(19, 199, 129, 0.07)),
-    rgba(9, 13, 22, 0.54);
-}
-
-.risk-trend-summary span {
-  color: #8f9ab0;
-  font-size: 12px;
-}
-
-.risk-trend-summary strong {
-  color: #f4f8ff;
-  font-size: 26px;
-  line-height: 1;
-}
-
 .risk-trend-legend {
   display: flex;
   justify-content: flex-end;
   gap: 16px;
-  margin: -28px 14px 2px 0;
+  margin: 8px 14px -6px 0;
   color: #c8d0dc;
   font-size: 12px;
 }
