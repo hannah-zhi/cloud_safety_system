@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>安全预警 - 远景数智运营系统</title>
-    <link rel="stylesheet" href="styles.css?v=20260416-risk-view2" />
+    <link rel="stylesheet" href="styles.css?v=20260416-risk-view3" />
   </head>
   <body>
     <div class="shell">
@@ -162,7 +162,15 @@
                   <button data-range="30" type="button">30天</button>
                 </div>
               </div>
-              <canvas id="riskTrendCanvas" width="860" height="300"></canvas>
+              <div class="risk-trend-legend">
+                <span class="trend-avg">全量场站均值</span>
+                <span class="trend-max">最大值</span>
+                <span class="trend-min">最小值</span>
+              </div>
+              <div class="risk-trend-chart" id="riskTrendChart">
+                <canvas id="riskTrendCanvas" width="860" height="300"></canvas>
+                <div id="riskTrendTooltip" class="risk-bars-tooltip"></div>
+              </div>
             </article>
             <article class="panel">
               <div class="panel-title"><span></span>SOS 分段统计</div>
@@ -358,6 +366,6 @@
 
     <script src="site-data.js?v=20260415-siteconfig3"></script>
     <script src="risk-data.js?v=20260415-risk-list1"></script>
-    <script src="app.js?v=20260416-risk-view2"></script>
+    <script src="app.js?v=20260416-risk-view3"></script>
   </body>
 </html>
