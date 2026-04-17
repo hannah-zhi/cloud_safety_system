@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>安全预警 - 远景数智运营系统</title>
-    <link rel="stylesheet" href="styles.css?v=20260417-overview-tune1" />
+    <link rel="stylesheet" href="styles.css?v=20260417-risk-alarm-tune1" />
   </head>
   <body>
     <div class="shell">
@@ -138,25 +138,6 @@
 
           <div class="risk-section-title">SOS 透视</div>
           <div class="risk-sos-grid">
-            <article class="panel risk-trend-panel">
-              <div class="panel-title-row">
-                <div class="panel-title"><span></span>全量场站SOS趋势</div>
-                <div class="range-buttons" id="riskTrendButtons">
-                  <button class="active" data-range="7" type="button">7天</button>
-                  <button data-range="15" type="button">15天</button>
-                  <button data-range="30" type="button">30天</button>
-                </div>
-              </div>
-              <div class="risk-trend-legend">
-                <span class="trend-avg">全量场站平均值</span>
-                <span class="trend-max">最大值</span>
-                <span class="trend-min">最小值</span>
-              </div>
-              <div class="risk-trend-chart" id="riskTrendChart">
-                <canvas id="riskTrendCanvas" width="860" height="300"></canvas>
-                <div id="riskTrendTooltip" class="risk-bars-tooltip"></div>
-              </div>
-            </article>
             <article class="panel risk-bars-panel">
               <div class="panel-title-row">
                 <div class="panel-title"><span></span>场站SOS分布</div>
@@ -178,6 +159,25 @@
               <div class="risk-bars-viewport" id="riskBarsViewport">
                 <canvas id="riskBarsCanvas" width="1600" height="360"></canvas>
                 <div id="riskBarsTooltip" class="risk-bars-tooltip"></div>
+              </div>
+            </article>
+            <article class="panel risk-trend-panel">
+              <div class="panel-title-row">
+                <div class="panel-title"><span></span>全量场站SOS趋势</div>
+                <div class="range-buttons" id="riskTrendButtons">
+                  <button class="active" data-range="7" type="button">7天</button>
+                  <button data-range="15" type="button">15天</button>
+                  <button data-range="30" type="button">30天</button>
+                </div>
+              </div>
+              <div class="risk-trend-legend">
+                <span class="trend-avg">全量场站平均值</span>
+                <span class="trend-max">最大值</span>
+                <span class="trend-min">最小值</span>
+              </div>
+              <div class="risk-trend-chart" id="riskTrendChart">
+                <canvas id="riskTrendCanvas" width="860" height="300"></canvas>
+                <div id="riskTrendTooltip" class="risk-bars-tooltip"></div>
               </div>
             </article>
           </div>
@@ -217,6 +217,7 @@
                 <span>→</span>
                 <input id="alarmDetailEnd" type="date" aria-label="结束时间" />
               </div>
+              <div id="alarmDetailLevel" class="alarm-multi-select" data-filter="level"></div>
               <div id="alarmDetailModule" class="alarm-multi-select" data-filter="module"></div>
               <div id="alarmDetailName" class="alarm-multi-select searchable" data-filter="name"></div>
               <div id="alarmDetailStation" class="alarm-multi-select searchable" data-filter="station"></div>
@@ -365,6 +366,6 @@
 
     <script src="site-data.js?v=20260415-siteconfig3"></script>
     <script src="risk-data.js?v=20260415-risk-list1"></script>
-    <script src="app.js?v=20260417-overview-tune1"></script>
+    <script src="app.js?v=20260417-risk-alarm-tune1"></script>
   </body>
 </html>
