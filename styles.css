@@ -1664,7 +1664,7 @@ h2 {
 
 .risk-avg-gauge canvas {
   position: absolute;
-  top: 16px;
+  top: 28px;
   left: 50%;
   width: 292px;
   height: 174px;
@@ -1675,9 +1675,9 @@ h2 {
 .risk-avg-gauge strong {
   position: relative;
   z-index: 1;
-  margin-top: 68px;
+  margin-top: 58px;
   color: #f4f8ff;
-  font-size: 36px;
+  font-size: 34px;
   line-height: 1;
   letter-spacing: 0;
 }
