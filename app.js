@@ -668,20 +668,20 @@ function renderRiskAvgGauge(avg) {
   const ctx = canvas.getContext("2d");
   clear(ctx, canvas.width, canvas.height);
   const centerX = canvas.width / 2;
-  const centerY = canvas.height - 22;
-  const radius = Math.min(canvas.width * 0.46, 132);
+  const centerY = canvas.height - 18;
+  const radius = Math.min(canvas.width * 0.45, 130);
   const start = Math.PI;
   const end = Math.PI * 2;
   const activeEnd = start + (Math.max(0, Math.min(100, avg)) / 100) * Math.PI;
-  const totalTicks = 44;
+  const totalTicks = 36;
   for (let i = 0; i < totalTicks; i += 1) {
     const tickStart = start + (i / totalTicks) * Math.PI;
-    const tickEnd = start + ((i + 0.7) / totalTicks) * Math.PI;
+    const tickEnd = start + ((i + 0.58) / totalTicks) * Math.PI;
     const mid = (tickStart + tickEnd) / 2;
-    const inner = radius - 26;
+    const inner = radius - 23;
     const outer = radius;
     ctx.beginPath();
-    ctx.lineWidth = 7;
+    ctx.lineWidth = 4.5;
     ctx.lineCap = "round";
     ctx.strokeStyle = mid <= activeEnd ? gaugeColor(i / (totalTicks - 1)) : "rgba(48, 52, 64, 0.8)";
     ctx.moveTo(centerX + Math.cos(tickStart) * inner, centerY + Math.sin(tickStart) * inner);
@@ -689,11 +689,11 @@ function renderRiskAvgGauge(avg) {
     ctx.stroke();
   }
   ctx.strokeStyle = "rgba(238, 247, 255, 0.42)";
-  ctx.lineWidth = 1.2;
-  for (let i = 0; i <= 8; i += 1) {
-    const angle = start + (i / 8) * Math.PI;
-    const inner = radius - 52;
-    const outer = radius - 43;
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= 6; i += 1) {
+    const angle = start + (i / 6) * Math.PI;
+    const inner = radius - 48;
+    const outer = radius - 40;
     ctx.beginPath();
     ctx.moveTo(centerX + Math.cos(angle) * inner, centerY + Math.sin(angle) * inner);
     ctx.lineTo(centerX + Math.cos(angle) * outer, centerY + Math.sin(angle) * outer);
