@@ -2012,49 +2012,15 @@ h2 {
   text-align: right;
 }
 
-.alarm-detail-layout {
-  display: grid;
-  grid-template-columns: 280px minmax(0, 1fr);
-  gap: 14px;
-  align-items: start;
-}
-
-.alarm-filter-panel {
-  position: sticky;
-  top: 116px;
-  padding: 16px;
-}
-
-.alarm-filter-panel label,
-.alarm-detail-date label {
-  display: grid;
-  gap: 6px;
-  margin-top: 14px;
-  color: #8d96aa;
-  font-size: 12px;
-}
-
-.alarm-filter-panel input,
-.alarm-filter-panel select {
-  width: 100%;
-  height: 34px;
-  border: 1px solid rgba(85, 92, 113, 0.72);
-  border-radius: 4px;
-  background: rgba(12, 14, 22, 0.6);
-  color: #eef3fb;
-  padding: 0 9px;
-  color-scheme: dark;
-}
-
 .alarm-detail-date {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
+  height: 34px;
+  align-items: center;
   gap: 8px;
-}
-
-.alarm-filter-panel .export-btn {
-  width: 100%;
-  margin-top: 16px;
+  padding: 0 8px;
+  border: 1px solid rgba(85, 92, 113, 0.72);
+  background: rgba(12, 14, 22, 0.6);
+  color: #8d96aa;
 }
 
 .alarm-detail-main {
@@ -2062,9 +2028,53 @@ h2 {
   padding: 16px;
 }
 
+.alarm-detail-filterbar {
+  display: grid;
+  grid-template-columns: minmax(250px, 1.1fr) minmax(140px, 0.7fr) minmax(170px, 0.8fr) minmax(130px, 0.6fr) minmax(220px, 1fr) auto auto auto;
+  gap: 8px;
+  align-items: center;
+  margin-top: 12px;
+}
+
+.alarm-detail-filterbar input,
+.alarm-detail-filterbar select,
+.alarm-detail-date input {
+  height: 34px;
+  min-width: 0;
+  border: 1px solid rgba(85, 92, 113, 0.72);
+  border-radius: 2px;
+  background: rgba(12, 14, 22, 0.6);
+  color: #eef3fb;
+  padding: 0 9px;
+  color-scheme: dark;
+}
+
+.alarm-detail-date input {
+  width: 112px;
+  border: 0;
+  background: transparent;
+  padding: 0;
+}
+
+.query-btn,
+.reset-btn {
+  height: 34px;
+  border: 1px solid rgba(85, 92, 113, 0.72);
+  border-radius: 2px;
+  padding: 0 14px;
+  color: #eef3fb;
+  background: rgba(38, 42, 55, 0.82);
+}
+
+.query-btn {
+  border-color: var(--blue);
+  background: var(--blue);
+}
+
 .alarm-detail-count {
   color: #8d96aa;
   font-size: 13px;
+  white-space: nowrap;
 }
 
 .alarm-detail-count strong {
@@ -2072,7 +2082,7 @@ h2 {
 }
 
 .alarm-detail-table-wrap {
-  max-height: 560px;
+  max-height: 660px;
   overflow: auto;
   margin-top: 12px;
 }
@@ -2085,7 +2095,7 @@ h2 {
 
 .alarm-detail-table th,
 .alarm-detail-table td {
-  padding: 10px 9px;
+  padding: 11px 10px;
   border-bottom: 1px solid rgba(69, 73, 90, 0.55);
   text-align: left;
   vertical-align: top;
@@ -2107,6 +2117,15 @@ h2 {
 .alarm-detail-table tr:hover,
 .alarm-detail-table tr.selected {
   background: rgba(18, 152, 255, 0.08);
+}
+
+.alarm-detail-table td:nth-child(2),
+.alarm-detail-table td:nth-child(4),
+.alarm-detail-table td:nth-child(5) {
+  max-width: 260px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .alarm-level-table {
@@ -2135,14 +2154,9 @@ h2 {
   background: rgba(19, 199, 129, 0.1);
 }
 
-.alarm-inspector {
-  margin-top: 14px;
-  padding: 16px;
-}
-
 .alarm-inspector-body {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10px;
   margin-top: 12px;
 }
@@ -2165,6 +2179,71 @@ h2 {
   color: #eef3fb;
   font-size: 13px;
   line-height: 1.45;
+}
+
+.alarm-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+}
+
+.alarm-modal.show {
+  display: block;
+}
+
+.alarm-modal-mask {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.58);
+  backdrop-filter: blur(2px);
+}
+
+.alarm-modal-panel {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: min(980px, calc(100vw - 80px));
+  max-height: calc(100vh - 80px);
+  overflow: auto;
+  transform: translate(-50%, -50%);
+  border: 1px solid rgba(73, 91, 128, 0.72);
+  border-radius: 6px;
+  background:
+    linear-gradient(180deg, rgba(30, 34, 47, 0.96), rgba(18, 21, 31, 0.96)),
+    var(--surface);
+  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.55);
+  padding: 18px;
+}
+
+.alarm-modal-close {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  width: 30px;
+  height: 30px;
+  border: 1px solid rgba(85, 92, 113, 0.72);
+  border-radius: 4px;
+  background: rgba(12, 14, 22, 0.6);
+  color: #dbe4f2;
+  font-size: 20px;
+  line-height: 1;
+}
+
+.alarm-modal-chart {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(69, 73, 90, 0.55);
+}
+
+.alarm-trend-chart {
+  position: relative;
+  margin-top: 10px;
+}
+
+.alarm-trend-legend {
+  color: #8f97a8;
+  font-size: 12px;
 }
 
 .panel {
