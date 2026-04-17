@@ -396,7 +396,7 @@ function createAlarms(stations) {
 }
 
 function formatFullDateTime(date) {
-  return `${date.getFullYear()}/${String(date.getMonth() + 1).padStart(2, "0")}/${String(date.getDate()).padStart(2, "0")} ${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
+  return `${date.getFullYear()}/${String(date.getMonth() + 1).padStart(2, "0")}/${String(date.getDate()).padStart(2, "0")} ${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}:${String(date.getSeconds()).padStart(2, "0")}`;
 }
 
 function scoreFor(n) {
@@ -1118,13 +1118,14 @@ function renderAlarmMultiSelect(key, config) {
   const selected = state.alarmDetailSelections[key];
   const title = selected.size ? `已选 ${selected.size}` : config.label;
   config.el.innerHTML = `
-    <button class="alarm-multi-trigger" type="button">${title}<span>⌄</span></button>
+    <button class="alarm-multi-trigger combo-input" type="button"><span>${title}</span></button>
     <div class="alarm-multi-menu">
       ${config.searchable ? `<input class="alarm-multi-search" type="search" placeholder="搜索${config.label.replace("全部", "")}" />` : ""}
       <div class="alarm-multi-options">
         ${config.options.map((option) => `
-          <label title="${option}">
+          <label class="selector-option ${selected.has(option) ? "selected" : ""}" title="${option}">
             <input type="checkbox" value="${option}" ${selected.has(option) ? "checked" : ""} />
+            <i class="selector-check ${selected.has(option) ? "checked" : ""}"></i>
             <span>${option}</span>
           </label>`).join("")}
       </div>
@@ -1137,10 +1138,12 @@ function renderAlarmMultiSelect(key, config) {
     });
     config.el.classList.toggle("open");
   });
+  config.el.querySelector(".alarm-multi-menu").addEventListener("click", (event) => event.stopPropagation());
   config.el.querySelectorAll("input[type='checkbox']").forEach((checkbox) => {
     checkbox.addEventListener("change", () => {
       checkbox.checked ? selected.add(checkbox.value) : selected.delete(checkbox.value);
       renderAlarmMultiSelect(key, config);
+      config.el.classList.add("open");
       renderAlarmDetailPage();
     });
   });
@@ -1222,15 +1225,17 @@ function renderAlarmInspector(alarm) {
   const duration = Math.max(1, ((alarm.id.length * 7) % 24) + (alarm.type === "level1" ? 6 : alarm.type === "level2" ? 3 : 1));
   els.alarmInspectorBody.innerHTML = `
     <div class="alarm-detail-hero">
-      <span class="alarm-level-table alarm-${alarm.type}">${alarm.level}</span>
+      <div class="alarm-detail-badges">
+        <span class="alarm-level-table alarm-${alarm.type}">${alarm.level}</span>
+        <span class="alarm-module-pill">${alarm.module}</span>
+      </div>
       <strong>${alarm.title}</strong>
       <p>${alarm.level === "一级" ? "立即复核云端诊断结果并安排现场排查。" : alarm.level === "二级" ? "持续观察趋势，纳入当班巡检计划。" : "记录风险变化，按计划跟踪闭环。"}</p>
     </div>
     <div class="alarm-detail-meta">
-      <div><span>系统模块</span><strong>${alarm.module}</strong></div>
+      <div><span>预警来源</span><strong>${alarm.source}</strong></div>
       <div><span>所属场站</span><strong>${alarm.stationId}${alarm.stationName}</strong></div>
       <div><span>预警位置</span><strong>${alarm.location}</strong></div>
-      <div><span>预警来源</span><strong>${alarm.source}</strong></div>
       <div><span>事件时间</span><strong>${alarm.eventTime}</strong></div>
       <div><span>预警时间</span><strong>${alarm.warningTime}</strong></div>
       <div><span>持续时长</span><strong>${duration} 小时</strong></div>
