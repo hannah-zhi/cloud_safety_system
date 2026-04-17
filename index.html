@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>安全预警 - 远景数智运营系统</title>
-    <link rel="stylesheet" href="styles.css?v=20260417-alarm-detail1" />
+    <link rel="stylesheet" href="styles.css?v=20260417-alarm-detail3" />
   </head>
   <body>
     <div class="shell">
@@ -211,30 +211,16 @@
               <button class="export-btn" type="button">导出</button>
             </div>
             <div class="alarm-detail-filterbar">
-              <div class="alarm-detail-date">
+              <div class="alarm-detail-date" aria-label="时间筛选">
                 <input id="alarmDetailStart" type="date" aria-label="开始时间" />
                 <span>→</span>
                 <input id="alarmDetailEnd" type="date" aria-label="结束时间" />
               </div>
-              <select id="alarmDetailLevel" aria-label="预警等级">
-                <option value="all">全部等级</option>
-                <option value="level1">一级</option>
-                <option value="level2">二级</option>
-                <option value="level3">三级</option>
-              </select>
-              <select id="alarmDetailModule" aria-label="设备模块">
-                <option value="all">全部设备模块</option>
-                <option value="电池系统">电池系统</option>
-                <option value="电气系统">电气系统</option>
-                <option value="环控系统">环控系统</option>
-                <option value="消防系统">消防系统</option>
-              </select>
-              <select id="alarmDetailSource" aria-label="预警来源">
-                <option value="all">全部来源</option>
-                <option value="云端">云端</option>
-                <option value="站端">站端</option>
-              </select>
-              <input id="alarmDetailKeyword" type="search" placeholder="搜索预警名称 / 场站 / 位置" />
+              <div id="alarmDetailModule" class="alarm-multi-select" data-filter="module"></div>
+              <div id="alarmDetailName" class="alarm-multi-select searchable" data-filter="name"></div>
+              <div id="alarmDetailStation" class="alarm-multi-select searchable" data-filter="station"></div>
+              <div id="alarmDetailLocation" class="alarm-multi-select searchable" data-filter="location"></div>
+              <div id="alarmDetailSource" class="alarm-multi-select" data-filter="source"></div>
               <button class="query-btn" type="button">查询</button>
               <button id="alarmDetailReset" class="reset-btn" type="button">重置</button>
               <div class="alarm-detail-count">共 <strong id="alarmDetailCount">0</strong> 条</div>
@@ -273,6 +259,10 @@
               <div class="alarm-trend-chart" id="alarmTrendChart">
                 <canvas id="alarmTrendCanvas" width="860" height="260"></canvas>
                 <div id="alarmTrendTooltip" class="risk-bars-tooltip"></div>
+              </div>
+              <div class="alarm-modal-actions">
+                <button type="button">处理</button>
+                <button type="button">分析</button>
               </div>
             </div>
           </article>
@@ -374,6 +364,6 @@
 
     <script src="site-data.js?v=20260415-siteconfig3"></script>
     <script src="risk-data.js?v=20260415-risk-list1"></script>
-    <script src="app.js?v=20260417-alarm-detail1"></script>
+    <script src="app.js?v=20260417-alarm-detail3"></script>
   </body>
 </html>
