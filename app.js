@@ -54,6 +54,13 @@ const state = {
   riskTrendHover: null,
   riskBarSort: "idAsc",
   alarmTrendHitboxes: [],
+  alarmDetailSelections: {
+    module: new Set(),
+    name: new Set(),
+    station: new Set(),
+    location: new Set(),
+    source: new Set(),
+  },
   activeFilter: "all",
   selectedStationIds: new Set(),
   selectedStation: null,
@@ -67,6 +74,7 @@ document.addEventListener("DOMContentLoaded", () => {
   bindElements();
   state.stations = createStations();
   state.allAlarms = createAlarms(state.stations);
+  renderAlarmDetailFilters();
   renderFilters();
   applyFilters();
   bindEvents();
@@ -135,8 +143,9 @@ function bindElements() {
     "riskAlarmPieLegend",
     "riskModuleLegend",
     "riskAlarmNameTopList",
-    "alarmDetailKeyword",
-    "alarmDetailLevel",
+    "alarmDetailName",
+    "alarmDetailStation",
+    "alarmDetailLocation",
     "alarmDetailModule",
     "alarmDetailSource",
     "alarmDetailStart",
@@ -221,18 +230,16 @@ function bindEvents() {
       renderAlarms();
     });
   });
-  [els.alarmDetailKeyword, els.alarmDetailLevel, els.alarmDetailModule, els.alarmDetailSource, els.alarmDetailStart, els.alarmDetailEnd].forEach((input) => {
+  [els.alarmDetailStart, els.alarmDetailEnd].forEach((input) => {
     input.addEventListener("input", renderAlarmDetailPage);
     input.addEventListener("change", renderAlarmDetailPage);
   });
   els.alarmDetailReset.addEventListener("click", () => {
-    els.alarmDetailKeyword.value = "";
-    els.alarmDetailLevel.value = "all";
-    els.alarmDetailModule.value = "all";
-    els.alarmDetailSource.value = "all";
+    Object.values(state.alarmDetailSelections).forEach((set) => set.clear());
     els.alarmDetailStart.value = "";
     els.alarmDetailEnd.value = "";
     state.selectedAlarm = null;
+    renderAlarmDetailFilters();
     renderAlarmDetailPage();
   });
   els.alarmModalClose.addEventListener("click", closeAlarmModal);
@@ -1090,6 +1097,69 @@ function handleRiskTrendHover(event) {
   els.riskTrendTooltip.classList.add("show");
 }
 
+function renderAlarmDetailFilters() {
+  const alarms = state.allAlarms || [];
+  const optionMap = {
+    module: { el: els.alarmDetailModule, label: "全部设备模块", searchable: false, options: ["电池系统", "电气系统", "环控系统", "消防系统"] },
+    name: { el: els.alarmDetailName, label: "全部预警名称", searchable: true, options: uniqueSorted(alarms.map((alarm) => alarm.title)) },
+    station: { el: els.alarmDetailStation, label: "全部场站", searchable: true, options: uniqueSorted(alarms.map((alarm) => `${alarm.stationId}${alarm.stationName}`)) },
+    location: { el: els.alarmDetailLocation, label: "全部位置", searchable: true, options: uniqueSorted(alarms.map((alarm) => alarm.location)) },
+    source: { el: els.alarmDetailSource, label: "全部来源", searchable: false, options: ["云端", "站端"] },
+  };
+  Object.entries(optionMap).forEach(([key, config]) => renderAlarmMultiSelect(key, config));
+}
+
+function uniqueSorted(values) {
+  return [...new Set(values.filter(Boolean))].sort((a, b) => a.localeCompare(b, "zh-CN"));
+}
+
+function renderAlarmMultiSelect(key, config) {
+  if (!config.el) return;
+  const selected = state.alarmDetailSelections[key];
+  const title = selected.size ? `已选 ${selected.size}` : config.label;
+  config.el.innerHTML = `
+    <button class="alarm-multi-trigger" type="button">${title}<span>⌄</span></button>
+    <div class="alarm-multi-menu">
+      ${config.searchable ? `<input class="alarm-multi-search" type="search" placeholder="搜索${config.label.replace("全部", "")}" />` : ""}
+      <div class="alarm-multi-options">
+        ${config.options.map((option) => `
+          <label title="${option}">
+            <input type="checkbox" value="${option}" ${selected.has(option) ? "checked" : ""} />
+            <span>${option}</span>
+          </label>`).join("")}
+      </div>
+    </div>
+  `;
+  config.el.querySelector(".alarm-multi-trigger").addEventListener("click", (event) => {
+    event.stopPropagation();
+    document.querySelectorAll(".alarm-multi-select.open").forEach((item) => {
+      if (item !== config.el) item.classList.remove("open");
+    });
+    config.el.classList.toggle("open");
+  });
+  config.el.querySelectorAll("input[type='checkbox']").forEach((checkbox) => {
+    checkbox.addEventListener("change", () => {
+      checkbox.checked ? selected.add(checkbox.value) : selected.delete(checkbox.value);
+      renderAlarmMultiSelect(key, config);
+      renderAlarmDetailPage();
+    });
+  });
+  const search = config.el.querySelector(".alarm-multi-search");
+  if (search) {
+    search.addEventListener("click", (event) => event.stopPropagation());
+    search.addEventListener("input", () => {
+      const keyword = search.value.trim().toLowerCase();
+      config.el.querySelectorAll(".alarm-multi-options label").forEach((label) => {
+        label.style.display = label.textContent.toLowerCase().includes(keyword) ? "" : "none";
+      });
+    });
+  }
+}
+
+document.addEventListener("click", () => {
+  document.querySelectorAll(".alarm-multi-select.open").forEach((item) => item.classList.remove("open"));
+});
+
 function renderAlarmDetailPage() {
   const alarms = filterAlarmDetailItems();
   els.alarmDetailCount.textContent = alarms.length;
@@ -1126,20 +1196,18 @@ function renderAlarmDetailPage() {
 }
 
 function filterAlarmDetailItems() {
-  const keyword = els.alarmDetailKeyword.value.trim().toLowerCase();
-  const level = els.alarmDetailLevel.value;
-  const module = els.alarmDetailModule.value;
-  const source = els.alarmDetailSource.value;
   const start = els.alarmDetailStart.value ? new Date(`${els.alarmDetailStart.value}T00:00:00`) : null;
   const end = els.alarmDetailEnd.value ? new Date(`${els.alarmDetailEnd.value}T23:59:59`) : null;
+  const { module, name, station, location, source } = state.alarmDetailSelections;
   return state.alarms.filter((alarm) => {
-    const haystack = `${alarm.title}${alarm.module}${alarm.stationId}${alarm.stationName}${alarm.location}`.toLowerCase();
     const date = new Date(`${alarm.dateISO}T12:00:00`);
+    const stationLabel = `${alarm.stationId}${alarm.stationName}`;
     return (
-      (!keyword || haystack.includes(keyword)) &&
-      (level === "all" || alarm.type === level) &&
-      (module === "all" || alarm.module === module) &&
-      (source === "all" || alarm.source === source) &&
+      (!module.size || module.has(alarm.module)) &&
+      (!name.size || name.has(alarm.title)) &&
+      (!station.size || station.has(stationLabel)) &&
+      (!location.size || location.has(alarm.location)) &&
+      (!source.size || source.has(alarm.source)) &&
       (!start || date >= start) &&
       (!end || date <= end)
     );
@@ -1151,16 +1219,22 @@ function renderAlarmInspector(alarm) {
     els.alarmInspectorBody.textContent = "点击任意预警查看完整内容";
     return;
   }
+  const duration = Math.max(1, ((alarm.id.length * 7) % 24) + (alarm.type === "level1" ? 6 : alarm.type === "level2" ? 3 : 1));
   els.alarmInspectorBody.innerHTML = `
-    <div><span>预警名称</span><strong>${alarm.title}</strong></div>
-    <div><span>风险等级</span><strong>${alarm.level}</strong></div>
-    <div><span>系统模块</span><strong>${alarm.module}</strong></div>
-    <div><span>所属场站</span><strong>${alarm.stationId}${alarm.stationName}</strong></div>
-    <div><span>预警来源</span><strong>${alarm.source}</strong></div>
-    <div><span>事件时间</span><strong>${alarm.eventTime}</strong></div>
-    <div><span>预警时间</span><strong>${alarm.warningTime}</strong></div>
-    <div><span>预警位置</span><strong>${alarm.location}</strong></div>
-    <div><span>处置建议</span><strong>${alarm.level === "一级" ? "立即复核云端诊断结果并安排现场排查。" : alarm.level === "二级" ? "持续观察趋势，纳入当班巡检计划。" : "记录风险变化，按计划跟踪闭环。"}</strong></div>
+    <div class="alarm-detail-hero">
+      <span class="alarm-level-table alarm-${alarm.type}">${alarm.level}</span>
+      <strong>${alarm.title}</strong>
+      <p>${alarm.level === "一级" ? "立即复核云端诊断结果并安排现场排查。" : alarm.level === "二级" ? "持续观察趋势，纳入当班巡检计划。" : "记录风险变化，按计划跟踪闭环。"}</p>
+    </div>
+    <div class="alarm-detail-meta">
+      <div><span>系统模块</span><strong>${alarm.module}</strong></div>
+      <div><span>所属场站</span><strong>${alarm.stationId}${alarm.stationName}</strong></div>
+      <div><span>预警位置</span><strong>${alarm.location}</strong></div>
+      <div><span>预警来源</span><strong>${alarm.source}</strong></div>
+      <div><span>事件时间</span><strong>${alarm.eventTime}</strong></div>
+      <div><span>预警时间</span><strong>${alarm.warningTime}</strong></div>
+      <div><span>持续时长</span><strong>${duration} 小时</strong></div>
+    </div>
   `;
 }
 
