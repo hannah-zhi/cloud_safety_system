@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>安全预警 - 远景数智运营系统</title>
-    <link rel="stylesheet" href="styles.css?v=20260417-risk-view10" />
+    <link rel="stylesheet" href="styles.css?v=20260417-alarm-detail1" />
   </head>
   <body>
     <div class="shell">
@@ -205,80 +205,78 @@
         </section>
 
         <section id="alarmDetailView" class="view alarm-detail-view" aria-label="预警详情">
-          <div class="alarm-detail-layout">
-            <aside class="panel alarm-filter-panel">
-              <div class="panel-title"><span></span>筛选条件</div>
-              <label>
-                <span>关键词</span>
-                <input id="alarmDetailKeyword" type="search" placeholder="预警名称 / 场站 / 位置" />
-              </label>
-              <label>
-                <span>风险等级</span>
-                <select id="alarmDetailLevel">
-                  <option value="all">全部</option>
-                  <option value="level1">一级</option>
-                  <option value="level2">二级</option>
-                  <option value="level3">三级</option>
-                </select>
-              </label>
-              <label>
-                <span>系统模块</span>
-                <select id="alarmDetailModule">
-                  <option value="all">全部</option>
-                  <option value="电池系统">电池系统</option>
-                  <option value="电气系统">电气系统</option>
-                  <option value="环控系统">环控系统</option>
-                  <option value="消防系统">消防系统</option>
-                </select>
-              </label>
-              <label>
-                <span>预警来源</span>
-                <select id="alarmDetailSource">
-                  <option value="all">全部</option>
-                  <option value="云端">云端</option>
-                  <option value="站端">站端</option>
-                </select>
-              </label>
+          <div class="panel alarm-detail-main">
+            <div class="panel-title-row">
+              <div class="panel-title"><span></span>风险预警列表</div>
+              <button class="export-btn" type="button">导出</button>
+            </div>
+            <div class="alarm-detail-filterbar">
               <div class="alarm-detail-date">
-                <label>
-                  <span>开始日期</span>
-                  <input id="alarmDetailStart" type="date" />
-                </label>
-                <label>
-                  <span>结束日期</span>
-                  <input id="alarmDetailEnd" type="date" />
-                </label>
+                <input id="alarmDetailStart" type="date" aria-label="开始时间" />
+                <span>→</span>
+                <input id="alarmDetailEnd" type="date" aria-label="结束时间" />
               </div>
-              <button id="alarmDetailReset" class="export-btn" type="button">清空条件</button>
-            </aside>
-            <div class="panel alarm-detail-main">
-              <div class="panel-title-row">
-                <div class="panel-title"><span></span>预警明细列表</div>
-                <div class="alarm-detail-count">共 <strong id="alarmDetailCount">0</strong> 条</div>
-              </div>
-              <div class="alarm-detail-table-wrap">
-                <table class="alarm-detail-table">
-                  <thead>
-                    <tr>
-                      <th>等级</th>
-                      <th>预警名称</th>
-                      <th>模块</th>
-                      <th>场站</th>
-                      <th>来源</th>
-                      <th>时间</th>
-                      <th>位置</th>
-                    </tr>
-                  </thead>
-                  <tbody id="alarmDetailTable"></tbody>
-                </table>
-              </div>
+              <select id="alarmDetailLevel" aria-label="预警等级">
+                <option value="all">全部等级</option>
+                <option value="level1">一级</option>
+                <option value="level2">二级</option>
+                <option value="level3">三级</option>
+              </select>
+              <select id="alarmDetailModule" aria-label="设备模块">
+                <option value="all">全部设备模块</option>
+                <option value="电池系统">电池系统</option>
+                <option value="电气系统">电气系统</option>
+                <option value="环控系统">环控系统</option>
+                <option value="消防系统">消防系统</option>
+              </select>
+              <select id="alarmDetailSource" aria-label="预警来源">
+                <option value="all">全部来源</option>
+                <option value="云端">云端</option>
+                <option value="站端">站端</option>
+              </select>
+              <input id="alarmDetailKeyword" type="search" placeholder="搜索预警名称 / 场站 / 位置" />
+              <button class="query-btn" type="button">查询</button>
+              <button id="alarmDetailReset" class="reset-btn" type="button">重置</button>
+              <div class="alarm-detail-count">共 <strong id="alarmDetailCount">0</strong> 条</div>
+            </div>
+            <div class="alarm-detail-table-wrap">
+              <table class="alarm-detail-table">
+                <thead>
+                  <tr>
+                    <th>等级</th>
+                    <th>预警名称</th>
+                    <th>模块</th>
+                    <th>场站</th>
+                    <th>位置</th>
+                    <th>事件时间</th>
+                    <th>预警时间</th>
+                    <th>来源</th>
+                  </tr>
+                </thead>
+                <tbody id="alarmDetailTable"></tbody>
+              </table>
             </div>
           </div>
-          <article class="panel alarm-inspector" id="alarmInspector">
-            <div class="panel-title"><span></span>预警详情</div>
-            <div id="alarmInspectorBody" class="alarm-inspector-body">点击任意预警查看完整内容</div>
-          </article>
         </section>
+
+        <div id="alarmDetailModal" class="alarm-modal" aria-hidden="true">
+          <div class="alarm-modal-mask" id="alarmModalMask"></div>
+          <article class="alarm-modal-panel" role="dialog" aria-modal="true" aria-label="预警详情弹窗">
+            <button id="alarmModalClose" class="alarm-modal-close" type="button">×</button>
+            <div class="panel-title"><span></span>预警详情</div>
+            <div id="alarmInspectorBody" class="alarm-inspector-body"></div>
+            <div class="alarm-modal-chart">
+              <div class="panel-title-row">
+                <div class="panel-title"><span></span>相关数据趋势</div>
+                <div id="alarmTrendLegend" class="alarm-trend-legend">实时值</div>
+              </div>
+              <div class="alarm-trend-chart" id="alarmTrendChart">
+                <canvas id="alarmTrendCanvas" width="860" height="260"></canvas>
+                <div id="alarmTrendTooltip" class="risk-bars-tooltip"></div>
+              </div>
+            </div>
+          </article>
+        </div>
 
         <section id="detailView" class="view detail-view" aria-label="单站安全详情">
           <div class="detail-head">
@@ -376,6 +374,6 @@
 
     <script src="site-data.js?v=20260415-siteconfig3"></script>
     <script src="risk-data.js?v=20260415-risk-list1"></script>
-    <script src="app.js?v=20260417-risk-view10"></script>
+    <script src="app.js?v=20260417-alarm-detail1"></script>
   </body>
 </html>
