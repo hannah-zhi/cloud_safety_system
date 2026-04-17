@@ -2023,6 +2023,10 @@ h2 {
   color: #8d96aa;
 }
 
+.alarm-detail-date:focus-within {
+  border-color: rgba(18, 152, 255, 0.72);
+}
+
 .alarm-detail-date span {
   line-height: 1;
   transform: translateY(-1px);
@@ -2064,8 +2068,23 @@ h2 {
   width: 100%;
   display: flex;
   align-items: center;
-  justify-content: space-between;
   text-align: left;
+}
+
+.alarm-multi-trigger span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.alarm-multi-select.open .alarm-multi-trigger {
+  border-color: rgba(18, 152, 255, 0.72);
+}
+
+.alarm-multi-select.open .alarm-multi-trigger::after {
+  margin-top: 4px;
+  transform: rotate(225deg);
 }
 
 .alarm-multi-menu {
@@ -2075,11 +2094,11 @@ h2 {
   left: 0;
   width: min(360px, 90vw);
   max-height: 320px;
-  z-index: 30;
-  border: 1px solid rgba(73, 91, 128, 0.78);
-  border-radius: 4px;
-  background: rgba(18, 21, 31, 0.98);
-  box-shadow: 0 18px 38px rgba(0, 0, 0, 0.45);
+  z-index: 2147483000;
+  border: 1px solid rgba(69, 77, 98, 0.9);
+  border-radius: 0;
+  background: #171a24;
+  box-shadow: 0 24px 52px rgba(0, 0, 0, 0.68), 0 0 0 1px rgba(18, 152, 255, 0.2);
   padding: 8px;
 }
 
@@ -2090,31 +2109,28 @@ h2 {
 .alarm-multi-search {
   width: 100%;
   margin-bottom: 8px;
+  border-color: rgba(69, 77, 98, 0.9);
+  background: rgba(7, 9, 15, 0.5);
 }
 
 .alarm-multi-options {
   max-height: 252px;
   overflow: auto;
+  display: grid;
+  gap: 2px;
 }
 
 .alarm-multi-options label {
-  display: grid;
-  grid-template-columns: 16px minmax(0, 1fr);
-  gap: 8px;
-  align-items: center;
-  padding: 7px 6px;
-  color: #dce4f2;
-  font-size: 12px;
+  cursor: pointer;
 }
 
-.alarm-multi-options label:hover {
-  background: rgba(18, 152, 255, 0.1);
+.alarm-multi-options input[type="checkbox"] {
+  display: none;
 }
 
-.alarm-multi-options span {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.alarm-multi-options .selector-check {
+  min-width: 14px;
+  flex: 0 0 14px;
 }
 
 .alarm-detail-date input {
@@ -2249,6 +2265,24 @@ h2 {
   margin: 10px 0 0;
   color: #dce4f2;
   line-height: 1.55;
+}
+
+.alarm-detail-badges {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.alarm-module-pill {
+  display: inline-flex;
+  height: 20px;
+  align-items: center;
+  padding: 0 8px;
+  border: 1px solid rgba(18, 152, 255, 0.38);
+  border-radius: 4px;
+  background: rgba(18, 152, 255, 0.12);
+  color: #9ed8ff;
+  font-size: 12px;
 }
 
 .alarm-detail-meta {
