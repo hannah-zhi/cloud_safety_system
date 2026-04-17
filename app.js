@@ -130,6 +130,7 @@ function bindElements() {
     "alarmCountLevel3",
     "alarmCloudCount",
     "alarmStationCount",
+    "alarmDetailJump",
     "riskAvgSos",
     "riskAvgGauge",
     "riskTopList",
@@ -210,6 +211,7 @@ function bindEvents() {
     els.alarmTabs.querySelectorAll("button").forEach((item) => item.classList.toggle("active", item === button));
     renderAlarms();
   });
+  els.alarmDetailJump.addEventListener("click", () => showPage("alarm"));
   els.alarmTimeButtons.addEventListener("click", (event) => {
     const button = event.target.closest("button[data-days]");
     if (!button) return;
