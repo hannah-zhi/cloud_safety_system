@@ -1780,7 +1780,8 @@ h2 {
 }
 
 .risk-sos-grid {
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(0, 1.16fr) minmax(420px, 0.84fr);
+  align-items: stretch;
 }
 
 .risk-alarm-grid {
@@ -2056,7 +2057,7 @@ h2 {
 
 .alarm-detail-filterbar {
   display: grid;
-  grid-template-columns: minmax(250px, 1fr) minmax(160px, 0.75fr) minmax(180px, 0.9fr) minmax(180px, 0.9fr) minmax(180px, 0.9fr) minmax(130px, 0.65fr) auto auto auto;
+  grid-template-columns: minmax(230px, 1.1fr) minmax(110px, 0.48fr) minmax(138px, 0.6fr) repeat(3, minmax(150px, 0.78fr)) minmax(110px, 0.48fr) auto auto auto;
   gap: 8px;
   align-items: center;
   margin-top: 12px;
@@ -2270,6 +2271,27 @@ h2 {
     rgba(12, 14, 22, 0.34);
 }
 
+.alarm-detail-hero.alarm-hero-level1 {
+  border-color: rgba(255, 61, 89, 0.44);
+  background:
+    linear-gradient(90deg, rgba(18, 152, 255, 0.13), rgba(255, 61, 89, 0.14)),
+    rgba(12, 14, 22, 0.34);
+}
+
+.alarm-detail-hero.alarm-hero-level2 {
+  border-color: rgba(244, 165, 28, 0.42);
+  background:
+    linear-gradient(90deg, rgba(18, 152, 255, 0.13), rgba(244, 165, 28, 0.15)),
+    rgba(12, 14, 22, 0.34);
+}
+
+.alarm-detail-hero.alarm-hero-level3 {
+  border-color: rgba(19, 199, 129, 0.4);
+  background:
+    linear-gradient(90deg, rgba(18, 152, 255, 0.13), rgba(19, 199, 129, 0.14)),
+    rgba(12, 14, 22, 0.34);
+}
+
 .alarm-detail-hero strong {
   display: block;
   margin-top: 10px;
@@ -2463,6 +2485,10 @@ th {
 
   .station-grid {
     grid-template-columns: repeat(auto-fill, 286px);
+  }
+
+  .risk-sos-grid {
+    grid-template-columns: 1fr;
   }
 }
 
