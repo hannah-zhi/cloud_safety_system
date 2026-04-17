@@ -43,6 +43,7 @@ Use this skill to recreate or extend the储能云端安全预警系统的“安�
   - Do not use standalone KPI cards for 预警总量 and 一级预警; represent alarm severity totals with a pie/donut chart.
   - Group SOS-related charts together and alarm-related charts together.
   - Include SOS distribution bars, risk distribution donut, full-station SOS trend point-lines, alarm severity donut, module distribution donut, and alarm-type TOP5.
+  - Place 场站SOS分布 and 全量场站SOS趋势 on the same row, with 场站SOS分布 on the left and 全量场站SOS趋势 on the right.
   - Do not include an SOS band statistics chart unless explicitly requested.
   - Donut legends should sit closer to the chart center instead of hugging the right edge.
   - SOS bar chart is titled 场站SOS分布. It should use slim vertical bars, risk-colored thresholds, fixed visible horizontal scrolling for many stations, station-number x labels, and hover tooltip with full station name plus SOS value. Add sort options: 场站编号-顺序, 场站编号-倒序, SOS数值-从低到高, SOS数值-从高到低. The SOS value color should match the bar color. Hovering a bar should use a narrow translucent vertical highlight around one bar, not a white stroke box. Do not draw a miniature curve behind the x-axis labels.
@@ -52,12 +53,13 @@ Use this skill to recreate or extend the储能云端安全预警系统的“安�
   - Charts should update from the current station filter.
 - 预警详情:
   - Use a top horizontal filter bar and full-width alarm table, similar to the provided 风险预警列表 reference.
-  - Query bar contains filters for time, module, alarm name, station, location, and source.
-  - Module and source are multi-select dropdowns. Alarm name, station, and location are searchable multi-select dropdowns. Time uses a start/end date range.
+  - Query bar contains filters for time, level, module, alarm name, station, location, and source.
+  - Level, module, and source are multi-select dropdowns. Alarm name, station, and location are searchable multi-select dropdowns. Time uses a start/end date range.
   - Multi-select dropdowns must reuse the same visual pattern as the station search dropdown on 场站总览: trigger box, arrow behavior, search input, option row, selected checkmark, shadow, and high z-index overlay. Treat this as the shared system component style for future dropdowns.
   - Table columns: 等级, 预警名称, 模块, 场站, 位置, 事件时间, 预警时间, 来源.
   - Do not place details at the page bottom. Open alarm details in a modal when a row is clicked.
   - The modal should emphasize alarm name, risk level, module, and handling suggestion. Place 模块 beside 等级 in the hero area. Put 来源、场站、位置 in one metadata row, and 事件时间、预警时间、持续时长 in the next row.
+  - The modal hero gradient should match severity: 一级 uses red-blue, 二级 uses yellow-blue, and 三级 uses green-blue.
   - Full timestamps in the alarm detail page and modal should include seconds, using `YYYY/MM/DD HH:mm:ss`.
   - The modal should include an interactive trend curve for alarm-related data, with 处理 and 分析 action buttons below the chart.
 
