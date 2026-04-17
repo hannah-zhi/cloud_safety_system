@@ -55,6 +55,7 @@ const state = {
   riskBarSort: "idAsc",
   alarmTrendHitboxes: [],
   alarmDetailSelections: {
+    level: new Set(),
     module: new Set(),
     name: new Set(),
     station: new Set(),
@@ -147,6 +148,7 @@ function bindElements() {
     "alarmDetailName",
     "alarmDetailStation",
     "alarmDetailLocation",
+    "alarmDetailLevel",
     "alarmDetailModule",
     "alarmDetailSource",
     "alarmDetailStart",
@@ -1102,6 +1104,7 @@ function handleRiskTrendHover(event) {
 function renderAlarmDetailFilters() {
   const alarms = state.allAlarms || [];
   const optionMap = {
+    level: { el: els.alarmDetailLevel, label: "全部等级", searchable: false, options: ["一级", "二级", "三级"] },
     module: { el: els.alarmDetailModule, label: "全部设备模块", searchable: false, options: ["电池系统", "电气系统", "环控系统", "消防系统"] },
     name: { el: els.alarmDetailName, label: "全部预警名称", searchable: true, options: uniqueSorted(alarms.map((alarm) => alarm.title)) },
     station: { el: els.alarmDetailStation, label: "全部场站", searchable: true, options: uniqueSorted(alarms.map((alarm) => `${alarm.stationId}${alarm.stationName}`)) },
@@ -1203,12 +1206,13 @@ function renderAlarmDetailPage() {
 function filterAlarmDetailItems() {
   const start = els.alarmDetailStart.value ? new Date(`${els.alarmDetailStart.value}T00:00:00`) : null;
   const end = els.alarmDetailEnd.value ? new Date(`${els.alarmDetailEnd.value}T23:59:59`) : null;
-  const { module, name, station, location, source } = state.alarmDetailSelections;
+  const { level, module, name, station, location, source } = state.alarmDetailSelections;
   return state.alarms.filter((alarm) => {
     const date = new Date(`${alarm.dateISO}T12:00:00`);
     const stationLabel = `${alarm.stationId}${alarm.stationName}`;
     return (
       (!module.size || module.has(alarm.module)) &&
+      (!level.size || level.has(alarm.level)) &&
       (!name.size || name.has(alarm.title)) &&
       (!station.size || station.has(stationLabel)) &&
       (!location.size || location.has(alarm.location)) &&
@@ -1226,7 +1230,7 @@ function renderAlarmInspector(alarm) {
   }
   const duration = Math.max(1, ((alarm.id.length * 7) % 24) + (alarm.type === "level1" ? 6 : alarm.type === "level2" ? 3 : 1));
   els.alarmInspectorBody.innerHTML = `
-    <div class="alarm-detail-hero">
+    <div class="alarm-detail-hero alarm-hero-${alarm.type}">
       <div class="alarm-detail-badges">
         <span class="alarm-level-table alarm-${alarm.type}">${alarm.level}</span>
         <span class="alarm-module-pill">${alarm.module}</span>
