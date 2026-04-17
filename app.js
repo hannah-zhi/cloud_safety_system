@@ -53,6 +53,7 @@ const state = {
   riskBarHoverId: null,
   riskTrendHover: null,
   riskBarSort: "idAsc",
+  alarmTrendHitboxes: [],
   activeFilter: "all",
   selectedStationIds: new Set(),
   selectedStation: null,
@@ -144,6 +145,11 @@ function bindElements() {
     "alarmDetailCount",
     "alarmDetailTable",
     "alarmInspectorBody",
+    "alarmDetailModal",
+    "alarmModalMask",
+    "alarmModalClose",
+    "alarmTrendChart",
+    "alarmTrendTooltip",
     "clock",
   ].forEach((id) => {
     els[id] = document.getElementById(id);
@@ -158,6 +164,7 @@ function bindElements() {
   els.riskTrendCanvas = document.getElementById("riskTrendCanvas");
   els.riskAlarmPieCanvas = document.getElementById("riskAlarmPieCanvas");
   els.riskModuleCanvas = document.getElementById("riskModuleCanvas");
+  els.alarmTrendCanvas = document.getElementById("alarmTrendCanvas");
 }
 
 function bindEvents() {
@@ -227,6 +234,15 @@ function bindEvents() {
     els.alarmDetailEnd.value = "";
     state.selectedAlarm = null;
     renderAlarmDetailPage();
+  });
+  els.alarmModalClose.addEventListener("click", closeAlarmModal);
+  els.alarmModalMask.addEventListener("click", closeAlarmModal);
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") closeAlarmModal();
+  });
+  els.alarmTrendCanvas.addEventListener("mousemove", handleAlarmTrendHover);
+  els.alarmTrendCanvas.addEventListener("mouseleave", () => {
+    els.alarmTrendTooltip.classList.remove("show");
   });
   els.riskTrendButtons.addEventListener("click", (event) => {
     const button = event.target.closest("button[data-range]");
@@ -352,6 +368,7 @@ function createAlarms(stations) {
       const template = pickRiskTemplate(templates, index);
       const type = levelToType(template.level);
       const date = new Date(2026, 3, 15 - (index % 45), 11 - (index % 3), 21 + (index % 36));
+      const eventDate = new Date(date.getTime() - (8 + (index % 22)) * 60 * 1000);
       return {
         id: `${station.id}-${index}`,
         stationId: station.id,
@@ -363,10 +380,16 @@ function createAlarms(stations) {
         location: createAlarmLocation(template.locationFormat, station, index),
         source: index % 4 === 0 ? "站端" : "云端",
         dateISO: formatDateInput(date),
+        eventTime: formatFullDateTime(eventDate),
+        warningTime: formatFullDateTime(date),
         time: `${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")} ${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`,
       };
     })
     .sort((a, b) => alarmOrder(a.type) - alarmOrder(b.type));
+}
+
+function formatFullDateTime(date) {
+  return `${date.getFullYear()}/${String(date.getMonth() + 1).padStart(2, "0")}/${String(date.getDate()).padStart(2, "0")} ${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
 }
 
 function scoreFor(n) {
@@ -1078,9 +1101,10 @@ function renderAlarmDetailPage() {
         <td>${alarm.title}</td>
         <td>${alarm.module}</td>
         <td>${alarm.stationId}${alarm.stationName}</td>
-        <td><span class="alarm-source alarm-source-${alarm.source === "云端" ? "cloud" : "station"}">${alarm.source}</span></td>
-        <td>${alarm.time}</td>
         <td>${alarm.location}</td>
+        <td>${alarm.eventTime}</td>
+        <td>${alarm.warningTime}</td>
+        <td><span class="alarm-source alarm-source-${alarm.source === "云端" ? "cloud" : "station"}">${alarm.source}</span></td>
       </tr>`
     )
     .join("");
@@ -1088,18 +1112,17 @@ function renderAlarmDetailPage() {
     row.addEventListener("click", () => {
       const alarm = alarms.find((item) => item.id === row.dataset.alarmId);
       state.selectedAlarm = alarm;
-      renderAlarmInspector(alarm);
       els.alarmDetailTable.querySelectorAll("tr").forEach((item) => item.classList.remove("selected"));
       row.classList.add("selected");
+      openAlarmModal(alarm);
     });
   });
   if (!alarms.length) {
-    els.alarmDetailTable.innerHTML = `<tr><td colspan="7">未找到匹配预警</td></tr>`;
+    els.alarmDetailTable.innerHTML = `<tr><td colspan="8">未找到匹配预警</td></tr>`;
   }
   if (!state.selectedAlarm || !alarms.some((alarm) => alarm.id === state.selectedAlarm.id)) {
     state.selectedAlarm = alarms[0] || null;
   }
-  renderAlarmInspector(state.selectedAlarm);
 }
 
 function filterAlarmDetailItems() {
@@ -1134,10 +1157,107 @@ function renderAlarmInspector(alarm) {
     <div><span>系统模块</span><strong>${alarm.module}</strong></div>
     <div><span>所属场站</span><strong>${alarm.stationId}${alarm.stationName}</strong></div>
     <div><span>预警来源</span><strong>${alarm.source}</strong></div>
-    <div><span>发生时间</span><strong>${alarm.time}</strong></div>
+    <div><span>事件时间</span><strong>${alarm.eventTime}</strong></div>
+    <div><span>预警时间</span><strong>${alarm.warningTime}</strong></div>
     <div><span>预警位置</span><strong>${alarm.location}</strong></div>
     <div><span>处置建议</span><strong>${alarm.level === "一级" ? "立即复核云端诊断结果并安排现场排查。" : alarm.level === "二级" ? "持续观察趋势，纳入当班巡检计划。" : "记录风险变化，按计划跟踪闭环。"}</strong></div>
   `;
+}
+
+function openAlarmModal(alarm) {
+  if (!alarm) return;
+  renderAlarmInspector(alarm);
+  els.alarmDetailModal.classList.add("show");
+  els.alarmDetailModal.setAttribute("aria-hidden", "false");
+  renderAlarmTrend(alarm);
+}
+
+function closeAlarmModal() {
+  if (!els.alarmDetailModal) return;
+  els.alarmDetailModal.classList.remove("show");
+  els.alarmDetailModal.setAttribute("aria-hidden", "true");
+  els.alarmTrendTooltip.classList.remove("show");
+}
+
+function alarmTrendData(alarm) {
+  const levelOffset = alarm.type === "level1" ? 18 : alarm.type === "level2" ? 10 : 4;
+  const base = 48 + levelOffset + (alarm.id.length % 9);
+  return Array.from({ length: 18 }, (_, index) => {
+    const value = round(Math.max(20, Math.min(100, base + Math.sin(index * 0.7 + alarm.id.length) * 8 + (index > 11 ? levelOffset / 3 : 0))), 2);
+    return {
+      label: `${String(8 + Math.floor(index / 2)).padStart(2, "0")}:${index % 2 ? "30" : "00"}`,
+      value,
+    };
+  });
+}
+
+function renderAlarmTrend(alarm) {
+  const canvas = setupCanvas(els.alarmTrendCanvas);
+  const ctx = canvas.getContext("2d");
+  const data = alarmTrendData(alarm);
+  const pad = { left: 44, right: 22, top: 28, bottom: 34 };
+  clear(ctx, canvas.width, canvas.height);
+  drawGrid(ctx, pad, canvas.width, canvas.height);
+  const color = alarm.type === "level1" ? "#ff3d59" : alarm.type === "level2" ? "#f4a51c" : "#13c781";
+  const gradient = ctx.createLinearGradient(0, pad.top, 0, canvas.height - pad.bottom);
+  gradient.addColorStop(0, color);
+  gradient.addColorStop(1, "rgba(18, 152, 255, 0.02)");
+  ctx.beginPath();
+  data.forEach((point, index) => {
+    const x = pad.left + (index / (data.length - 1)) * (canvas.width - pad.left - pad.right);
+    const y = valueY(point.value, pad, canvas.height);
+    index === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  });
+  ctx.lineTo(canvas.width - pad.right, canvas.height - pad.bottom);
+  ctx.lineTo(pad.left, canvas.height - pad.bottom);
+  ctx.closePath();
+  ctx.fillStyle = gradient;
+  ctx.globalAlpha = 0.2;
+  ctx.fill();
+  ctx.globalAlpha = 1;
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 2.2;
+  ctx.beginPath();
+  state.alarmTrendHitboxes = [];
+  data.forEach((point, index) => {
+    const x = pad.left + (index / (data.length - 1)) * (canvas.width - pad.left - pad.right);
+    const y = valueY(point.value, pad, canvas.height);
+    index === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    state.alarmTrendHitboxes.push({ x, y, ...point, color });
+  });
+  ctx.stroke();
+  state.alarmTrendHitboxes.forEach((point, index) => {
+    if (index % 3 === 0 || index === state.alarmTrendHitboxes.length - 1) {
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.arc(point.x, point.y, 3, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = "#8f97a8";
+      ctx.font = "11px Microsoft YaHei";
+      ctx.textAlign = "center";
+      ctx.fillText(point.label, point.x, canvas.height - 10);
+    }
+  });
+}
+
+function handleAlarmTrendHover(event) {
+  const rect = els.alarmTrendCanvas.getBoundingClientRect();
+  const scaleX = els.alarmTrendCanvas.width / rect.width;
+  const scaleY = els.alarmTrendCanvas.height / rect.height;
+  const x = (event.clientX - rect.left) * scaleX;
+  const y = (event.clientY - rect.top) * scaleY;
+  const hit = state.alarmTrendHitboxes
+    .map((point) => ({ ...point, distance: Math.hypot(point.x - x, point.y - y) }))
+    .sort((a, b) => a.distance - b.distance)[0];
+  if (!hit || hit.distance > 14) {
+    els.alarmTrendTooltip.classList.remove("show");
+    return;
+  }
+  els.alarmTrendTooltip.innerHTML = `<strong>${hit.label}</strong><span style="color:${hit.color}">相关值 ${formatSosValue(hit.value)}</span>`;
+  const box = els.alarmTrendChart.getBoundingClientRect();
+  els.alarmTrendTooltip.style.left = `${Math.min(els.alarmTrendChart.clientWidth - 220, Math.max(8, event.clientX - box.left + 12))}px`;
+  els.alarmTrendTooltip.style.top = `${Math.max(8, event.clientY - box.top + 12)}px`;
+  els.alarmTrendTooltip.classList.add("show");
 }
 
 function showDetail(id) {
