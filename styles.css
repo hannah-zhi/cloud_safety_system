@@ -1062,6 +1062,9 @@ canvas {
   border-right: 4px solid transparent;
   border-top: 5px solid #5f687b;
   margin-left: 2px;
+  color: transparent;
+  font-size: 0;
+  line-height: 0;
 }
 
 .table-wrap .table-sort-btn.active.asc::after {
@@ -1072,6 +1075,12 @@ canvas {
 .table-wrap .table-sort-btn.active.desc::after {
   border-top: 5px solid var(--blue);
   border-bottom: 0;
+}
+
+.table-wrap th .table-sort-btn::after,
+.table-wrap th .table-sort-btn.active.asc::after,
+.table-wrap th .table-sort-btn.active.desc::after {
+  content: "" !important;
 }
 
 table {
