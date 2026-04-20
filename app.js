@@ -1867,8 +1867,7 @@ function handleBoxHover(event) {
   if (hit.type === "outlier") {
     els.boxTooltip.innerHTML = `
       <strong>${hit.part.name}</strong>
-      <span style="color:#ff526a">${hit.outlier.subsystem} ${formatSosValue(hit.outlier.value)}</span>
-      <span>离群点</span>`;
+      <span style="color:#ff526a">${hit.outlier.subsystem} ${formatSosValue(hit.outlier.value)}</span>`;
   } else {
     els.boxTooltip.innerHTML = `
       <strong>${hit.part.name}</strong>
