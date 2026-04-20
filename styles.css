@@ -783,7 +783,7 @@ h2 {
 }
 
 .detail-alarm-tabs {
-  pointer-events: none;
+  pointer-events: auto;
 }
 
 .alarm-panel.detail-alarm-panel .detail-alarm-list {
@@ -1627,6 +1627,18 @@ h2 {
   color: #eef3fb;
   padding: 0 8px;
   color-scheme: dark;
+}
+
+.detail-alarm-time-tools {
+  margin-right: 0;
+}
+
+.detail-alarm-time-tools .alarm-quick-buttons button {
+  font-size: 11px;
+}
+
+.detail-alarm-time-tools .alarm-date-range {
+  gap: 6px;
 }
 
 .alarm-summary {
@@ -2506,7 +2518,7 @@ h2 {
   display: none;
   position: fixed;
   inset: 0;
-  z-index: 100;
+  z-index: 20000;
 }
 
 .alarm-modal.show {
