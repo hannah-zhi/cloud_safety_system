@@ -184,6 +184,7 @@ function bindElements() {
   els.donutCanvas = document.getElementById("donutCanvas");
   els.barCanvas = document.getElementById("barCanvas");
   els.boxCanvas = document.getElementById("boxCanvas");
+  els.gaugeCanvas = document.getElementById("gaugeCanvas");
   els.riskBarsCanvas = document.getElementById("riskBarsCanvas");
   els.riskAvgGaugeCanvas = document.getElementById("riskAvgGaugeCanvas");
   els.riskPieCanvas = document.getElementById("riskPieCanvas");
@@ -738,15 +739,18 @@ function renderRiskTopList(stations) {
 }
 
 function renderRiskAvgGauge(avg) {
-  const canvas = setupCanvas(els.riskAvgGaugeCanvas);
+  drawSosGauge(els.riskAvgGaugeCanvas, avg);
+}
+
+function drawSosGauge(canvasElement, value) {
+  const canvas = setupCanvas(canvasElement);
   const ctx = canvas.getContext("2d");
   clear(ctx, canvas.width, canvas.height);
   const centerX = canvas.width / 2;
   const centerY = canvas.height - 18;
   const radius = Math.min(canvas.width * 0.45, 130);
   const start = Math.PI;
-  const end = Math.PI * 2;
-  const activeEnd = start + (Math.max(0, Math.min(100, avg)) / 100) * Math.PI;
+  const activeEnd = start + (Math.max(0, Math.min(100, value)) / 100) * Math.PI;
   const totalTicks = 36;
   for (let i = 0; i < totalTicks; i += 1) {
     const tickStart = start + (i / totalTicks) * Math.PI;
@@ -1434,7 +1438,7 @@ function renderDetail(station) {
   els.gaugeLabel.style.color = risk.color;
   els.gaugeLabel.style.borderColor = `${risk.color}66`;
   els.gaugeLabel.style.background = `${risk.color}1f`;
-  els.gauge.querySelector(".gauge-arc").style.setProperty("--angle", `${Math.max(0, Math.min(180, station.sos * 1.8))}deg`);
+  drawSosGauge(els.gaugeCanvas, station.sos);
   els.rangeButtons.querySelectorAll("button").forEach((button) => button.classList.toggle("active", button.dataset.range === "7"));
   els.subsystemSortBtn.textContent = "子系统编号-顺序";
   renderDetailCharts(station);
@@ -1626,11 +1630,11 @@ function renderBars(subsystems, desc) {
   drawGrid(ctx, pad, w, h);
   drawThreshold(ctx, pad, w, h, 60, "#ff3d59");
   drawThreshold(ctx, pad, w, h, 80, "#f4a51c");
-  const gap = 5;
-  const barWidth = Math.max(5, (w - pad.left - pad.right) / data.length - gap);
+  const slot = (w - pad.left - pad.right) / data.length;
+  const barWidth = Math.max(4, Math.min(8, slot * 0.34));
   state.detailBarHitboxes = [];
   data.forEach((item, index) => {
-    const x = pad.left + index * (barWidth + gap);
+    const x = pad.left + index * slot + (slot - barWidth) / 2;
     const y = valueY(item.score, pad, h);
     const barHeight = h - pad.bottom - y;
     const isHover = state.detailBarHoverName === item.name;
