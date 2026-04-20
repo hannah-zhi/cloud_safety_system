@@ -763,7 +763,7 @@ h2 {
   flex-direction: column;
 }
 
-.detail-alarm-panel {
+.alarm-panel.detail-alarm-panel {
   position: static;
   top: auto;
   height: auto;
@@ -771,15 +771,21 @@ h2 {
   align-self: stretch;
   display: flex;
   flex-direction: column;
+  max-height: none;
 }
 
 .detail-alarm-tabs {
   pointer-events: none;
 }
 
-.detail-alarm-list {
+.alarm-panel.detail-alarm-panel .detail-alarm-list {
   flex: 1 1 auto;
   height: auto;
+  max-height: none;
+}
+
+.detail-alarm-list .alarm-location {
+  display: none !important;
 }
 
 .detail-alarm-empty {
@@ -789,7 +795,7 @@ h2 {
 .dashboard-grid {
   display: grid;
   grid-template-columns: minmax(300px, 0.9fr) minmax(460px, 1.35fr) minmax(320px, 1fr);
-  grid-auto-rows: minmax(236px, auto);
+  grid-auto-rows: minmax(218px, auto);
   gap: 14px;
 }
 
@@ -846,7 +852,7 @@ h2 {
 }
 
 .gauge {
-  min-height: 208px;
+  min-height: 190px;
   position: relative;
   display: grid;
   place-items: center;
@@ -858,7 +864,7 @@ h2 {
 
 .detail-sos-gauge canvas {
   position: absolute;
-  top: 20px;
+  top: 10px;
   left: 50%;
   width: 292px;
   height: 174px;
@@ -869,7 +875,7 @@ h2 {
 .gauge-value {
   position: relative;
   z-index: 1;
-  margin-top: 82px;
+  margin-top: 72px;
   color: #f4f8ff;
   font-size: 34px;
   font-weight: 700;
@@ -889,7 +895,7 @@ h2 {
   grid-template-columns: 1fr auto;
   align-items: center;
   gap: 12px;
-  min-height: 210px;
+  min-height: 184px;
 }
 
 .legend {
@@ -953,7 +959,7 @@ canvas {
 }
 
 .parts-panel canvas {
-  height: 340px;
+  height: 320px;
 }
 
 .table-sort-btn {
@@ -990,11 +996,18 @@ canvas {
 
 .table-panel {
   margin-top: 14px;
+  flex: 1 1 auto;
 }
 
 .table-wrap {
   overflow: auto;
   max-height: 360px;
+}
+
+.table-wrap th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
 }
 
 table {
