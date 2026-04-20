@@ -750,18 +750,19 @@ function drawSosGauge(canvasElement, value) {
   const centerY = canvas.height - 18;
   const radius = Math.min(canvas.width * 0.45, 130);
   const start = Math.PI;
-  const activeEnd = start + (Math.max(0, Math.min(100, value)) / 100) * Math.PI;
+  const clampedValue = Math.max(0, Math.min(100, value));
+  const activeEnd = start + (clampedValue / 100) * Math.PI;
   const totalTicks = 36;
   for (let i = 0; i < totalTicks; i += 1) {
     const tickStart = start + (i / (totalTicks - 1)) * Math.PI;
-    const tickEnd = start + ((i + 0.5) / (totalTicks - 1)) * Math.PI;
+    const tickEnd = Math.min(start + Math.PI, start + ((i + 0.5) / (totalTicks - 1)) * Math.PI);
     const mid = (tickStart + tickEnd) / 2;
     const inner = radius - 23;
     const outer = radius;
     ctx.beginPath();
     ctx.lineWidth = 4.5;
     ctx.lineCap = "round";
-    ctx.strokeStyle = mid <= activeEnd ? gaugeColor(i / (totalTicks - 1)) : "rgba(48, 52, 64, 0.8)";
+    ctx.strokeStyle = clampedValue >= 99.999 || mid <= activeEnd ? gaugeColor(i / (totalTicks - 1)) : "rgba(48, 52, 64, 0.8)";
     ctx.moveTo(centerX + Math.cos(tickStart) * inner, centerY + Math.sin(tickStart) * inner);
     ctx.lineTo(centerX + Math.cos(tickStart) * outer, centerY + Math.sin(tickStart) * outer);
     ctx.stroke();
@@ -1534,7 +1535,8 @@ function renderTrend(station, range) {
     ctx.arc(x, y, isHover ? 3 : 2, 0, Math.PI * 2);
     ctx.fill();
     state.detailTrendHitboxes.push({ x, y, index, ...point, color });
-    if (range <= 7 || index % 3 === 0 || index === data.length - 1) {
+    const labelEvery = range <= 7 ? 1 : range <= 15 ? 3 : 5;
+    if (index % labelEvery === 0 || index === data.length - 1) {
       ctx.fillStyle = "#8f97a8";
       ctx.font = "12px Microsoft YaHei";
       ctx.textAlign = "center";
