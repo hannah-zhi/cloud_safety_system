@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>安全预警 - 远景数智运营系统</title>
-    <link rel="stylesheet" href="styles.css?v=20260420-detail-gauge1" />
+    <link rel="stylesheet" href="styles.css?v=20260420-detail-polish1" />
   </head>
   <body>
     <div class="shell">
@@ -321,7 +321,20 @@
                 <article class="panel subsystem-panel">
                   <div class="panel-title-row">
                     <div class="panel-title"><span></span>各子系统 SOS 安全指数</div>
-                    <button id="subsystemSortBtn" class="small-select" type="button">子系统编号-顺序</button>
+                    <div class="detail-bars-tools">
+                      <div class="risk-legend">
+                        <span class="legend-red">高风险</span>
+                        <span class="legend-yellow">中风险</span>
+                        <span class="legend-green">低风险</span>
+                        <span class="legend-blue">健康</span>
+                      </div>
+                      <select id="subsystemSortBtn" class="risk-sort-select" aria-label="子系统SOS排序">
+                        <option value="idAsc">子系统编号-顺序</option>
+                        <option value="idDesc">子系统编号-倒序</option>
+                        <option value="sosAsc">SOS数值-从低到高</option>
+                        <option value="sosDesc">SOS数值-从高到低</option>
+                      </select>
+                    </div>
                   </div>
                   <div class="detail-bars-viewport" id="detailBarsViewport">
                     <canvas id="barCanvas" width="980" height="300"></canvas>
@@ -388,6 +401,6 @@
 
     <script src="site-data.js?v=20260415-siteconfig3"></script>
     <script src="risk-data.js?v=20260415-risk-list1"></script>
-    <script src="app.js?v=20260420-detail-gauge1"></script>
+    <script src="app.js?v=20260420-detail-polish1"></script>
   </body>
 </html>
