@@ -45,6 +45,10 @@ const state = {
   activeAlarmDays: "all",
   alarmStartDate: "",
   alarmEndDate: "",
+  detailAlarmType: "all",
+  detailAlarmDays: "all",
+  detailAlarmStartDate: "",
+  detailAlarmEndDate: "",
   activePage: "overview",
   selectedAlarm: null,
   riskTrendRange: 7,
@@ -114,6 +118,10 @@ function bindElements() {
     "detailRisk",
     "detailSos",
     "detailAlarmSubtitle",
+    "detailAlarmTabs",
+    "detailAlarmTimeButtons",
+    "detailAlarmStartDate",
+    "detailAlarmEndDate",
     "detailAlarmList",
     "detailAlarmCountAll",
     "detailAlarmCountLevel1",
@@ -247,6 +255,33 @@ function bindEvents() {
       state.alarmEndDate = els.alarmEndDate.value;
       els.alarmTimeButtons.querySelectorAll("button").forEach((item) => item.classList.remove("active"));
       renderAlarms();
+    });
+  });
+  els.detailAlarmTabs.addEventListener("click", (event) => {
+    const button = event.target.closest("button[data-type]");
+    if (!button) return;
+    state.detailAlarmType = button.dataset.type;
+    els.detailAlarmTabs.querySelectorAll("button").forEach((item) => item.classList.toggle("active", item === button));
+    if (state.selectedStation) renderDetailAlarms(state.selectedStation);
+  });
+  els.detailAlarmTimeButtons.addEventListener("click", (event) => {
+    const button = event.target.closest("button[data-days]");
+    if (!button) return;
+    state.detailAlarmDays = button.dataset.days;
+    state.detailAlarmStartDate = "";
+    state.detailAlarmEndDate = "";
+    els.detailAlarmStartDate.value = "";
+    els.detailAlarmEndDate.value = "";
+    els.detailAlarmTimeButtons.querySelectorAll("button").forEach((item) => item.classList.toggle("active", item === button));
+    if (state.selectedStation) renderDetailAlarms(state.selectedStation);
+  });
+  [els.detailAlarmStartDate, els.detailAlarmEndDate].forEach((input) => {
+    input.addEventListener("change", () => {
+      state.detailAlarmDays = "custom";
+      state.detailAlarmStartDate = els.detailAlarmStartDate.value;
+      state.detailAlarmEndDate = els.detailAlarmEndDate.value;
+      els.detailAlarmTimeButtons.querySelectorAll("button").forEach((item) => item.classList.remove("active"));
+      if (state.selectedStation) renderDetailAlarms(state.selectedStation);
     });
   });
   [els.alarmDetailStart, els.alarmDetailEnd].forEach((input) => {
@@ -683,15 +718,19 @@ function renderAlarms() {
 }
 
 function filterAlarmsByTime(alarms) {
-  if (state.activeAlarmDays !== "custom") {
-    if (state.activeAlarmDays === "all") return alarms;
-    const days = Number(state.activeAlarmDays);
+  return filterAlarmsByWindow(alarms, state.activeAlarmDays, state.alarmStartDate, state.alarmEndDate);
+}
+
+function filterAlarmsByWindow(alarms, activeDays, startDate, endDate) {
+  if (activeDays !== "custom") {
+    if (activeDays === "all") return alarms;
+    const days = Number(activeDays);
     const boundary = new Date(2026, 3, 15);
     boundary.setDate(boundary.getDate() - days + 1);
     return alarms.filter((alarm) => new Date(`${alarm.dateISO}T00:00:00`) >= boundary);
   }
-  const start = state.alarmStartDate ? new Date(`${state.alarmStartDate}T00:00:00`) : null;
-  const end = state.alarmEndDate ? new Date(`${state.alarmEndDate}T23:59:59`) : null;
+  const start = startDate ? new Date(`${startDate}T00:00:00`) : null;
+  const end = endDate ? new Date(`${endDate}T23:59:59`) : null;
   return alarms.filter((alarm) => {
     const date = new Date(`${alarm.dateISO}T12:00:00`);
     return (!start || date >= start) && (!end || date <= end);
@@ -1402,6 +1441,14 @@ function showDetail(id) {
   state.detailTableSort = { key: "score", direction: "asc" };
   state.detailTrendHover = null;
   state.detailBarHoverName = null;
+  state.detailAlarmType = "all";
+  state.detailAlarmDays = "all";
+  state.detailAlarmStartDate = "";
+  state.detailAlarmEndDate = "";
+  els.detailAlarmTabs.querySelectorAll("button").forEach((button) => button.classList.toggle("active", button.dataset.type === "all"));
+  els.detailAlarmTimeButtons.querySelectorAll("button").forEach((button) => button.classList.toggle("active", button.dataset.days === "all"));
+  els.detailAlarmStartDate.value = "";
+  els.detailAlarmEndDate.value = "";
   els.listView.classList.remove("active-view");
   els.riskView.classList.remove("active-view");
   els.alarmDetailView.classList.remove("active-view");
@@ -1837,14 +1884,21 @@ function handleBoxHover(event) {
 }
 
 function renderDetailAlarms(station) {
-  const alarms = state.allAlarms
+  const stationAlarms = state.allAlarms
     .filter((alarm) => alarm.stationId === station.id)
     .sort((a, b) => alarmOrder(a.type) - alarmOrder(b.type) || b.dateISO.localeCompare(a.dateISO));
+  const rangeAlarms = filterAlarmsByWindow(
+    stationAlarms,
+    state.detailAlarmDays,
+    state.detailAlarmStartDate,
+    state.detailAlarmEndDate
+  );
+  const alarms = rangeAlarms.filter((alarm) => state.detailAlarmType === "all" || alarm.type === state.detailAlarmType);
   els.detailAlarmSubtitle.textContent = `${station.id}${station.name}`;
-  els.detailAlarmCountAll.textContent = alarms.length;
-  els.detailAlarmCountLevel1.textContent = alarms.filter((alarm) => alarm.type === "level1").length;
-  els.detailAlarmCountLevel2.textContent = alarms.filter((alarm) => alarm.type === "level2").length;
-  els.detailAlarmCountLevel3.textContent = alarms.filter((alarm) => alarm.type === "level3").length;
+  els.detailAlarmCountAll.textContent = rangeAlarms.length;
+  els.detailAlarmCountLevel1.textContent = rangeAlarms.filter((alarm) => alarm.type === "level1").length;
+  els.detailAlarmCountLevel2.textContent = rangeAlarms.filter((alarm) => alarm.type === "level2").length;
+  els.detailAlarmCountLevel3.textContent = rangeAlarms.filter((alarm) => alarm.type === "level3").length;
   els.detailAlarmCloudCount.textContent = alarms.filter((alarm) => alarm.source === "云端").length;
   els.detailAlarmStationCount.textContent = alarms.filter((alarm) => alarm.source === "站端").length;
   els.detailAlarmList.innerHTML = alarms.length
