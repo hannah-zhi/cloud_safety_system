@@ -753,8 +753,8 @@ function drawSosGauge(canvasElement, value) {
   const activeEnd = start + (Math.max(0, Math.min(100, value)) / 100) * Math.PI;
   const totalTicks = 36;
   for (let i = 0; i < totalTicks; i += 1) {
-    const tickStart = start + (i / totalTicks) * Math.PI;
-    const tickEnd = start + ((i + 0.58) / totalTicks) * Math.PI;
+    const tickStart = start + (i / (totalTicks - 1)) * Math.PI;
+    const tickEnd = start + ((i + 0.5) / (totalTicks - 1)) * Math.PI;
     const mid = (tickStart + tickEnd) / 2;
     const inner = radius - 23;
     const outer = radius;
@@ -1534,7 +1534,7 @@ function renderTrend(station, range) {
     ctx.arc(x, y, isHover ? 3 : 2, 0, Math.PI * 2);
     ctx.fill();
     state.detailTrendHitboxes.push({ x, y, index, ...point, color });
-    if (range <= 15 || index % 3 === 0) {
+    if (range <= 7 || index % 3 === 0 || index === data.length - 1) {
       ctx.fillStyle = "#8f97a8";
       ctx.font = "12px Microsoft YaHei";
       ctx.textAlign = "center";
@@ -1655,7 +1655,7 @@ function renderBars(subsystems) {
       ctx.fillStyle = "#8f97a8";
       ctx.font = "11px Microsoft YaHei";
       ctx.textAlign = "center";
-      ctx.fillText(item.name.replace("子系统#", ""), x + barWidth / 2, h - 18);
+      ctx.fillText(item.name.replace("子系统", ""), x + barWidth / 2, h - 18);
     }
   });
 }
