@@ -2609,6 +2609,20 @@ th {
   background: linear-gradient(180deg, #282b36, #222530);
 }
 
+.table-wrap th {
+  background: rgba(38, 42, 55, 0.8) !important;
+  border-bottom-color: rgba(69, 73, 90, 0.55);
+}
+
+.table-wrap th,
+.table-wrap td {
+  padding: 11px 14px;
+}
+
+.table-panel .export-btn {
+  min-width: 64px;
+}
+
 @media (max-width: 1480px) {
   .tabs {
     min-width: 294px;
