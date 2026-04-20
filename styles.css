@@ -442,6 +442,7 @@ h2 {
 .sort-box {
   min-width: 220px;
   position: relative;
+  padding-left: 18px;
 }
 
 .search-box input,
@@ -453,7 +454,7 @@ h2 {
   color: #e9edf4;
   height: 100%;
   appearance: none;
-  padding-right: 22px;
+  padding: 0 22px 0 2px;
 }
 
 .sort-box::after {
@@ -883,7 +884,7 @@ h2 {
 .gauge-value {
   position: relative;
   z-index: 1;
-  margin-top: 72px;
+  margin-top: 92px;
   color: #f4f8ff;
   font-size: 34px;
   font-weight: 700;
