@@ -903,7 +903,7 @@ function renderRiskTrend(stations, range) {
   ctx.font = "12px Microsoft YaHei";
   ctx.textAlign = "center";
   series.labels.forEach((label, index) => {
-    if (range <= 15 || index % 3 === 0) {
+    if (range <= 7 || index % 2 === 0 || index === data.length - 1) {
       const x = pad.left + (index / Math.max(1, range - 1)) * (canvas.width - pad.left - pad.right);
       ctx.fillText(label, x, canvas.height - 12);
     }
@@ -1655,7 +1655,7 @@ function renderBars(subsystems) {
       ctx.fillStyle = "#8f97a8";
       ctx.font = "11px Microsoft YaHei";
       ctx.textAlign = "center";
-      ctx.fillText(item.name.replace("子系统", "#"), x + barWidth / 2, h - 18);
+      ctx.fillText(item.name.replace("子系统#", ""), x + barWidth / 2, h - 18);
     }
   });
 }
@@ -1859,7 +1859,6 @@ function renderDetailAlarms(station) {
               <span class="alarm-station-name">${alarm.location}</span>
               <time>${alarm.time}</time>
             </div>
-            <div class="alarm-location">预警位置：${alarm.location}</div>
           </div>
         </button>`
         )
