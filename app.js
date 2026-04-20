@@ -656,7 +656,7 @@ function renderAlarms() {
   els.alarmList.innerHTML = alarms
     .map(
       (alarm) => `
-      <button class="alarm-item alarm-${alarm.type}" type="button" data-station="${alarm.stationId}">
+      <button class="alarm-item alarm-${alarm.type}" type="button" data-station="${alarm.stationId}" data-alarm-id="${alarm.id}">
         <div class="alarm-body">
           <div class="alarm-row">
             <div class="alarm-tags">
@@ -675,7 +675,10 @@ function renderAlarms() {
     )
     .join("");
   els.alarmList.querySelectorAll(".alarm-item").forEach((item) => {
-    item.addEventListener("click", () => showDetail(item.dataset.station));
+    item.addEventListener("click", () => {
+      const alarm = alarms.find((entry) => entry.id === item.dataset.alarmId);
+      openAlarmModal(alarm);
+    });
   });
 }
 
@@ -1877,7 +1880,7 @@ function renderDetailAlarms(station) {
 function renderTable(station) {
   const descriptions = {
     high: "Pack 温差偏高，簇级电压离散度异常",
-    mid: "预警信息超长字段，存在持续波动",
+    mid: "监测参数持续波动，建议跟踪运行趋势",
     low: "存在优化项，建议纳入下次巡检",
     healthy: "健康",
   };
