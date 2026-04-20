@@ -72,7 +72,7 @@ const state = {
   selectedStationIds: new Set(),
   selectedStation: null,
   trendRange: 7,
-  sortSubsystemDesc: false,
+  sortSubsystemMode: "idAsc",
 };
 
 const els = {};
@@ -283,7 +283,7 @@ function bindEvents() {
   els.barCanvas.addEventListener("mousemove", handleDetailBarHover);
   els.barCanvas.addEventListener("mouseleave", () => {
     state.detailBarHoverName = null;
-    if (state.selectedStation) renderBars(createSubsystems(state.selectedStation), state.sortSubsystemDesc);
+    if (state.selectedStation) renderBars(createSubsystems(state.selectedStation));
     els.detailBarsTooltip.classList.remove("show");
   });
   document.querySelectorAll(".table-sort-btn").forEach((button) => {
@@ -328,11 +328,11 @@ function bindEvents() {
     els.rangeButtons.querySelectorAll("button").forEach((item) => item.classList.toggle("active", item === button));
     renderTrend(state.selectedStation, state.trendRange);
   });
-  els.subsystemSortBtn.addEventListener("click", () => {
+  els.subsystemSortBtn.addEventListener("change", () => {
     if (!state.selectedStation) return;
-    state.sortSubsystemDesc = !state.sortSubsystemDesc;
-    els.subsystemSortBtn.textContent = state.sortSubsystemDesc ? "SOS指数-降序" : "子系统编号-顺序";
-    renderBars(createSubsystems(state.selectedStation), state.sortSubsystemDesc);
+    state.sortSubsystemMode = els.subsystemSortBtn.value;
+    state.detailBarHoverName = null;
+    renderBars(createSubsystems(state.selectedStation));
   });
   window.addEventListener("resize", () => {
     if (state.selectedStation) renderDetailCharts(state.selectedStation);
@@ -1394,7 +1394,7 @@ function showDetail(id) {
   if (!station) return;
   state.selectedStation = station;
   state.trendRange = 7;
-  state.sortSubsystemDesc = false;
+  state.sortSubsystemMode = "idAsc";
   state.detailTableSort = { key: "score", direction: "asc" };
   state.detailTrendHover = null;
   state.detailBarHoverName = null;
@@ -1433,14 +1433,14 @@ function renderDetail(station) {
   els.detailSos.style.borderColor = risk.color;
   els.detailSos.style.color = risk.color;
   els.gaugeValue.textContent = formatSosValue(station.sos);
-  els.gaugeValue.style.color = risk.color;
+  els.gaugeValue.style.color = "#f4f8ff";
   els.gaugeLabel.textContent = `当前风险等级：${risk.label}`;
   els.gaugeLabel.style.color = risk.color;
   els.gaugeLabel.style.borderColor = `${risk.color}66`;
   els.gaugeLabel.style.background = `${risk.color}1f`;
   drawSosGauge(els.gaugeCanvas, station.sos);
   els.rangeButtons.querySelectorAll("button").forEach((button) => button.classList.toggle("active", button.dataset.range === "7"));
-  els.subsystemSortBtn.textContent = "子系统编号-顺序";
+  els.subsystemSortBtn.value = "idAsc";
   renderDetailCharts(station);
   renderTable(station);
   renderDetailAlarms(station);
@@ -1449,7 +1449,7 @@ function renderDetail(station) {
 function renderDetailCharts(station) {
   renderTrend(station, state.trendRange);
   renderDonut(createSubsystems(station));
-  renderBars(createSubsystems(station), state.sortSubsystemDesc);
+  renderBars(createSubsystems(station));
   renderBoxPlot(station);
 }
 
@@ -1467,11 +1467,14 @@ function createSubsystems(station) {
 }
 
 function trendData(station, range) {
+  const endDate = new Date(2026, 3, 15);
   return Array.from({ length: range }, (_, index) => {
     const dayOffset = range - index;
+    const date = new Date(endDate);
+    date.setDate(endDate.getDate() - range + 1 + index);
     const value = round(Math.min(100, Math.max(38, station.sos + Math.sin((index + 1) * 0.9) * 6 - (dayOffset % 10 === 0 ? 8 : 0))), 2);
     return {
-      label: range <= 7 ? `04-${String(9 + index).padStart(2, "0")}` : `${index + 1}`,
+      label: `${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`,
       value,
     };
   });
@@ -1486,8 +1489,8 @@ function renderTrend(station, range) {
   const h = canvas.height;
   clear(ctx, w, h);
   drawGrid(ctx, pad, w, h);
-  drawThreshold(ctx, pad, w, h, 60, "#ff3d59", "高风险");
-  drawThreshold(ctx, pad, w, h, 80, "#f4a51c", "中风险");
+  drawThreshold(ctx, pad, w, h, 60, "#ff3d59");
+  drawThreshold(ctx, pad, w, h, 80, "#f4a51c");
   state.detailTrendHitboxes = [];
   if (state.detailTrendHover) {
     const x = pad.left + (state.detailTrendHover.index / Math.max(1, data.length - 1)) * (w - pad.left - pad.right);
@@ -1538,10 +1541,6 @@ function renderTrend(station, range) {
       ctx.fillText(point.label, x, h - 10);
     }
   });
-  ctx.fillStyle = "#c8d0dc";
-  ctx.font = "13px Microsoft YaHei";
-  ctx.textAlign = "left";
-  ctx.fillText("SOS安全指数", pad.left, 18);
 }
 
 function handleDetailTrendHover(event) {
@@ -1619,10 +1618,10 @@ function drawDonutChart(ctx, canvas, entries, colorForKey) {
   ctx.fillText(String(total), canvas.width / 2, canvas.height / 2 + 8);
 }
 
-function renderBars(subsystems, desc) {
+function renderBars(subsystems) {
   const canvas = setupCanvas(els.barCanvas);
   const ctx = canvas.getContext("2d");
-  const data = [...subsystems].sort((a, b) => (desc ? b.score - a.score : a.name.localeCompare(b.name, "zh-CN")));
+  const data = sortSubsystemBars(subsystems);
   const pad = { left: 42, right: 18, top: 28, bottom: 52 };
   const w = canvas.width;
   const h = canvas.height;
@@ -1661,6 +1660,15 @@ function renderBars(subsystems, desc) {
   });
 }
 
+function sortSubsystemBars(subsystems) {
+  return [...subsystems].sort((a, b) => {
+    if (state.sortSubsystemMode === "idDesc") return b.name.localeCompare(a.name, "zh-CN");
+    if (state.sortSubsystemMode === "sosAsc") return a.score - b.score || a.name.localeCompare(b.name, "zh-CN");
+    if (state.sortSubsystemMode === "sosDesc") return b.score - a.score || a.name.localeCompare(b.name, "zh-CN");
+    return a.name.localeCompare(b.name, "zh-CN");
+  });
+}
+
 function handleDetailBarHover(event) {
   const rect = els.barCanvas.getBoundingClientRect();
   const scaleX = els.barCanvas.width / rect.width;
@@ -1671,14 +1679,14 @@ function handleDetailBarHover(event) {
   if (!hit) {
     if (state.detailBarHoverName) {
       state.detailBarHoverName = null;
-      renderBars(createSubsystems(state.selectedStation), state.sortSubsystemDesc);
+      renderBars(createSubsystems(state.selectedStation));
     }
     els.detailBarsTooltip.classList.remove("show");
     return;
   }
   if (state.detailBarHoverName !== hit.item.name) {
     state.detailBarHoverName = hit.item.name;
-    renderBars(createSubsystems(state.selectedStation), state.sortSubsystemDesc);
+    renderBars(createSubsystems(state.selectedStation));
   }
   els.detailBarsTooltip.innerHTML = `
     <strong>${hit.item.name}</strong>
@@ -1728,8 +1736,9 @@ function renderBoxPlot(station) {
   drawGrid(ctx, pad, canvas.width, canvas.height);
   state.detailBoxHitboxes = [];
   parts.forEach((part, index) => {
-    const x = pad.left + 64 + index * ((w - pad.left - pad.right - 128) / 3);
-    const boxWidth = Math.min(52, Math.max(34, (w - pad.left - pad.right) / 12));
+    const plotWidth = w - pad.left - pad.right;
+    const x = pad.left + (index + 0.5) * (plotWidth / parts.length);
+    const boxWidth = Math.min(44, Math.max(28, plotWidth / 15));
     const yLow = valueY(part.low, pad, h);
     const yHigh = valueY(part.high, pad, h);
     const yQ1 = valueY(part.q1, pad, h);
