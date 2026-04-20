@@ -55,6 +55,11 @@ const state = {
   riskBarSort: "idAsc",
   alarmTrendHitboxes: [],
   detailBoxHitboxes: [],
+  detailTrendHitboxes: [],
+  detailTrendHover: null,
+  detailBarHitboxes: [],
+  detailBarHoverName: null,
+  detailTableSort: { key: "score", direction: "asc" },
   alarmDetailSelections: {
     level: new Set(),
     module: new Set(),
@@ -122,6 +127,10 @@ function bindElements() {
     "rangeButtons",
     "subsystemSortBtn",
     "alertTable",
+    "detailTrendChart",
+    "detailTrendTooltip",
+    "detailBarsViewport",
+    "detailBarsTooltip",
     "donutLegend",
     "alarmTabs",
     "alarmList",
@@ -263,6 +272,28 @@ function bindEvents() {
   els.boxCanvas.addEventListener("mousemove", handleBoxHover);
   els.boxCanvas.addEventListener("mouseleave", () => {
     els.boxTooltip.classList.remove("show");
+  });
+  els.trendCanvas.addEventListener("mousemove", handleDetailTrendHover);
+  els.trendCanvas.addEventListener("mouseleave", () => {
+    state.detailTrendHover = null;
+    if (state.selectedStation) renderTrend(state.selectedStation, state.trendRange);
+    els.detailTrendTooltip.classList.remove("show");
+  });
+  els.barCanvas.addEventListener("mousemove", handleDetailBarHover);
+  els.barCanvas.addEventListener("mouseleave", () => {
+    state.detailBarHoverName = null;
+    if (state.selectedStation) renderBars(createSubsystems(state.selectedStation), state.sortSubsystemDesc);
+    els.detailBarsTooltip.classList.remove("show");
+  });
+  document.querySelectorAll(".table-sort-btn").forEach((button) => {
+    button.addEventListener("click", () => {
+      const key = button.dataset.sortKey;
+      state.detailTableSort = {
+        key,
+        direction: state.detailTableSort.key === key && state.detailTableSort.direction === "asc" ? "desc" : "asc",
+      };
+      if (state.selectedStation) renderTable(state.selectedStation);
+    });
   });
   els.riskTrendButtons.addEventListener("click", (event) => {
     const button = event.target.closest("button[data-range]");
@@ -1360,6 +1391,9 @@ function showDetail(id) {
   state.selectedStation = station;
   state.trendRange = 7;
   state.sortSubsystemDesc = false;
+  state.detailTableSort = { key: "score", direction: "asc" };
+  state.detailTrendHover = null;
+  state.detailBarHoverName = null;
   els.listView.classList.remove("active-view");
   els.riskView.classList.remove("active-view");
   els.alarmDetailView.classList.remove("active-view");
@@ -1450,8 +1484,23 @@ function renderTrend(station, range) {
   drawGrid(ctx, pad, w, h);
   drawThreshold(ctx, pad, w, h, 60, "#ff3d59", "高风险");
   drawThreshold(ctx, pad, w, h, 80, "#f4a51c", "中风险");
-  ctx.strokeStyle = "#1689ff";
-  ctx.lineWidth = 3;
+  state.detailTrendHitboxes = [];
+  if (state.detailTrendHover) {
+    const x = pad.left + (state.detailTrendHover.index / Math.max(1, data.length - 1)) * (w - pad.left - pad.right);
+    ctx.save();
+    ctx.strokeStyle = "rgba(238, 247, 255, 0.36)";
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    ctx.moveTo(x, pad.top);
+    ctx.lineTo(x, h - pad.bottom);
+    ctx.stroke();
+    ctx.restore();
+  }
+  const color = riskMeta[station.risk].color;
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 2.4;
+  ctx.shadowColor = color;
+  ctx.shadowBlur = 8;
   ctx.beginPath();
   data.forEach((point, index) => {
     const x = pad.left + (index / Math.max(1, data.length - 1)) * (w - pad.left - pad.right);
@@ -1459,13 +1508,25 @@ function renderTrend(station, range) {
     index === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
   });
   ctx.stroke();
+  ctx.shadowBlur = 0;
   data.forEach((point, index) => {
     const x = pad.left + (index / Math.max(1, data.length - 1)) * (w - pad.left - pad.right);
     const y = valueY(point.value, pad, h);
-    ctx.fillStyle = "#0aa5ff";
+    const isHover = state.detailTrendHover && state.detailTrendHover.index === index;
+    ctx.fillStyle = "#111622";
     ctx.beginPath();
-    ctx.arc(x, y, 4, 0, Math.PI * 2);
+    ctx.arc(x, y, isHover ? 6 : 4.2, 0, Math.PI * 2);
     ctx.fill();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = isHover ? 3 : 2;
+    ctx.beginPath();
+    ctx.arc(x, y, isHover ? 6 : 4.2, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(x, y, isHover ? 3 : 2, 0, Math.PI * 2);
+    ctx.fill();
+    state.detailTrendHitboxes.push({ x, y, index, ...point, color });
     if (range <= 15 || index % 3 === 0) {
       ctx.fillStyle = "#8f97a8";
       ctx.font = "12px Microsoft YaHei";
@@ -1477,6 +1538,35 @@ function renderTrend(station, range) {
   ctx.font = "13px Microsoft YaHei";
   ctx.textAlign = "left";
   ctx.fillText("SOS安全指数", pad.left, 18);
+}
+
+function handleDetailTrendHover(event) {
+  const rect = els.trendCanvas.getBoundingClientRect();
+  const scaleX = els.trendCanvas.width / rect.width;
+  const x = (event.clientX - rect.left) * scaleX;
+  const hit = state.detailTrendHitboxes
+    .map((point) => ({ ...point, distance: Math.abs(point.x - x) }))
+    .sort((a, b) => a.distance - b.distance)[0];
+  if (!hit || hit.distance > 14) {
+    if (state.detailTrendHover) {
+      state.detailTrendHover = null;
+      renderTrend(state.selectedStation, state.trendRange);
+    }
+    els.detailTrendTooltip.classList.remove("show");
+    return;
+  }
+  if (!state.detailTrendHover || state.detailTrendHover.index !== hit.index) {
+    state.detailTrendHover = { index: hit.index };
+    renderTrend(state.selectedStation, state.trendRange);
+  }
+  els.detailTrendTooltip.innerHTML = `
+    <strong>${hit.label}</strong>
+    <span style="color:${hit.color}">SOS ${formatSosValue(hit.value)}</span>
+  `;
+  const box = els.detailTrendChart.getBoundingClientRect();
+  els.detailTrendTooltip.style.left = `${Math.min(els.detailTrendChart.clientWidth - 230, Math.max(8, event.clientX - box.left + 12))}px`;
+  els.detailTrendTooltip.style.top = `${Math.max(8, event.clientY - box.top + 12)}px`;
+  els.detailTrendTooltip.classList.add("show");
 }
 
 function renderDonut(subsystems) {
@@ -1538,12 +1628,26 @@ function renderBars(subsystems, desc) {
   drawThreshold(ctx, pad, w, h, 80, "#f4a51c");
   const gap = 5;
   const barWidth = Math.max(5, (w - pad.left - pad.right) / data.length - gap);
+  state.detailBarHitboxes = [];
   data.forEach((item, index) => {
     const x = pad.left + index * (barWidth + gap);
     const y = valueY(item.score, pad, h);
     const barHeight = h - pad.bottom - y;
-    ctx.fillStyle = riskMeta[item.risk].color;
+    const isHover = state.detailBarHoverName === item.name;
+    if (isHover) {
+      ctx.fillStyle = "rgba(255,255,255,0.1)";
+      ctx.fillRect(x - 2, pad.top, barWidth + 4, h - pad.top - pad.bottom);
+    }
+    const gradient = ctx.createLinearGradient(0, y, 0, h - pad.bottom);
+    gradient.addColorStop(0, riskMeta[item.risk].color);
+    gradient.addColorStop(1, "rgba(255,255,255,0.05)");
+    ctx.fillStyle = gradient;
     ctx.fillRect(x, y, barWidth, barHeight);
+    ctx.shadowColor = riskMeta[item.risk].color;
+    ctx.shadowBlur = isHover ? 16 : 5;
+    ctx.fillRect(x, y, barWidth, Math.min(3, barHeight));
+    ctx.shadowBlur = 0;
+    state.detailBarHitboxes.push({ x: x - 4, y, width: barWidth + 8, height: barHeight, item });
     if (index % 5 === 0) {
       ctx.fillStyle = "#8f97a8";
       ctx.font = "11px Microsoft YaHei";
@@ -1551,6 +1655,35 @@ function renderBars(subsystems, desc) {
       ctx.fillText(item.name.replace("子系统", "#"), x + barWidth / 2, h - 18);
     }
   });
+}
+
+function handleDetailBarHover(event) {
+  const rect = els.barCanvas.getBoundingClientRect();
+  const scaleX = els.barCanvas.width / rect.width;
+  const scaleY = els.barCanvas.height / rect.height;
+  const x = (event.clientX - rect.left) * scaleX;
+  const y = (event.clientY - rect.top) * scaleY;
+  const hit = state.detailBarHitboxes.find((box) => x >= box.x && x <= box.x + box.width && y >= box.y && y <= box.y + box.height);
+  if (!hit) {
+    if (state.detailBarHoverName) {
+      state.detailBarHoverName = null;
+      renderBars(createSubsystems(state.selectedStation), state.sortSubsystemDesc);
+    }
+    els.detailBarsTooltip.classList.remove("show");
+    return;
+  }
+  if (state.detailBarHoverName !== hit.item.name) {
+    state.detailBarHoverName = hit.item.name;
+    renderBars(createSubsystems(state.selectedStation), state.sortSubsystemDesc);
+  }
+  els.detailBarsTooltip.innerHTML = `
+    <strong>${hit.item.name}</strong>
+    <span style="color:${riskMeta[hit.item.risk].color}">SOS ${formatSosValue(hit.item.score)}</span>
+  `;
+  const box = els.detailBarsViewport.getBoundingClientRect();
+  els.detailBarsTooltip.style.left = `${Math.min(els.detailBarsViewport.clientWidth - 230, Math.max(8, event.clientX - box.left + 12))}px`;
+  els.detailBarsTooltip.style.top = `${Math.max(8, event.clientY - box.top + 12)}px`;
+  els.detailBarsTooltip.classList.add("show");
 }
 
 function boxPlotParts(station) {
@@ -1728,7 +1861,6 @@ function renderDetailAlarms(station) {
 }
 
 function renderTable(station) {
-  const subsystems = createSubsystems(station).sort((a, b) => a.score - b.score).slice(0, 15);
   const descriptions = {
     high: "Pack 温差偏高，簇级电压离散度异常",
     mid: "预警信息超长字段，存在持续波动",
@@ -1741,15 +1873,23 @@ function renderTable(station) {
     low: "记录优化项，按计划维护",
     healthy: "保持当前运行策略",
   };
-  els.alertTable.innerHTML = subsystems
+  const rows = createSubsystems(station).map((item, index) => ({
+    ...item,
+    date: `2026-04-${String(15 - (index % 7)).padStart(2, "0")}`,
+    description: descriptions[item.risk],
+    suggestion: suggestions[item.risk],
+  }));
+  const sorted = sortDetailTableRows(rows).slice(0, 15);
+  updateDetailTableSortHeaders();
+  els.alertTable.innerHTML = sorted
     .map(
       (item, index) => `
       <tr data-row="${index}">
         <td>${item.name}</td>
-        <td class="${scoreClass(item.score)}">${item.score}</td>
-        <td>2026-04-${String(15 - (index % 7)).padStart(2, "0")}</td>
-        <td>${descriptions[item.risk]}</td>
-        <td>${suggestions[item.risk]}</td>
+        <td class="${scoreClass(item.score)}">${formatSosValue(item.score)}</td>
+        <td>${item.date}</td>
+        <td>${item.description}</td>
+        <td>${item.suggestion}</td>
       </tr>`
     )
     .join("");
@@ -1758,6 +1898,29 @@ function renderTable(station) {
       els.alertTable.querySelectorAll("tr").forEach((item) => item.classList.remove("selected"));
       row.classList.add("selected");
     });
+  });
+}
+
+function sortDetailTableRows(rows) {
+  const { key, direction } = state.detailTableSort;
+  const factor = direction === "asc" ? 1 : -1;
+  return [...rows].sort((a, b) => {
+    let result = 0;
+    if (key === "score") result = a.score - b.score;
+    else if (key === "date") result = a.date.localeCompare(b.date, "zh-CN");
+    else if (key === "risk") result = riskMeta[a.risk].order - riskMeta[b.risk].order || a.score - b.score;
+    else if (key === "suggestion") result = a.suggestion.localeCompare(b.suggestion, "zh-CN");
+    else result = a.name.localeCompare(b.name, "zh-CN");
+    return result * factor;
+  });
+}
+
+function updateDetailTableSortHeaders() {
+  document.querySelectorAll(".table-sort-btn").forEach((button) => {
+    const active = button.dataset.sortKey === state.detailTableSort.key;
+    button.classList.toggle("active", active);
+    button.classList.toggle("asc", active && state.detailTableSort.direction === "asc");
+    button.classList.toggle("desc", active && state.detailTableSort.direction === "desc");
   });
 }
 
