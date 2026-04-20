@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>安全预警 - 远景数智运营系统</title>
-    <link rel="stylesheet" href="styles.css?v=20260420-detail-interact1" />
+    <link rel="stylesheet" href="styles.css?v=20260420-detail-gauge1" />
   </head>
   <body>
     <div class="shell">
@@ -288,10 +288,10 @@
               <div class="dashboard-grid">
                 <article class="panel gauge-panel">
                   <div class="panel-title"><span></span>全站当前 SOS 安全指数</div>
-                  <div class="gauge" id="gauge">
-                    <div class="gauge-arc"></div>
-                    <div class="gauge-value" id="gaugeValue">--</div>
-                    <div class="gauge-label" id="gaugeLabel">当前风险等级：--</div>
+                  <div class="gauge detail-sos-gauge" id="gauge">
+                    <canvas id="gaugeCanvas" width="300" height="180"></canvas>
+                    <strong class="gauge-value" id="gaugeValue">--</strong>
+                    <div class="gauge-label" id="gaugeLabel" hidden>当前风险等级：--</div>
                   </div>
                 </article>
 
@@ -388,6 +388,6 @@
 
     <script src="site-data.js?v=20260415-siteconfig3"></script>
     <script src="risk-data.js?v=20260415-risk-list1"></script>
-    <script src="app.js?v=20260420-detail-interact1"></script>
+    <script src="app.js?v=20260420-detail-gauge1"></script>
   </body>
 </html>
