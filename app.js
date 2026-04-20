@@ -54,6 +54,7 @@ const state = {
   riskTrendHover: null,
   riskBarSort: "idAsc",
   alarmTrendHitboxes: [],
+  detailBoxHitboxes: [],
   alarmDetailSelections: {
     level: new Set(),
     module: new Set(),
@@ -104,15 +105,17 @@ function bindElements() {
     "detailView",
     "backBtn",
     "detailTitle",
-    "detailCrumb",
     "detailComm",
     "detailRisk",
     "detailSos",
-    "detailRated",
-    "detailActive",
-    "detailEnergy",
-    "detailSoc",
-    "detailAlarm",
+    "detailAlarmSubtitle",
+    "detailAlarmList",
+    "detailAlarmCountAll",
+    "detailAlarmCountLevel1",
+    "detailAlarmCountLevel2",
+    "detailAlarmCountLevel3",
+    "detailAlarmCloudCount",
+    "detailAlarmStationCount",
     "gauge",
     "gaugeValue",
     "gaugeLabel",
@@ -162,6 +165,8 @@ function bindElements() {
     "alarmModalClose",
     "alarmTrendChart",
     "alarmTrendTooltip",
+    "boxChartWrap",
+    "boxTooltip",
     "clock",
   ].forEach((id) => {
     els[id] = document.getElementById(id);
@@ -254,6 +259,10 @@ function bindEvents() {
   els.alarmTrendCanvas.addEventListener("mousemove", handleAlarmTrendHover);
   els.alarmTrendCanvas.addEventListener("mouseleave", () => {
     els.alarmTrendTooltip.classList.remove("show");
+  });
+  els.boxCanvas.addEventListener("mousemove", handleBoxHover);
+  els.boxCanvas.addEventListener("mouseleave", () => {
+    els.boxTooltip.classList.remove("show");
   });
   els.riskTrendButtons.addEventListener("click", (event) => {
     const button = event.target.closest("button[data-range]");
@@ -1376,25 +1385,27 @@ function showList() {
 function renderDetail(station) {
   const risk = riskMeta[station.risk];
   els.detailTitle.textContent = `${station.id}${station.name}`;
-  els.detailCrumb.textContent = `集团安全中心 / 安全预警 / ${station.name}`;
   els.detailComm.textContent = commMeta[station.comm].label;
   els.detailComm.style.borderColor = commMeta[station.comm].color;
+  els.detailComm.style.color = commMeta[station.comm].color;
   els.detailRisk.textContent = risk.label;
   els.detailRisk.style.borderColor = risk.color;
-  els.detailSos.textContent = `SOS ${station.sos}`;
-  els.detailRated.textContent = `${station.rated} MW`;
-  els.detailActive.textContent = `${station.active} MW`;
-  els.detailEnergy.textContent = `${station.energy} MWh`;
-  els.detailSoc.textContent = `${station.soc} %`;
-  els.detailAlarm.textContent = `${station.alarms} 条`;
-  els.gaugeValue.textContent = station.sos;
+  els.detailRisk.style.color = risk.color;
+  els.detailSos.textContent = `SOS ${formatSosValue(station.sos)}`;
+  els.detailSos.style.borderColor = risk.color;
+  els.detailSos.style.color = risk.color;
+  els.gaugeValue.textContent = formatSosValue(station.sos);
+  els.gaugeValue.style.color = risk.color;
   els.gaugeLabel.textContent = `当前风险等级：${risk.label}`;
   els.gaugeLabel.style.color = risk.color;
+  els.gaugeLabel.style.borderColor = `${risk.color}66`;
+  els.gaugeLabel.style.background = `${risk.color}1f`;
   els.gauge.querySelector(".gauge-arc").style.setProperty("--angle", `${Math.max(0, Math.min(180, station.sos * 1.8))}deg`);
   els.rangeButtons.querySelectorAll("button").forEach((button) => button.classList.toggle("active", button.dataset.range === "7"));
   els.subsystemSortBtn.textContent = "子系统编号-顺序";
   renderDetailCharts(station);
   renderTable(station);
+  renderDetailAlarms(station);
 }
 
 function renderDetailCharts(station) {
@@ -1542,49 +1553,177 @@ function renderBars(subsystems, desc) {
   });
 }
 
+function boxPlotParts(station) {
+  const names = ["电池系统", "电气系统", "环控系统", "消防系统"];
+  return names.map((name, index) => {
+    const base = station.sos - index * 4 + Math.sin(index + station.sos) * 8;
+    const low = round(Math.max(14, base - 30), 2);
+    const q1 = round(Math.max(24, base - 13), 2);
+    const mid = round(Math.max(30, base + (index === 0 ? 2 : 0)), 2);
+    const q3 = round(Math.min(94, base + 16), 2);
+    const high = round(Math.min(100, base + 28), 2);
+    const mean = round((low + q1 + mid + q3 + high) / 5, 2);
+    const outliers = [];
+    if (index !== 1) {
+      outliers.push({
+        value: round(Math.max(8, low - 7 - index * 2), 2),
+        subsystem: `#${1 + ((index * 3 + Math.round(station.sos)) % Math.max(1, station.subsystemCount))}子系统`,
+      });
+    }
+    if (index === 2 || station.risk === "high") {
+      outliers.push({
+        value: round(Math.min(100, high + 6), 2),
+        subsystem: `#${2 + ((index * 5 + Math.round(station.sos)) % Math.max(2, station.subsystemCount))}子系统`,
+      });
+    }
+    return { name, low, q1, mid, q3, high, mean, outliers };
+  });
+}
+
 function renderBoxPlot(station) {
   const canvas = setupCanvas(els.boxCanvas);
   const ctx = canvas.getContext("2d");
-  const parts = ["电池", "电气", "环控", "消防"].map((name, index) => {
-    const base = station.sos - index * 4 + Math.sin(index + station.sos) * 8;
-    return {
-      name,
-      low: round(Math.max(18, base - 28), 2),
-      q1: round(Math.max(28, base - 14), 2),
-      mid: round(Math.max(35, base), 2),
-      q3: round(Math.min(95, base + 16), 2),
-      high: round(Math.min(100, base + 27), 2),
-    };
-  });
-  const pad = { left: 42, right: 20, top: 28, bottom: 42 };
+  const parts = boxPlotParts(station);
+  const pad = { left: 48, right: 28, top: 32, bottom: 46 };
+  const w = canvas.width;
+  const h = canvas.height;
   clear(ctx, canvas.width, canvas.height);
   drawGrid(ctx, pad, canvas.width, canvas.height);
+  state.detailBoxHitboxes = [];
   parts.forEach((part, index) => {
-    const x = pad.left + 48 + index * ((canvas.width - pad.left - pad.right - 96) / 3);
-    const yLow = valueY(part.low, pad, canvas.height);
-    const yHigh = valueY(part.high, pad, canvas.height);
-    const yQ1 = valueY(part.q1, pad, canvas.height);
-    const yQ3 = valueY(part.q3, pad, canvas.height);
-    const yMid = valueY(part.mid, pad, canvas.height);
+    const x = pad.left + 64 + index * ((w - pad.left - pad.right - 128) / 3);
+    const boxWidth = Math.min(52, Math.max(34, (w - pad.left - pad.right) / 12));
+    const yLow = valueY(part.low, pad, h);
+    const yHigh = valueY(part.high, pad, h);
+    const yQ1 = valueY(part.q1, pad, h);
+    const yQ3 = valueY(part.q3, pad, h);
+    const yMid = valueY(part.mid, pad, h);
+    const yMean = valueY(part.mean, pad, h);
     ctx.strokeStyle = "#1689ff";
-    ctx.lineWidth = 2;
+    ctx.fillStyle = "rgba(22, 137, 255, 0.24)";
+    ctx.lineWidth = 2.4;
     ctx.beginPath();
     ctx.moveTo(x, yHigh);
     ctx.lineTo(x, yLow);
     ctx.stroke();
-    ctx.strokeRect(x - 14, yQ3, 28, yQ1 - yQ3);
     ctx.beginPath();
-    ctx.moveTo(x - 17, yMid);
-    ctx.lineTo(x + 17, yMid);
+    ctx.moveTo(x - boxWidth * 0.28, yHigh);
+    ctx.lineTo(x + boxWidth * 0.28, yHigh);
+    ctx.moveTo(x - boxWidth * 0.28, yLow);
+    ctx.lineTo(x + boxWidth * 0.28, yLow);
     ctx.stroke();
-    ctx.fillStyle = riskMeta[getRisk(part.mid)].color;
+    ctx.fillRect(x - boxWidth / 2, yQ3, boxWidth, yQ1 - yQ3);
+    ctx.strokeRect(x - boxWidth / 2, yQ3, boxWidth, yQ1 - yQ3);
     ctx.beginPath();
-    ctx.arc(x, yMid, 4, 0, Math.PI * 2);
+    ctx.moveTo(x - boxWidth / 2, yMid);
+    ctx.lineTo(x + boxWidth / 2, yMid);
+    ctx.stroke();
+    ctx.fillStyle = "#1689ff";
+    ctx.beginPath();
+    ctx.moveTo(x, yMean - 7);
+    ctx.lineTo(x + 6, yMean + 5);
+    ctx.lineTo(x - 6, yMean + 5);
+    ctx.closePath();
     ctx.fill();
+    part.outliers.forEach((outlier) => {
+      const oy = valueY(outlier.value, pad, h);
+      ctx.fillStyle = "#ff526a";
+      ctx.beginPath();
+      ctx.moveTo(x, oy - 7);
+      ctx.lineTo(x + 6, oy);
+      ctx.lineTo(x, oy + 7);
+      ctx.lineTo(x - 6, oy);
+      ctx.closePath();
+      ctx.fill();
+      state.detailBoxHitboxes.push({ type: "outlier", x, y: oy, part, outlier });
+    });
     ctx.fillStyle = "#8f97a8";
     ctx.font = "12px Microsoft YaHei";
     ctx.textAlign = "center";
-    ctx.fillText(part.name, x, canvas.height - 12);
+    ctx.fillText(part.name.replace("系统", ""), x, h - 14);
+    state.detailBoxHitboxes.push({ type: "box", x, y: (yQ1 + yQ3) / 2, boxWidth, yQ1, yQ3, part });
+  });
+}
+
+function handleBoxHover(event) {
+  const rect = els.boxCanvas.getBoundingClientRect();
+  const scaleX = els.boxCanvas.width / rect.width;
+  const scaleY = els.boxCanvas.height / rect.height;
+  const x = (event.clientX - rect.left) * scaleX;
+  const y = (event.clientY - rect.top) * scaleY;
+  const hit = state.detailBoxHitboxes
+    .map((item) => {
+      if (item.type === "box") {
+        const inBox = Math.abs(item.x - x) <= item.boxWidth / 2 + 12 && y >= item.yQ3 - 12 && y <= item.yQ1 + 12;
+        return { ...item, distance: inBox ? 0 : Math.hypot(item.x - x, item.y - y) };
+      }
+      return { ...item, distance: Math.hypot(item.x - x, item.y - y) };
+    })
+    .sort((a, b) => a.distance - b.distance)[0];
+  if (!hit || hit.distance > 22) {
+    els.boxTooltip.classList.remove("show");
+    return;
+  }
+  if (hit.type === "outlier") {
+    els.boxTooltip.innerHTML = `
+      <strong>${hit.part.name}</strong>
+      <span style="color:#ff526a">${hit.outlier.subsystem} ${formatSosValue(hit.outlier.value)}</span>
+      <span>离群点</span>`;
+  } else {
+    els.boxTooltip.innerHTML = `
+      <strong>${hit.part.name}</strong>
+      <span style="color:#1689ff">上边缘 ${formatSosValue(hit.part.high)}</span>
+      <span style="color:#1689ff">上四分位 ${formatSosValue(hit.part.q3)}</span>
+      <span style="color:#1689ff">中位数 ${formatSosValue(hit.part.mid)}</span>
+      <span style="color:#1689ff">均值 ${formatSosValue(hit.part.mean)}</span>
+      <span style="color:#1689ff">下四分位 ${formatSosValue(hit.part.q1)}</span>
+      <span style="color:#1689ff">下边缘 ${formatSosValue(hit.part.low)}</span>`;
+  }
+  const box = els.boxChartWrap.getBoundingClientRect();
+  els.boxTooltip.style.left = `${Math.min(els.boxChartWrap.clientWidth - 230, Math.max(8, event.clientX - box.left + 12))}px`;
+  els.boxTooltip.style.top = `${Math.max(8, event.clientY - box.top + 12)}px`;
+  els.boxTooltip.classList.add("show");
+}
+
+function renderDetailAlarms(station) {
+  const alarms = state.allAlarms
+    .filter((alarm) => alarm.stationId === station.id)
+    .sort((a, b) => alarmOrder(a.type) - alarmOrder(b.type) || b.dateISO.localeCompare(a.dateISO));
+  els.detailAlarmSubtitle.textContent = `${station.id}${station.name}`;
+  els.detailAlarmCountAll.textContent = alarms.length;
+  els.detailAlarmCountLevel1.textContent = alarms.filter((alarm) => alarm.type === "level1").length;
+  els.detailAlarmCountLevel2.textContent = alarms.filter((alarm) => alarm.type === "level2").length;
+  els.detailAlarmCountLevel3.textContent = alarms.filter((alarm) => alarm.type === "level3").length;
+  els.detailAlarmCloudCount.textContent = alarms.filter((alarm) => alarm.source === "云端").length;
+  els.detailAlarmStationCount.textContent = alarms.filter((alarm) => alarm.source === "站端").length;
+  els.detailAlarmList.innerHTML = alarms.length
+    ? alarms
+        .map(
+          (alarm) => `
+        <button class="alarm-item alarm-${alarm.type}" type="button" data-alarm-id="${alarm.id}">
+          <div class="alarm-body">
+            <div class="alarm-row">
+              <div class="alarm-tags">
+                <span class="alarm-level">${alarm.level}</span><span>${alarm.module}</span>
+              </div>
+              <span class="alarm-source alarm-source-${alarm.source === "云端" ? "cloud" : "station"}">${alarm.source}</span>
+            </div>
+            <strong>${alarm.title}</strong>
+            <div class="alarm-meta">
+              <span class="alarm-station-name">${alarm.location}</span>
+              <time>${alarm.time}</time>
+            </div>
+            <div class="alarm-location">预警位置：${alarm.location}</div>
+          </div>
+        </button>`
+        )
+        .join("")
+    : `<div class="empty detail-alarm-empty">当前场站暂无预警</div>`;
+  els.detailAlarmList.querySelectorAll(".alarm-item").forEach((item) => {
+    item.addEventListener("click", () => {
+      const alarm = alarms.find((entry) => entry.id === item.dataset.alarmId);
+      openAlarmModal(alarm);
+    });
   });
 }
 
