@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>安全预警 - 远景数智运营系统</title>
-    <link rel="stylesheet" href="styles.css?v=20260420-detail-polish1" />
+    <link rel="stylesheet" href="styles.css?v=20260420-detail-polish2" />
   </head>
   <body>
     <div class="shell">
@@ -305,7 +305,7 @@
                     </div>
                   </div>
                   <div class="detail-trend-chart" id="detailTrendChart">
-                    <canvas id="trendCanvas" width="820" height="260"></canvas>
+                    <canvas id="trendCanvas" width="820" height="230"></canvas>
                     <div id="detailTrendTooltip" class="risk-bars-tooltip"></div>
                   </div>
                 </article>
@@ -313,7 +313,7 @@
                 <article class="panel donut-panel">
                   <div class="panel-title"><span></span>子系统风险等级分布</div>
                   <div class="donut-wrap">
-                    <canvas id="donutCanvas" width="260" height="220"></canvas>
+                    <canvas id="donutCanvas" width="260" height="210"></canvas>
                     <div id="donutLegend" class="legend"></div>
                   </div>
                 </article>
@@ -337,7 +337,7 @@
                     </div>
                   </div>
                   <div class="detail-bars-viewport" id="detailBarsViewport">
-                    <canvas id="barCanvas" width="980" height="300"></canvas>
+                    <canvas id="barCanvas" width="980" height="280"></canvas>
                     <div id="detailBarsTooltip" class="risk-bars-tooltip"></div>
                   </div>
                 </article>
@@ -345,7 +345,7 @@
                 <article class="panel parts-panel">
                   <div class="panel-title"><span></span>设备部件 SOS 指数分析</div>
                   <div class="box-chart-wrap" id="boxChartWrap">
-                    <canvas id="boxCanvas" width="430" height="340"></canvas>
+                    <canvas id="boxCanvas" width="430" height="300"></canvas>
                     <div id="boxTooltip" class="risk-bars-tooltip"></div>
                   </div>
                 </article>
@@ -363,8 +363,8 @@
                         <th><button class="table-sort-btn" data-sort-key="name" type="button">子系统</button></th>
                         <th><button class="table-sort-btn active asc" data-sort-key="score" type="button">当前 SOS 指数</button></th>
                         <th><button class="table-sort-btn" data-sort-key="date" type="button">更新日期</button></th>
-                        <th><button class="table-sort-btn" data-sort-key="risk" type="button">风险描述</button></th>
-                        <th><button class="table-sort-btn" data-sort-key="suggestion" type="button">处置建议</button></th>
+                        <th>风险描述</th>
+                        <th>处置建议</th>
                       </tr>
                     </thead>
                     <tbody id="alertTable"></tbody>
@@ -401,6 +401,6 @@
 
     <script src="site-data.js?v=20260415-siteconfig3"></script>
     <script src="risk-data.js?v=20260415-risk-list1"></script>
-    <script src="app.js?v=20260420-detail-polish1"></script>
+    <script src="app.js?v=20260420-detail-polish2"></script>
   </body>
 </html>
