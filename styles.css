@@ -845,43 +845,38 @@ h2 {
 }
 
 .gauge {
-  height: 220px;
+  min-height: 220px;
   position: relative;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  padding-bottom: 28px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at center, rgba(244, 248, 255, 0.06), transparent 55%),
+    linear-gradient(180deg, rgba(30, 34, 47, 0.38), rgba(13, 16, 25, 0.24));
 }
 
-.gauge-arc {
-  --angle: 162deg;
+.detail-sos-gauge canvas {
   position: absolute;
-  width: 270px;
-  height: 135px;
-  bottom: 48px;
-  border-radius: 270px 270px 0 0;
-  background:
-    radial-gradient(circle at 50% 100%, var(--surface) 0 47%, transparent 48%),
-    conic-gradient(from 270deg at 50% 100%, var(--red) 0 42deg, var(--yellow) 42deg 85deg, var(--green) 85deg 130deg, var(--blue) 130deg var(--angle), #2a2d38 var(--angle) 180deg, transparent 180deg);
+  top: 34px;
+  left: 50%;
+  width: 292px;
+  height: 174px;
+  max-width: none;
+  transform: translateX(-50%);
 }
 
 .gauge-value {
   position: relative;
   z-index: 1;
-  font-size: 30px;
+  margin-top: 62px;
+  color: #f4f8ff;
+  font-size: 34px;
   font-weight: 700;
-  margin-bottom: 34px;
+  line-height: 1;
 }
 
-.gauge-label {
-  position: absolute;
-  z-index: 2;
-  bottom: 18px;
-  color: #67d9b0;
-  background: rgba(19, 199, 129, 0.12);
-  border: 1px solid rgba(19, 199, 129, 0.25);
-  padding: 6px 14px;
-  font-size: 13px;
+.gauge-label[hidden] {
+  display: none;
 }
 
 .trend-panel {
@@ -2513,10 +2508,6 @@ h2 {
 
 .overview-strip div {
   border-left: 0;
-}
-
-.gauge-arc {
-  filter: drop-shadow(0 0 10px rgba(18, 152, 255, 0.18));
 }
 
 th {
