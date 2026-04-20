@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>安全预警 - 远景数智运营系统</title>
-    <link rel="stylesheet" href="styles.css?v=20260420-detail-tune1" />
+    <link rel="stylesheet" href="styles.css?v=20260420-detail-interact1" />
   </head>
   <body>
     <div class="shell">
@@ -304,7 +304,10 @@
                       <button data-range="30" type="button">30天</button>
                     </div>
                   </div>
-                  <canvas id="trendCanvas" width="820" height="260"></canvas>
+                  <div class="detail-trend-chart" id="detailTrendChart">
+                    <canvas id="trendCanvas" width="820" height="260"></canvas>
+                    <div id="detailTrendTooltip" class="risk-bars-tooltip"></div>
+                  </div>
                 </article>
 
                 <article class="panel donut-panel">
@@ -320,7 +323,10 @@
                     <div class="panel-title"><span></span>各子系统 SOS 安全指数</div>
                     <button id="subsystemSortBtn" class="small-select" type="button">子系统编号-顺序</button>
                   </div>
-                  <canvas id="barCanvas" width="980" height="300"></canvas>
+                  <div class="detail-bars-viewport" id="detailBarsViewport">
+                    <canvas id="barCanvas" width="980" height="300"></canvas>
+                    <div id="detailBarsTooltip" class="risk-bars-tooltip"></div>
+                  </div>
                 </article>
 
                 <article class="panel parts-panel">
@@ -341,11 +347,11 @@
                   <table>
                     <thead>
                       <tr>
-                        <th>子系统</th>
-                        <th>当前 SOS 指数</th>
-                        <th>更新日期</th>
-                        <th>风险描述</th>
-                        <th>处置建议</th>
+                        <th><button class="table-sort-btn" data-sort-key="name" type="button">子系统</button></th>
+                        <th><button class="table-sort-btn active asc" data-sort-key="score" type="button">当前 SOS 指数</button></th>
+                        <th><button class="table-sort-btn" data-sort-key="date" type="button">更新日期</button></th>
+                        <th><button class="table-sort-btn" data-sort-key="risk" type="button">风险描述</button></th>
+                        <th><button class="table-sort-btn" data-sort-key="suggestion" type="button">处置建议</button></th>
                       </tr>
                     </thead>
                     <tbody id="alertTable"></tbody>
@@ -382,6 +388,6 @@
 
     <script src="site-data.js?v=20260415-siteconfig3"></script>
     <script src="risk-data.js?v=20260415-risk-list1"></script>
-    <script src="app.js?v=20260420-detail-tune1"></script>
+    <script src="app.js?v=20260420-detail-interact1"></script>
   </body>
 </html>
