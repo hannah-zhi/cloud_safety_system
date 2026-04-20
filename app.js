@@ -63,6 +63,7 @@ const state = {
   detailTrendHover: null,
   detailBarHitboxes: [],
   detailBarHoverName: null,
+  detailSubsystems: [],
   detailTableSort: { key: "score", direction: "asc" },
   alarmDetailSelections: {
     level: new Set(),
@@ -318,7 +319,7 @@ function bindEvents() {
   els.barCanvas.addEventListener("mousemove", handleDetailBarHover);
   els.barCanvas.addEventListener("mouseleave", () => {
     state.detailBarHoverName = null;
-    if (state.selectedStation) renderBars(createSubsystems(state.selectedStation));
+    if (state.selectedStation) renderBars(state.detailSubsystems);
     els.detailBarsTooltip.classList.remove("show");
   });
   document.querySelectorAll(".table-sort-btn").forEach((button) => {
@@ -328,7 +329,7 @@ function bindEvents() {
         key,
         direction: state.detailTableSort.key === key && state.detailTableSort.direction === "asc" ? "desc" : "asc",
       };
-      if (state.selectedStation) renderTable(state.selectedStation);
+      if (state.selectedStation) renderTable();
     });
   });
   els.riskTrendButtons.addEventListener("click", (event) => {
@@ -367,7 +368,7 @@ function bindEvents() {
     if (!state.selectedStation) return;
     state.sortSubsystemMode = els.subsystemSortBtn.value;
     state.detailBarHoverName = null;
-    renderBars(createSubsystems(state.selectedStation));
+    renderBars(state.detailSubsystems);
   });
   window.addEventListener("resize", () => {
     if (state.selectedStation) renderDetailCharts(state.selectedStation);
@@ -1492,15 +1493,16 @@ function renderDetail(station) {
   drawSosGauge(els.gaugeCanvas, station.sos);
   els.rangeButtons.querySelectorAll("button").forEach((button) => button.classList.toggle("active", button.dataset.range === "7"));
   els.subsystemSortBtn.value = "idAsc";
+  state.detailSubsystems = createSubsystems(station);
   renderDetailCharts(station);
-  renderTable(station);
+  renderTable();
   renderDetailAlarms(station);
 }
 
 function renderDetailCharts(station) {
   renderTrend(station, state.trendRange);
-  renderDonut(createSubsystems(station));
-  renderBars(createSubsystems(station));
+  renderDonut(state.detailSubsystems);
+  renderBars(state.detailSubsystems);
   renderBoxPlot(station);
 }
 
@@ -1731,14 +1733,14 @@ function handleDetailBarHover(event) {
   if (!hit) {
     if (state.detailBarHoverName) {
       state.detailBarHoverName = null;
-      renderBars(createSubsystems(state.selectedStation));
+      renderBars(state.detailSubsystems);
     }
     els.detailBarsTooltip.classList.remove("show");
     return;
   }
   if (state.detailBarHoverName !== hit.item.name) {
     state.detailBarHoverName = hit.item.name;
-    renderBars(createSubsystems(state.selectedStation));
+    renderBars(state.detailSubsystems);
   }
   els.detailBarsTooltip.innerHTML = `
     <strong>${hit.item.name}</strong>
@@ -1931,7 +1933,7 @@ function renderDetailAlarms(station) {
   });
 }
 
-function renderTable(station) {
+function renderTable() {
   const descriptions = {
     high: "Pack 温差偏高，簇级电压离散度异常",
     mid: "监测参数持续波动，建议跟踪运行趋势",
@@ -1944,13 +1946,13 @@ function renderTable(station) {
     low: "记录优化项，按计划维护",
     healthy: "保持当前运行策略",
   };
-  const rows = createSubsystems(station).map((item, index) => ({
+  const rows = state.detailSubsystems.map((item, index) => ({
     ...item,
     date: `2026-04-${String(15 - (index % 7)).padStart(2, "0")}`,
     description: descriptions[item.risk],
     suggestion: suggestions[item.risk],
   }));
-  const sorted = sortDetailTableRows(rows).slice(0, 15);
+  const sorted = sortDetailTableRows(rows);
   updateDetailTableSortHeaders();
   els.alertTable.innerHTML = sorted
     .map(
