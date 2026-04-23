@@ -2625,22 +2625,29 @@ h2 {
   margin-top: 12px;
 }
 
-.alarm-detail-meta div {
+.alarm-detail-meta-card {
   min-height: 54px;
   padding: 10px;
   border: 1px solid rgba(57, 63, 82, 0.76);
   background: rgba(12, 14, 22, 0.34);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.alarm-detail-meta-card-source {
+  justify-content: flex-start;
 }
 
 .alarm-detail-source-row {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
-  gap: 10px;
-  min-height: 24px;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 28px;
 }
 
-.alarm-detail-source-row strong {
+.alarm-detail-source-text {
   flex: 0 0 auto;
 }
 
@@ -2661,15 +2668,16 @@ h2 {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: fit-content;
-  min-height: 28px;
+  height: 24px;
   flex: 0 0 auto;
   border: 1px solid rgba(18, 152, 255, 0.72);
   border-radius: 4px;
   background: rgba(18, 152, 255, 0.14);
   color: #dceaff;
-  padding: 0 10px;
-  font-size: 12px;
+  padding: 0 8px;
+  font-size: 11px;
+  line-height: 1;
+  white-space: nowrap;
 }
 
 .alarm-linked-jump:hover {
