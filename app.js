@@ -1397,10 +1397,10 @@ function renderAlarmInspector(alarm) {
       <p>${alarm.level === "一级" ? "立即复核云端诊断结果并安排现场排查。" : alarm.level === "二级" ? "持续观察趋势，纳入当班巡检计划。" : "记录风险变化，按计划跟踪闭环。"}</p>
     </div>
     <div class="alarm-detail-meta">
-      <div>
+      <div class="alarm-detail-meta-card alarm-detail-meta-card-source">
         <span>预警来源</span>
         <div class="alarm-detail-source-row">
-          <strong>${alarm.source}</strong>
+          <strong class="alarm-detail-source-text">${alarm.source}</strong>
           ${
             linked
               ? `<button class="alarm-linked-jump" type="button" data-linked-id="${linked.id}">${alarm.source === "云端" ? "查看站端关联预警" : "查看云端关联预警"}</button>`
@@ -1408,11 +1408,11 @@ function renderAlarmInspector(alarm) {
           }
         </div>
       </div>
-      <div><span>所属场站</span><strong>${alarm.stationId}${alarm.stationName}</strong></div>
-      <div><span>预警位置</span><strong>${alarm.location}</strong></div>
-      <div><span>事件时间</span><strong>${alarm.eventTime}</strong></div>
-      <div><span>预警时间</span><strong>${alarm.warningTime}</strong></div>
-      <div><span>持续时长</span><strong>${duration} 小时</strong></div>
+      <div class="alarm-detail-meta-card"><span>所属场站</span><strong>${alarm.stationId}${alarm.stationName}</strong></div>
+      <div class="alarm-detail-meta-card"><span>预警位置</span><strong>${alarm.location}</strong></div>
+      <div class="alarm-detail-meta-card"><span>事件时间</span><strong>${alarm.eventTime}</strong></div>
+      <div class="alarm-detail-meta-card"><span>预警时间</span><strong>${alarm.warningTime}</strong></div>
+      <div class="alarm-detail-meta-card"><span>持续时长</span><strong>${duration} 小时</strong></div>
     </div>
   `;
   const jumpButton = els.alarmInspectorBody.querySelector(".alarm-linked-jump");
