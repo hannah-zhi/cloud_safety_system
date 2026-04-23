@@ -1399,12 +1399,14 @@ function renderAlarmInspector(alarm) {
     <div class="alarm-detail-meta">
       <div class="alarm-detail-meta-source">
         <span>预警来源</span>
-        <strong>${alarm.source}</strong>
-        ${
-          linked
-            ? `<button class="alarm-linked-jump" type="button" data-linked-id="${linked.id}">${alarm.source === "云端" ? "查看站端关联预警" : "查看云端关联预警"}</button>`
-            : ""
-        }
+        <div class="alarm-detail-source-row">
+          <strong>${alarm.source}</strong>
+          ${
+            linked
+              ? `<button class="alarm-linked-jump" type="button" data-linked-id="${linked.id}">${alarm.source === "云端" ? "查看站端关联预警" : "查看云端关联预警"}</button>`
+              : ""
+          }
+        </div>
       </div>
       <div><span>所属场站</span><strong>${alarm.stationId}${alarm.stationName}</strong></div>
       <div><span>预警位置</span><strong>${alarm.location}</strong></div>
