@@ -2070,6 +2070,15 @@ h2 {
   grid-template-columns: minmax(330px, 0.85fr) minmax(330px, 0.85fr) minmax(0, 1.1fr);
 }
 
+.alarm-detail-view {
+  display: grid;
+  gap: 14px;
+}
+
+.alarm-overview-grid {
+  margin-top: -2px;
+}
+
 .risk-bars-panel,
 .risk-trend-panel,
 .risk-wide-panel {
@@ -2620,6 +2629,12 @@ h2 {
   background: rgba(12, 14, 22, 0.34);
 }
 
+.alarm-detail-meta-source {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
 .alarm-detail-meta span {
   display: block;
   color: #8791a7;
@@ -2633,19 +2648,18 @@ h2 {
   line-height: 1.45;
 }
 
-.alarm-linked-jump-wrap {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 10px;
-}
-
 .alarm-linked-jump {
-  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  min-height: 28px;
   border: 1px solid rgba(18, 152, 255, 0.72);
   border-radius: 4px;
   background: rgba(18, 152, 255, 0.14);
   color: #dceaff;
-  padding: 0 12px;
+  padding: 0 10px;
+  font-size: 12px;
 }
 
 .alarm-linked-jump:hover {
