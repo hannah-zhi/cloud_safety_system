@@ -1397,7 +1397,7 @@ function renderAlarmInspector(alarm) {
       <p>${alarm.level === "一级" ? "立即复核云端诊断结果并安排现场排查。" : alarm.level === "二级" ? "持续观察趋势，纳入当班巡检计划。" : "记录风险变化，按计划跟踪闭环。"}</p>
     </div>
     <div class="alarm-detail-meta">
-      <div class="alarm-detail-meta-source">
+      <div>
         <span>预警来源</span>
         <div class="alarm-detail-source-row">
           <strong>${alarm.source}</strong>
