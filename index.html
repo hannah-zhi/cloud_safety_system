@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>安全预警 - 远景数智运营系统</title>
-    <link rel="stylesheet" href="styles.css?v=20260423-overview-sos-range2" />
+    <link rel="stylesheet" href="styles.css?v=20260423-risk-alarm-sync1" />
   </head>
   <body>
     <div class="shell">
@@ -169,10 +169,10 @@
                     <span class="legend-blue">健康</span>
                   </div>
                   <select id="riskBarSort" class="risk-sort-select" aria-label="场站SOS分布排序">
+                    <option value="sosAsc" selected>SOS数值-从低到高</option>
+                    <option value="sosDesc">SOS数值-从高到低</option>
                     <option value="idAsc">场站编号-顺序</option>
                     <option value="idDesc">场站编号-倒序</option>
-                    <option value="sosAsc">SOS数值-从低到高</option>
-                    <option value="sosDesc">SOS数值-从高到低</option>
                   </select>
                 </div>
               </div>
@@ -202,8 +202,11 @@
             </article>
           </div>
 
+        </section>
+
+        <section id="alarmDetailView" class="view alarm-detail-view" aria-label="预警详情">
           <div class="risk-section-title">预警透视</div>
-          <div class="risk-alarm-grid">
+          <div class="risk-alarm-grid alarm-overview-grid">
             <article class="panel">
               <div class="panel-title"><span></span>预警等级占比</div>
               <div class="donut-wrap">
@@ -223,9 +226,6 @@
               <div id="riskAlarmNameTopList" class="risk-alarm-top-list"></div>
             </article>
           </div>
-        </section>
-
-        <section id="alarmDetailView" class="view alarm-detail-view" aria-label="预警详情">
           <div class="panel alarm-detail-main">
             <div class="panel-title-row">
               <div class="panel-title"><span></span>风险预警列表</div>
@@ -434,6 +434,6 @@
 
     <script src="site-data.js?v=20260415-siteconfig3"></script>
     <script src="risk-data.js?v=20260415-risk-list1"></script>
-    <script src="app.js?v=20260423-overview-sos-range2"></script>
+    <script src="app.js?v=20260423-risk-alarm-sync1"></script>
   </body>
 </html>
