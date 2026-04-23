@@ -2632,21 +2632,16 @@ h2 {
   background: rgba(12, 14, 22, 0.34);
 }
 
-.alarm-detail-meta-source {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
 .alarm-detail-source-row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: 10px;
+  min-height: 24px;
 }
 
 .alarm-detail-source-row strong {
-  flex: 0 1 auto;
+  flex: 0 0 auto;
 }
 
 .alarm-detail-meta span {
