@@ -58,7 +58,7 @@ const state = {
   riskTrendHitboxes: [],
   riskBarHoverId: null,
   riskTrendHover: null,
-  riskBarSort: "idAsc",
+  riskBarSort: "sosAsc",
   alarmTrendHitboxes: [],
   detailBoxHitboxes: [],
   detailTrendHitboxes: [],
@@ -351,19 +351,19 @@ function bindEvents() {
   els.riskBarsCanvas.addEventListener("mousemove", handleRiskBarHover);
   els.riskBarsCanvas.addEventListener("mouseleave", () => {
     state.riskBarHoverId = null;
-    renderSafely(() => renderRiskBars(state.filtered));
+    renderSafely(() => renderRiskBars(state.stations));
     els.riskBarsTooltip.classList.remove("show");
   });
   els.riskTrendCanvas.addEventListener("mousemove", handleRiskTrendHover);
   els.riskTrendCanvas.addEventListener("mouseleave", () => {
     state.riskTrendHover = null;
-    renderSafely(() => renderRiskTrend(state.filtered, state.riskTrendRange));
+    renderSafely(() => renderRiskTrend(state.stations, state.riskTrendRange));
     els.riskTrendTooltip.classList.remove("show");
   });
   els.riskBarSort.addEventListener("change", () => {
     state.riskBarSort = els.riskBarSort.value;
     state.riskBarHoverId = null;
-    renderRiskBars(state.filtered);
+    renderRiskBars(state.stations);
   });
   els.backBtn.addEventListener("click", showList);
   els.rangeButtons.addEventListener("click", (event) => {
@@ -490,6 +490,10 @@ function createAlarms(stations) {
     const first = alarms[firstIndex];
     const second = alarms[secondIndex];
     const pairId = `pair-${i + 1}`;
+    const cloudWarningDate = new Date(2026, 3, 15 - ((i * 3) % 28), 9 + (i % 7), 8 + ((i * 11) % 40), 0);
+    const cloudEventDate = new Date(cloudWarningDate.getTime() - (22 + (i % 6) * 7) * 60 * 1000);
+    const stationWarningDate = new Date(cloudWarningDate.getTime() + (85 + (i % 5) * 17) * 60 * 1000);
+    const stationEventDate = new Date(stationWarningDate.getTime() - (14 + (i % 4) * 9) * 60 * 1000);
     const shared = {
       stationId: first.stationId,
       stationName: first.stationName,
@@ -498,15 +502,15 @@ function createAlarms(stations) {
       type: first.type,
       level: first.level,
       location: first.location,
-      dateISO: first.dateISO,
-      eventTime: first.eventTime,
-      warningTime: first.warningTime,
-      time: first.time,
     };
     alarms[firstIndex] = {
       ...first,
       ...shared,
       source: "云端",
+      dateISO: formatDateInput(cloudWarningDate),
+      eventTime: formatFullDateTime(cloudEventDate),
+      warningTime: formatFullDateTime(cloudWarningDate),
+      time: `${String(cloudWarningDate.getMonth() + 1).padStart(2, "0")}-${String(cloudWarningDate.getDate()).padStart(2, "0")} ${String(cloudWarningDate.getHours()).padStart(2, "0")}:${String(cloudWarningDate.getMinutes()).padStart(2, "0")}`,
       linkGroupId: pairId,
       linkedAlarmId: second.id,
     };
@@ -514,6 +518,10 @@ function createAlarms(stations) {
       ...second,
       ...shared,
       source: "站端",
+      dateISO: formatDateInput(stationWarningDate),
+      eventTime: formatFullDateTime(stationEventDate),
+      warningTime: formatFullDateTime(stationWarningDate),
+      time: `${String(stationWarningDate.getMonth() + 1).padStart(2, "0")}-${String(stationWarningDate.getDate()).padStart(2, "0")} ${String(stationWarningDate.getHours()).padStart(2, "0")}:${String(stationWarningDate.getMinutes()).padStart(2, "0")}`,
       linkGroupId: pairId,
       linkedAlarmId: first.id,
     };
@@ -605,7 +613,10 @@ function applyFilters() {
   state.alarms = filterAlarmsByStations(filtered);
   renderAlarms();
   if (state.activePage === "risk") renderRiskView();
-  if (state.activePage === "alarm") renderAlarmDetailPage();
+  if (state.activePage === "alarm") {
+    renderAlarmOverview();
+    renderAlarmDetailPage();
+  }
   renderStationPicker();
 }
 
@@ -620,7 +631,10 @@ function showPage(page) {
     button.classList.toggle("active", button.dataset.page === page);
   });
   if (page === "risk") renderRiskView();
-  if (page === "alarm") renderAlarmDetailPage();
+  if (page === "alarm") {
+    renderAlarmOverview();
+    renderAlarmDetailPage();
+  }
   const url = new URL(window.location.href);
   url.searchParams.delete("station");
   url.searchParams.set("page", page);
@@ -785,8 +799,7 @@ function filterAlarmsByWindow(alarms, activeDays, startDate, endDate) {
 }
 
 function renderRiskView() {
-  const stations = state.filtered;
-  const alarms = state.alarms;
+  const stations = state.stations;
   const avg = state.stations.reduce((sum, station) => sum + station.sos, 0) / Math.max(1, state.stations.length);
   els.riskAvgSos.textContent = formatSosValue(round(avg, 2));
   renderRiskAvgGauge(avg);
@@ -794,9 +807,6 @@ function renderRiskView() {
   renderSafely(() => renderRiskPie(stations));
   renderSafely(() => renderRiskTrend(stations, state.riskTrendRange));
   renderSafely(() => renderRiskBars(stations));
-  renderSafely(() => renderRiskAlarmPie(alarms));
-  renderSafely(() => renderRiskModules(alarms));
-  renderSafely(() => renderRiskAlarmNameTop(alarms));
 }
 
 function renderSafely(renderFn) {
@@ -992,13 +1002,25 @@ function renderRiskTrend(stations, range) {
   ctx.fillStyle = "#8f97a8";
   ctx.font = "12px Microsoft YaHei";
   ctx.textAlign = "center";
-  const tickStep = range <= 7 ? 1 : range <= 15 ? 2 : 4;
-  series.labels.forEach((label, index) => {
-    if (index % tickStep === 0 || index === series.labels.length - 1) {
-      const x = pad.left + (index / Math.max(1, range - 1)) * (canvas.width - pad.left - pad.right);
-      ctx.fillText(label, x, canvas.height - 12);
-    }
+  const labelIndexes = getXAxisLabelIndexes(series.labels.length, range <= 7 ? 7 : range <= 15 ? 6 : 7);
+  labelIndexes.forEach((index) => {
+    const label = series.labels[index];
+    const x = pad.left + (index / Math.max(1, range - 1)) * (canvas.width - pad.left - pad.right);
+    ctx.textAlign = index === 0 ? "left" : index === series.labels.length - 1 ? "right" : "center";
+    ctx.fillText(label, x, canvas.height - 12);
   });
+  ctx.textAlign = "center";
+}
+
+function getXAxisLabelIndexes(length, maxLabels) {
+  if (length <= 0) return [];
+  if (length <= maxLabels) return Array.from({ length }, (_, index) => index);
+  const indexes = new Set([0, length - 1]);
+  const step = (length - 1) / Math.max(1, maxLabels - 1);
+  for (let i = 1; i < maxLabels - 1; i += 1) {
+    indexes.add(Math.round(i * step));
+  }
+  return [...indexes].sort((a, b) => a - b);
 }
 
 function drawTrendGuide(ctx, pad, canvas, series) {
@@ -1171,14 +1193,14 @@ function handleRiskBarHover(event) {
   if (!hit) {
     if (state.riskBarHoverId) {
       state.riskBarHoverId = null;
-      renderSafely(() => renderRiskBars(state.filtered));
+      renderSafely(() => renderRiskBars(state.stations));
     }
     els.riskBarsTooltip.classList.remove("show");
     return;
   }
   if (state.riskBarHoverId !== hit.station.id) {
     state.riskBarHoverId = hit.station.id;
-    renderSafely(() => renderRiskBars(state.filtered));
+    renderSafely(() => renderRiskBars(state.stations));
   }
   els.riskBarsTooltip.innerHTML = `
     <strong>${hit.station.id}${hit.station.name}</strong>
@@ -1206,14 +1228,14 @@ function handleRiskTrendHover(event) {
   if (!hit || hit.distance > 12 || y < 20 || y > els.riskTrendCanvas.height - 12) {
     if (state.riskTrendHover) {
       state.riskTrendHover = null;
-      renderSafely(() => renderRiskTrend(state.filtered, state.riskTrendRange));
+      renderSafely(() => renderRiskTrend(state.stations, state.riskTrendRange));
     }
     els.riskTrendTooltip.classList.remove("show");
     return;
   }
   if (!state.riskTrendHover || state.riskTrendHover.index !== hit.index) {
     state.riskTrendHover = { index: hit.index };
-    renderSafely(() => renderRiskTrend(state.filtered, state.riskTrendRange));
+    renderSafely(() => renderRiskTrend(state.stations, state.riskTrendRange));
   }
   const rows = ["max", "avg", "min"]
     .map((key) => state.riskTrendHitboxes.find((point) => point.index === hit.index && point.key === key))
@@ -1342,7 +1364,7 @@ function filterAlarmDetailItems() {
   const start = els.alarmDetailStart.value ? new Date(`${els.alarmDetailStart.value}T00:00:00`) : null;
   const end = els.alarmDetailEnd.value ? new Date(`${els.alarmDetailEnd.value}T23:59:59`) : null;
   const { level, module, name, station, location, source } = state.alarmDetailSelections;
-  return state.alarms.filter((alarm) => {
+  return state.allAlarms.filter((alarm) => {
     const date = new Date(`${alarm.dateISO}T12:00:00`);
     const stationLabel = `${alarm.stationId}${alarm.stationName}`;
     return (
@@ -1375,20 +1397,21 @@ function renderAlarmInspector(alarm) {
       <p>${alarm.level === "一级" ? "立即复核云端诊断结果并安排现场排查。" : alarm.level === "二级" ? "持续观察趋势，纳入当班巡检计划。" : "记录风险变化，按计划跟踪闭环。"}</p>
     </div>
     <div class="alarm-detail-meta">
-      <div><span>预警来源</span><strong>${alarm.source}</strong></div>
+      <div class="alarm-detail-meta-source">
+        <span>预警来源</span>
+        <strong>${alarm.source}</strong>
+        ${
+          linked
+            ? `<button class="alarm-linked-jump" type="button" data-linked-id="${linked.id}">${alarm.source === "云端" ? "查看站端关联预警" : "查看云端关联预警"}</button>`
+            : ""
+        }
+      </div>
       <div><span>所属场站</span><strong>${alarm.stationId}${alarm.stationName}</strong></div>
       <div><span>预警位置</span><strong>${alarm.location}</strong></div>
       <div><span>事件时间</span><strong>${alarm.eventTime}</strong></div>
       <div><span>预警时间</span><strong>${alarm.warningTime}</strong></div>
       <div><span>持续时长</span><strong>${duration} 小时</strong></div>
     </div>
-    ${
-      linked
-        ? `<div class="alarm-linked-jump-wrap">
-            <button class="alarm-linked-jump" type="button" data-linked-id="${linked.id}">查看绑定告警：${linked.source}</button>
-          </div>`
-        : ""
-    }
   `;
   const jumpButton = els.alarmInspectorBody.querySelector(".alarm-linked-jump");
   if (jumpButton) {
@@ -1397,6 +1420,13 @@ function renderAlarmInspector(alarm) {
       if (target) openAlarmModal(target);
     });
   }
+}
+
+function renderAlarmOverview() {
+  const alarms = state.allAlarms;
+  renderSafely(() => renderRiskAlarmPie(alarms));
+  renderSafely(() => renderRiskModules(alarms));
+  renderSafely(() => renderRiskAlarmNameTop(alarms));
 }
 
 function openAlarmModal(alarm) {
@@ -1416,9 +1446,17 @@ function closeAlarmModal() {
 
 function alarmTrendData(alarm) {
   const levelOffset = alarm.type === "level1" ? 18 : alarm.type === "level2" ? 10 : 4;
-  const base = 48 + levelOffset + (alarm.id.length % 9);
+  const linkSeed = (alarm.linkGroupId || alarm.id).split("").reduce((sum, char) => sum + char.charCodeAt(0), 0);
+  const sourceOffset = alarm.source === "云端" ? 6 : -4;
+  const amplitude = alarm.source === "云端" ? 7.6 : 11.2;
+  const phase = (linkSeed % 9) * 0.18 + (alarm.source === "云端" ? 0.25 : 0.88);
+  const tailBoost = alarm.source === "云端" ? levelOffset / 4 : levelOffset / 6;
+  const base = 46 + levelOffset + (linkSeed % 8) + sourceOffset;
   return Array.from({ length: 18 }, (_, index) => {
-    const value = round(Math.max(20, Math.min(100, base + Math.sin(index * 0.7 + alarm.id.length) * 8 + (index > 11 ? levelOffset / 3 : 0))), 2);
+    const swing = Math.sin(index * 0.68 + phase) * amplitude;
+    const ripple = Math.cos(index * 0.31 + (linkSeed % 5)) * (alarm.source === "云端" ? 3.2 : 4.6);
+    const tail = index > 11 ? tailBoost + (alarm.source === "站端" ? (index - 11) * 0.55 : (17 - index) * 0.18) : 0;
+    const value = round(Math.max(20, Math.min(100, base + swing + ripple + tail)), 2);
     return {
       label: `${String(8 + Math.floor(index / 2)).padStart(2, "0")}:${index % 2 ? "30" : "00"}`,
       value,
