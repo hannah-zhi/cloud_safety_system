@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>安全预警 - 远景数智运营系统</title>
-    <link rel="stylesheet" href="styles.css?v=20260420-box-tooltip1" />
+    <link rel="stylesheet" href="styles.css?v=20260423-overview-sos-range2" />
   </head>
   <body>
     <div class="shell">
@@ -60,8 +60,10 @@
               <label class="sort-box">
                 <span aria-hidden="true">☷</span>
                 <select id="sortSelect" aria-label="排序">
-                  <option value="name">场站序号</option>
-                  <option value="sos">SOS 指数</option>
+                  <option value="sosAsc" selected>SOS数值-从低到高</option>
+                  <option value="sosDesc">SOS数值-从高到低</option>
+                  <option value="idAsc">场站编号-顺序</option>
+                  <option value="idDesc">场站编号-倒序</option>
                 </select>
               </label>
             </div>
@@ -70,7 +72,25 @@
 
           <div class="home-grid">
             <div class="station-workbench">
-              <div class="status-row" id="statusFilters" aria-label="状态筛选"></div>
+              <div class="overview-filter-row">
+                <div class="sos-range-panel" aria-label="SOS数值范围筛选">
+                  <div class="sos-range-head">
+                    <span>SOS范围</span>
+                    <div class="sos-number-inputs">
+                      <input id="sosMinInput" type="number" min="0" max="100" step="1" value="0" aria-label="SOS最小值" />
+                      <span>-</span>
+                      <input id="sosMaxInput" type="number" min="0" max="100" step="1" value="100" aria-label="SOS最大值" />
+                    </div>
+                  </div>
+                  <div class="sos-range-slider">
+                    <div class="sos-range-gradient"></div>
+                    <div id="sosRangeFill" class="sos-range-fill"></div>
+                    <input id="sosMinRange" type="range" min="0" max="100" step="1" value="0" aria-label="SOS最小值拖动" />
+                    <input id="sosMaxRange" type="range" min="0" max="100" step="1" value="100" aria-label="SOS最大值拖动" />
+                  </div>
+                </div>
+                <div class="status-row" id="statusFilters" aria-label="状态筛选"></div>
+              </div>
               <div class="result-meta">
                 <span id="resultText">共 110 个场站</span>
                 <button id="clearFilterBtn" type="button">清空筛选</button>
@@ -414,6 +434,6 @@
 
     <script src="site-data.js?v=20260415-siteconfig3"></script>
     <script src="risk-data.js?v=20260415-risk-list1"></script>
-    <script src="app.js?v=20260420-box-tooltip1"></script>
+    <script src="app.js?v=20260423-overview-sos-range2"></script>
   </body>
 </html>
