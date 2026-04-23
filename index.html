@@ -52,7 +52,7 @@
             <div class="toolbar-left">
               <div class="station-combo" id="stationSelector">
                 <label class="combo-input">
-                  <span aria-hidden="true">⌕</span>
+                  <span aria-hidden="true">⍕</span>
                   <input id="searchInput" type="search" placeholder="搜索场站" autocomplete="off" />
                   <strong id="selectedCount">110</strong>
                 </label>
@@ -223,6 +223,7 @@
               <div id="riskAlarmNameTopList" class="risk-alarm-top-list"></div>
             </article>
           </div>
+
         </section>
 
         <section id="alarmDetailView" class="view alarm-detail-view" aria-label="预警详情">
@@ -269,13 +270,13 @@
 
         <div id="alarmDetailModal" class="alarm-modal" aria-hidden="true">
           <div class="alarm-modal-mask" id="alarmModalMask"></div>
-          <article class="alarm-modal-panel" role="dialog" aria-modal="true" aria-label="预警详情弹窗">
+          <article class="alarm-modal-panel" role="dialog" aria-modal="true" aria-label="预警详情弹粗">
             <button id="alarmModalClose" class="alarm-modal-close" type="button">×</button>
             <div class="panel-title"><span></span>预警详情</div>
             <div id="alarmInspectorBody" class="alarm-inspector-body"></div>
             <div class="alarm-modal-chart">
               <div class="panel-title-row">
-                <div class="panel-title"><span></span>相关数据趋势</div>
+                <div class="panel-title"><span></span>相兰数据趋e��</div>
                 <div id="alarmTrendLegend" class="alarm-trend-legend">实时值</div>
               </div>
               <div class="alarm-trend-chart" id="alarmTrendChart">
@@ -290,150 +291,6 @@
           </article>
         </div>
 
-        <section id="detailView" class="view detail-view" aria-label="单站安全详情">
+        <section id="detailView" class="view detail-view" aria-label="单站宙全お情">
           <div class="detail-head">
-            <button id="backBtn" class="back-btn" type="button">‹ 返回场站列表</button>
-            <div>
-              <h2 id="detailTitle">--</h2>
-            </div>
-            <div class="detail-badges">
-              <span id="detailComm" class="mini-badge">--</span>
-              <span id="detailRisk" class="mini-badge">--</span>
-              <span id="detailSos" class="mini-badge primary">SOS --</span>
-            </div>
-          </div>
-
-          <div class="detail-layout">
-            <div class="detail-chart-stack">
-              <div class="dashboard-grid">
-                <article class="panel gauge-panel">
-                  <div class="panel-title"><span></span>全站当前 SOS 安全指数</div>
-                  <div class="gauge detail-sos-gauge" id="gauge">
-                    <canvas id="gaugeCanvas" width="300" height="180"></canvas>
-                    <strong class="gauge-value" id="gaugeValue">--</strong>
-                    <div class="gauge-label" id="gaugeLabel" hidden>当前风险等级：--</div>
-                  </div>
-                </article>
-
-                <article class="panel trend-panel">
-                  <div class="panel-title-row">
-                    <div class="panel-title"><span></span>全站 SOS 安全指数历史趋势</div>
-                    <div class="range-buttons" id="rangeButtons">
-                      <button class="active" data-range="7" type="button">7天</button>
-                      <button data-range="15" type="button">15天</button>
-                      <button data-range="30" type="button">30天</button>
-                    </div>
-                  </div>
-                  <div class="detail-trend-chart" id="detailTrendChart">
-                    <canvas id="trendCanvas" width="820" height="230"></canvas>
-                    <div id="detailTrendTooltip" class="risk-bars-tooltip"></div>
-                  </div>
-                </article>
-
-                <article class="panel donut-panel">
-                  <div class="panel-title"><span></span>子系统风险等级分布</div>
-                  <div class="donut-wrap">
-                    <canvas id="donutCanvas" width="260" height="210"></canvas>
-                    <div id="donutLegend" class="legend"></div>
-                  </div>
-                </article>
-
-                <article class="panel subsystem-panel">
-                  <div class="panel-title-row">
-                    <div class="panel-title"><span></span>各子系统 SOS 安全指数</div>
-                    <div class="detail-bars-tools">
-                      <div class="risk-legend">
-                        <span class="legend-red">高风险</span>
-                        <span class="legend-yellow">中风险</span>
-                        <span class="legend-green">低风险</span>
-                        <span class="legend-blue">健康</span>
-                      </div>
-                      <select id="subsystemSortBtn" class="risk-sort-select" aria-label="子系统SOS排序">
-                        <option value="idAsc">子系统编号-顺序</option>
-                        <option value="idDesc">子系统编号-倒序</option>
-                        <option value="sosAsc">SOS数值-从低到高</option>
-                        <option value="sosDesc">SOS数值-从高到低</option>
-                      </select>
-                    </div>
-                  </div>
-                  <div class="detail-bars-viewport" id="detailBarsViewport">
-                    <canvas id="barCanvas" width="980" height="280"></canvas>
-                    <div id="detailBarsTooltip" class="risk-bars-tooltip"></div>
-                  </div>
-                </article>
-
-                <article class="panel parts-panel">
-                  <div class="panel-title"><span></span>设备部件 SOS 指数分析</div>
-                  <div class="box-chart-wrap" id="boxChartWrap">
-                    <canvas id="boxCanvas" width="430" height="300"></canvas>
-                    <div id="boxTooltip" class="risk-bars-tooltip"></div>
-                  </div>
-                </article>
-              </div>
-
-              <article class="panel table-panel">
-                <div class="panel-title-row">
-                  <div class="panel-title"><span></span>SOS 安全指数详情清单</div>
-                  <button class="export-btn" type="button">导出</button>
-                </div>
-                <div class="table-wrap">
-                  <table>
-                    <thead>
-                      <tr>
-                        <th><button class="table-sort-btn" data-sort-key="name" type="button">子系统</button></th>
-                        <th><button class="table-sort-btn active asc" data-sort-key="score" type="button">当前 SOS 指数</button></th>
-                        <th><button class="table-sort-btn" data-sort-key="date" type="button">更新日期</button></th>
-                        <th>风险描述</th>
-                        <th>处置建议</th>
-                      </tr>
-                    </thead>
-                    <tbody id="alertTable"></tbody>
-                  </table>
-                </div>
-              </article>
-            </div>
-            <aside class="alarm-panel detail-alarm-panel" aria-label="单站预警清单">
-              <div class="alarm-head">
-                <div>
-                  <div class="panel-title"><span></span>预警清单</div>
-                  <p id="detailAlarmSubtitle">按风险严重度滚动刷新</p>
-                </div>
-              </div>
-              <div class="alarm-tabs detail-alarm-tabs" id="detailAlarmTabs">
-                <button class="active" data-type="all" type="button">全部 <span id="detailAlarmCountAll">0</span></button>
-                <button data-type="level1" type="button">一级 <span id="detailAlarmCountLevel1">0</span></button>
-                <button data-type="level2" type="button">二级 <span id="detailAlarmCountLevel2">0</span></button>
-                <button data-type="level3" type="button">三级 <span id="detailAlarmCountLevel3">0</span></button>
-              </div>
-              <div class="alarm-time-tools detail-alarm-time-tools">
-                <div class="alarm-quick-buttons" id="detailAlarmTimeButtons" aria-label="单站预警时间快捷筛选">
-                  <button class="active" data-days="all" type="button">全部</button>
-                  <button data-days="30" type="button">最近30天</button>
-                  <button data-days="7" type="button">最近7天</button>
-                  <button data-days="3" type="button">最近3天</button>
-                </div>
-                <div class="alarm-date-range" aria-label="单站预警时间段">
-                  <input id="detailAlarmStartDate" type="date" aria-label="开始日期" />
-                  <span>至</span>
-                  <input id="detailAlarmEndDate" type="date" aria-label="结束日期" />
-                </div>
-              </div>
-              <div class="alarm-summary alarm-source-summary">
-                <div><strong id="detailAlarmCloudCount">--</strong><span>云端</span></div>
-                <div><strong id="detailAlarmStationCount">--</strong><span>站端</span></div>
-              </div>
-              <div id="detailAlarmList" class="alarm-list detail-alarm-list"></div>
-            </aside>
-          </div>
-        </section>
-      </main>
-    </div>
-    <div class="selector-menu floating-selector-menu" id="stationPickerMenu">
-      <div id="stationPickerList" class="selector-list"></div>
-    </div>
-
-    <script src="site-data.js?v=20260415-siteconfig3"></script>
-    <script src="risk-data.js?v=20260415-risk-list1"></script>
-    <script src="app.js?v=20260423-overview-sos-range2"></script>
-  </body>
-</html>
+            <button id="backBtn" class="back-btn" type="button">— :/�_ۺ�h
