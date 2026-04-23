@@ -2071,8 +2071,11 @@ h2 {
 }
 
 .alarm-detail-view {
-  display: grid;
   gap: 14px;
+}
+
+.alarm-detail-view.active-view {
+  display: grid;
 }
 
 .alarm-overview-grid {
@@ -2635,6 +2638,17 @@ h2 {
   gap: 6px;
 }
 
+.alarm-detail-source-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.alarm-detail-source-row strong {
+  flex: 0 1 auto;
+}
+
 .alarm-detail-meta span {
   display: block;
   color: #8791a7;
@@ -2654,6 +2668,7 @@ h2 {
   justify-content: center;
   width: fit-content;
   min-height: 28px;
+  flex: 0 0 auto;
   border: 1px solid rgba(18, 152, 255, 0.72);
   border-radius: 4px;
   background: rgba(18, 152, 255, 0.14);
