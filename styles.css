@@ -2632,7 +2632,8 @@ h2 {
   background: rgba(12, 14, 22, 0.34);
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
+  align-items: stretch;
 }
 
 .alarm-detail-meta-card-source {
@@ -2641,14 +2642,17 @@ h2 {
 
 .alarm-detail-source-row {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
   min-height: 28px;
 }
 
 .alarm-detail-source-text {
-  flex: 0 0 auto;
+  flex: 0 1 auto;
+  min-height: 24px;
+  display: inline-flex;
+  align-items: center;
 }
 
 .alarm-detail-meta span {
@@ -2659,6 +2663,7 @@ h2 {
 }
 
 .alarm-detail-meta strong {
+  display: block;
   color: #eef3fb;
   font-size: 13px;
   line-height: 1.45;
