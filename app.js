@@ -1466,12 +1466,8 @@ function handleBatchAlarmProcess(event) {
   const count = state.detailAlarmSelectedIds.size;
   if (!count || !els.alarmSelectionToast) return;
   hideAlarmRowContextMenu();
-  els.alarmSelectionToast.textContent = "已加入处理队列：" + count + " 条预警";
+  els.alarmSelectionToast.textContent = "批量处理功能预留中，已选 " + count + " 条预警";
   els.alarmSelectionToast.classList.add("show");
-  state.detailAlarmSelectedIds.clear();
-  state.detailAlarmSelectionMode = false;
-  updateAlarmBatchBar();
-  renderAlarmDetailPage();
   clearTimeout(handleBatchAlarmProcess.toastTimer);
   handleBatchAlarmProcess.toastTimer = setTimeout(() => {
     els.alarmSelectionToast.classList.remove("show");
