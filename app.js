@@ -1359,7 +1359,7 @@ function renderAlarmDetailPage() {
           ${
             state.detailAlarmSelectionMode
               ? `<label class="alarm-row-check"><input type="checkbox" data-check-id="${alarm.id}" ${state.detailAlarmSelectedIds.has(alarm.id) ? "checked" : ""} /><i></i></label>`
-              : "<span class="alarm-row-check-placeholder"></span>"
+              : '<span class="alarm-row-check-placeholder"></span>'
           }
           <span class="alarm-level-table alarm-${alarm.type}">${alarm.level}</span>
         </td>
@@ -1369,7 +1369,7 @@ function renderAlarmDetailPage() {
         <td>${alarm.location}</td>
         <td>${alarm.eventTime}</td>
         <td>${alarm.warningTime}</td>
-        <td><span class="alarm-source alarm-source-${alarm.source === "??" ? "cloud" : "station"}">${alarm.source}</span></td>
+        <td><span class="alarm-source alarm-source-${alarm.source === "云端" ? "cloud" : "station"}">${alarm.source}</span></td>
       </tr>`
     )
     .join("");
@@ -1466,7 +1466,7 @@ function handleBatchAlarmProcess(event) {
   const count = state.detailAlarmSelectedIds.size;
   if (!count || !els.alarmSelectionToast) return;
   hideAlarmRowContextMenu();
-  els.alarmSelectionToast.textContent = "????????" + count + " ???";
+  els.alarmSelectionToast.textContent = "已加入处理队列：" + count + " 条预警";
   els.alarmSelectionToast.classList.add("show");
   state.detailAlarmSelectedIds.clear();
   state.detailAlarmSelectionMode = false;
