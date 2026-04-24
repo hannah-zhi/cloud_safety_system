@@ -221,10 +221,20 @@ function bindElements() {
 }
 
 function bindEvents() {
-  els.pageTabs.addEventListener("click", (event) => {
+  els.pageTabs?.addEventListener("click", (event) => {
     const button = event.target.closest("button[data-page]");
     if (!button) return;
     showPage(button.dataset.page);
+  });
+  document.querySelectorAll(".nav-toggle, .nav-subtoggle").forEach((button) => {
+    button.addEventListener("click", () => {
+      const targetId = button.dataset.toggleTarget;
+      if (!targetId) return;
+      const group = button.closest(".nav-group, .nav-subgroup");
+      if (!group) return;
+      group.classList.toggle("is-open");
+      button.setAttribute("aria-expanded", group.classList.contains("is-open") ? "true" : "false");
+    });
   });
   els.searchInput.addEventListener("input", applyFilters);
   els.searchInput.addEventListener("focus", () => {
@@ -643,7 +653,7 @@ function showPage(page) {
   els.listView.classList.toggle("active-view", page === "overview");
   els.riskView.classList.toggle("active-view", page === "risk");
   els.alarmDetailView.classList.toggle("active-view", page === "alarm");
-  els.pageTabs.querySelectorAll("button").forEach((button) => {
+  els.pageTabs?.querySelectorAll("button").forEach((button) => {
     button.classList.toggle("active", button.dataset.page === page);
   });
   if (page === "risk") renderRiskView();
@@ -1662,7 +1672,6 @@ function showDetail(id) {
   els.riskView.classList.remove("active-view");
   els.alarmDetailView.classList.remove("active-view");
   els.detailView.classList.add("active-view");
-  els.pageTabs.querySelectorAll("button").forEach((button) => button.classList.remove("active"));
   document.getElementById("pageTitle").textContent = "";
   renderDetail(station);
   window.scrollTo({ top: 0, behavior: "smooth" });
