@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>安全预警 - 远景数智运营系统</title>
-    <link rel="stylesheet" href="styles.css?v=20260424-overview-alarm-batch3" />
+    <link rel="stylesheet" href="styles.css?v=20260424-overview-alarm-batch4" />
   </head>
   <body>
     <div class="shell">
@@ -265,13 +265,16 @@
             </div>
             <div id="alarmBatchBar" class="alarm-batch-bar">
               <div class="alarm-batch-info">已选 <strong id="alarmBatchCount">0</strong> 条</div>
-              <button id="alarmBatchAction" class="query-btn" type="button" disabled>批量处理</button>
+              <div class="alarm-batch-actions">
+                <button id="alarmBatchAction" class="query-btn" type="button" disabled>批量处理</button>
+                <button id="alarmBatchCancel" class="reset-btn" type="button">取消多选</button>
+              </div>
             </div>
           </div>
         </section>
 
         <div id="alarmRowContextMenu" class="alarm-row-context-menu" aria-hidden="true">
-          <button id="alarmMultiSelectBtn" type="button">开启多选</button>
+          <button id="alarmMultiSelectBtn" type="button">多选</button>
         </div>
         <div id="alarmSelectionToast" class="alarm-selection-toast" aria-live="polite"></div>
 
@@ -442,6 +445,6 @@
 
     <script src="site-data.js?v=20260415-siteconfig3"></script>
     <script src="risk-data.js?v=20260415-risk-list1"></script>
-    <script src="app.js?v=20260424-overview-alarm-batch3"></script>
+    <script src="app.js?v=20260424-overview-alarm-batch4"></script>
   </body>
 </html>
