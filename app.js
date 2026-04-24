@@ -1,40 +1,40 @@
 const riskMeta = {
-  high: { label: "高风险", className: "high", tone: "tone-danger", color: "#ff3d59", order: 0 },
-  mid: { label: "中风险", className: "mid", tone: "tone-warn", color: "#f4a51c", order: 1 },
-  low: { label: "低风险", className: "low", tone: "tone-ok", color: "#13c781", order: 2 },
-  healthy: { label: "健康", className: "healthy", tone: "tone-blue", color: "#1689ff", order: 3 },
+  high: { label: "婵°倕鍊归敃銏に夐幘缁樷挃?, className: "high", tone: "tone-danger", color: "#ff3d59", order: 0 },
+  mid: { label: "婵炴垶鎼╅崣鍐夐幘缁樷挃?, className: "mid", tone: "tone-warn", color: "#f4a51c", order: 1 },
+  low: { label: "婵炶揪绲介柊锝壦夐幘缁樷挃?, className: "low", tone: "tone-ok", color: "#13c781", order: 2 },
+  healthy: { label: "闂佺顑冮崕閬嶅箖?, className: "healthy", tone: "tone-blue", color: "#1689ff", order: 3 },
 };
 
 const commMeta = {
-  ok: { label: "通讯正常", tone: "tone-ok", color: "#13c781" },
-  partial: { label: "部分通讯中断", tone: "tone-warn", color: "#f4a51c" },
-  down: { label: "通讯中断", tone: "tone-danger", color: "#ff3d59" },
+  ok: { label: "闂備緡鍋呮穱娲敊閸℃娼伴柨婵嗘噽閸?, tone: "tone-ok", color: "#13c781" },
+  partial: { label: "闂備緡鍠撻崝宀勫垂鎼淬劍鐒绘慨妯诲墯閸為潧鈽夐幙鍐ㄥ箺闁?, tone: "tone-warn", color: "#f4a51c" },
+  down: { label: "闂備緡鍋呮穱娲敊閸℃鈻旀い鎾跺枑閻?, tone: "tone-danger", color: "#ff3d59" },
 };
 
 const stationNames = [
-  "远景乌兰察布关键节点电站",
-  "枣庄市峄城石膏矿沉陷区",
-  "华润电力罗山",
-  "新干县盐化",
-  "华润电力蒲川",
-  "龙泉甘肃张掖",
-  "淮阳县聚能50MW风电项目",
-  "渝水区江口",
-  "青海共和塔拉滩",
-  "怀仁金沙滩",
-  "准格尔旗纳日松",
-  "嘉峪关镜铁山",
-  "鄂尔多斯达拉特",
-  "张北柔直配储",
-  "酒泉肃北马鬃山",
-  "盐城大丰沿海",
-  "乌兰察布后旗",
-  "榆林靖边风光储",
-  "通辽霍林郭勒",
-  "阿拉善腾格里",
+  "闁哄鏅滅划宥呪枍濞嗘劗鈻曢悘鐐舵瑜板繘鎮楅悽闈涙瀻缂佹梻鍏樺畷妤呭箮閼恒儲娈梺鐓庢惈閸婂宕戦敐澶嬪仺闁汇垻鏁歌ぐ?,
+  "闂佸搫顑戠徊鐣岃姳閻愬灚鏆滈柛灞炬皑椤儵鏌涢埡浣规崳闁绘挸鐖奸幊姘崇疀閺囩姴鏁稿┑鐐茶嫰椤﹂潧鈻嶉敓鐘茬?,
+  "闂佸憡顨呯€涒晜螚鎼淬劍鍋ㄩ梻鍫熺☉椤梻绱撻崘鈺婃當闁?,
+  "闂佸搫鍊瑰姗€宕楅柆宥呭偍閻犳亽鍔嶇壕锕傛煕?,
+  "闂佸憡顨呯€涒晜螚鎼淬劍鍋ㄩ梻鍫熺☉椤棃鏌﹂崒娑樼祷缂?,
+  "婵帩鍋呴悷锔炬兜閵夆晜鍋ㄦ俊顖氱仢閳ь剚鍨甸锝夋偐閸愯尙顑?,
+  "濠电儑缍嗛崳锝呂ｆ總绋垮偍闁兼剚鍨划鐢告煠?0MW婵＄偛顑呭ù鐑藉极閸涘浜滈柛锔诲幗缁?,
+  "濠电偞鎸荤换鍐箰婢舵劕绀岄柣鎴烆焽濞笺倝鏌?,
+  "闂傚倸鐗婄敮妤呭箲閿濆绀傞柛妤冨仦鐎氭彃鈹戞径瀣拹濠殿垰鎼…?,
+  "闂佽鍏橀崑鎾趁归悩杈╃獢闁革絾鍎抽埢钘夆枎閹邦剚鎲?,
+  "闂佸憡鍨靛Λ娆撴偋閸濄儰鐒婇柡鍐ｅ亾婵☆偅顨堥惀顏堟惞椤愶綇绱氶梺?,
+  "闂佹悶鍨归ˇ顖炲船闁秴绀傞柟鎯板Г濞堟棃姊洪崣銉ь槮闁?,
+  "闂備緡鍨伴崐鎼佹儍閸偄绶炴慨姗嗗幗閻掑潡寮堕崼銏犱壕濠殿垱妞介幃?,
+  "閻庢鍠氭慨瀵糕偓鍨▕瀵寮崒娑氬嚱闂備焦婢樼粔鎾磻?,
+  "闂備胶澧楃敮妤冩兜閵夆晜鍤冮柛鎰╁妼椤曘劌顪冪拠鈥冲⒋闁荤喐鍨规禒?,
+  "闂佺儵鏅滈崝鏇㈡偂閸曨剙绶炵憸宀€鎸ч弶鎴旀煢闁圭瀛╁畷?,
+  "婵炴垶鏌ㄩ懟顖炲矗閻愮鍋撻悽闈涙瀻缂佹梻鍏樺畷銉︽償閵忊槅妫?,
+  "濠殿喗甯掑Λ娆撴倶閸曨垱顥堥柡宥庡墰閻濊泛顪冪€ｎ亪顎楅柛妯荤矒瀹?,
+  "闂備緡鍋呮穱铏圭玻濮椻偓濡礁顓奸崱娆庣盎闂備緡鍣崢鑲┾偓?,
+  "闂傚倸鍟€笛勫垔濞差亜绐楅柛鏇ㄥ枛閹晠鏌″鍛仮闁?,
 ];
 
-const stationTypeLabels = ["配套储能", "独立储能", "工商业储能"];
+const stationTypeLabels = ["闂備焦婢樼粔鎾€冨鍫濈＜闁靛鍔岄崢?, "闂佺粯鐟崜娑㈡偟濞戙垹纾奸柕濞垮妼閸?, "閻庤鎮堕崕閬嶅疾閵忥紕鈻旀慨姗嗗墮娴滃爼鏌?];
 
 const state = {
   stations: [],
@@ -53,6 +53,7 @@ const state = {
   detailAlarmEndDate: "",
   activePage: "overview",
   selectedAlarm: null,
+  detailAlarmSelectedIds: new Set(),
   riskTrendRange: 7,
   riskBarHitboxes: [],
   riskTrendHitboxes: [],
@@ -181,11 +182,14 @@ function bindElements() {
     "alarmDetailSource",
     "alarmDetailStart",
     "alarmDetailEnd",
-    "alarmDetailReset",
-    "alarmDetailCount",
-    "alarmDetailTable",
-    "alarmInspectorBody",
-    "alarmDetailModal",
+      "alarmDetailReset",
+      "alarmDetailCount",
+      "alarmDetailTable",
+      "alarmRowContextMenu",
+      "alarmBatchHandleBtn",
+      "alarmSelectionToast",
+      "alarmInspectorBody",
+      "alarmDetailModal",
     "alarmModalMask",
     "alarmModalClose",
     "alarmTrendChart",
@@ -298,15 +302,17 @@ function bindEvents() {
     input.addEventListener("input", renderAlarmDetailPage);
     input.addEventListener("change", renderAlarmDetailPage);
   });
-  els.alarmDetailReset.addEventListener("click", () => {
-    Object.values(state.alarmDetailSelections).forEach((set) => set.clear());
-    els.alarmDetailStart.value = "";
-    els.alarmDetailEnd.value = "";
-    state.selectedAlarm = null;
-    renderAlarmDetailFilters();
-    renderAlarmDetailPage();
-  });
-  els.alarmModalClose.addEventListener("click", closeAlarmModal);
+    els.alarmDetailReset.addEventListener("click", () => {
+      Object.values(state.alarmDetailSelections).forEach((set) => set.clear());
+      els.alarmDetailStart.value = "";
+      els.alarmDetailEnd.value = "";
+      state.selectedAlarm = null;
+      state.detailAlarmSelectedIds.clear();
+      renderAlarmDetailFilters();
+      renderAlarmDetailPage();
+    });
+    els.alarmBatchHandleBtn.addEventListener("click", handleBatchAlarmProcess);
+    els.alarmModalClose.addEventListener("click", closeAlarmModal);
   els.alarmModalMask.addEventListener("click", closeAlarmModal);
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape") closeAlarmModal();
@@ -396,15 +402,15 @@ function createStations(count = 110) {
     const sos = scoreFor(n);
     const risk = getRisk(sos);
     const comm = n % 13 === 0 || n % 17 === 0 ? "down" : n % 7 === 0 || n % 11 === 0 ? "partial" : "ok";
-    const run = comm === "down" && n % 2 === 0 ? "停机" : n % 5 === 0 ? "运行" : "待机";
+    const run = comm === "down" && n % 2 === 0 ? "闂佺顑嗙划宥呪攦閳? : n % 5 === 0 ? "闁哄鏅滈崝姗€銆? : "閻庡灚婢橀幊蹇撯攦閳?;
     const rated = round(1 + ((n * 7) % 18) * 0.55, 2);
     const ratedEnergy = round(rated * (1.75 + (n % 6) * 0.18), 2);
-    const active = run === "运行" ? round(rated * (0.32 + ((n % 9) / 16)), 2) : n % 6 === 0 ? round(rated * 0.08, 2) : 0;
+    const active = run === "闁哄鏅滈崝姗€銆? ? round(rated * (0.32 + ((n % 9) / 16)), 2) : n % 6 === 0 ? round(rated * 0.08, 2) : 0;
     const energy = round(0.35 + ((n * 19) % 112) / 10, 2);
     const soc = round(Math.min(99.6, Math.max(3.8, (energy / Math.max(rated, 1)) * 18 + ((n * 3) % 34))), 2);
     return {
       id: `K-${String(n).padStart(4, "0")}`,
-      name: `${name}${n % 3 === 0 ? "项目" : ""}`,
+      name: `${name}${n % 3 === 0 ? "婵＄偑鍊曞﹢鍗灻? : ""}`,
       sos,
       risk,
       comm,
@@ -426,7 +432,7 @@ function createStationFromConfig(item, index, total) {
   const sos = scoreFor(n);
   const risk = getRisk(sos);
   const comm = n % 13 === 0 || n % 17 === 0 ? "down" : n % 7 === 0 || n % 11 === 0 ? "partial" : "ok";
-  const run = comm === "down" && n % 2 === 0 ? "停机" : n % 5 === 0 ? "运行" : "待机";
+  const run = comm === "down" && n % 2 === 0 ? "闂佺顑嗙划宥呪攦閳? : n % 5 === 0 ? "闁哄鏅滈崝姗€銆? : "閻庡灚婢橀幊蹇撯攦閳?;
   const rated = Number(item.ratedCapacity);
   const ratedEnergy = Number(item.ratedEnergy);
   const subsystemCount = Number(item.subsystemCount);
@@ -439,7 +445,7 @@ function createStationFromConfig(item, index, total) {
     run,
     rated,
     ratedEnergy,
-    active: run === "运行" ? round(rated * (0.32 + ((n % 9) / 16)), 2) : n % 6 === 0 ? round(rated * 0.08, 2) : 0,
+    active: run === "闁哄鏅滈崝姗€銆? ? round(rated * (0.32 + ((n % 9) / 16)), 2) : n % 6 === 0 ? round(rated * 0.08, 2) : 0,
     energy: round(ratedEnergy * Math.min(0.98, 0.32 + ((n * 7) % 58) / 100), 2),
     soc: round(Math.min(99.6, Math.max(3.8, 18 + ((n * 11) % 78))), 2),
     subsystemCount,
@@ -475,7 +481,7 @@ function createAlarms(stations) {
         type,
         level: template.level,
         location: createAlarmLocation(template.locationFormat, station, index),
-        source: index % 4 === 0 ? "站端" : "云端",
+        source: index % 4 === 0 ? "缂備焦姊归悷褔顢? : "婵炲瓨绮嶉崹褰掝敂?,
         dateISO: formatDateInput(date),
         eventTime: formatFullDateTime(eventDate),
         warningTime: formatFullDateTime(date),
@@ -506,7 +512,7 @@ function createAlarms(stations) {
     alarms[firstIndex] = {
       ...first,
       ...shared,
-      source: "云端",
+      source: "婵炲瓨绮嶉崹褰掝敂?,
       dateISO: formatDateInput(cloudWarningDate),
       eventTime: formatFullDateTime(cloudEventDate),
       warningTime: formatFullDateTime(cloudWarningDate),
@@ -517,7 +523,7 @@ function createAlarms(stations) {
     alarms[secondIndex] = {
       ...second,
       ...shared,
-      source: "站端",
+      source: "缂備焦姊归悷褔顢?,
       dateISO: formatDateInput(stationWarningDate),
       eventTime: formatFullDateTime(stationEventDate),
       warningTime: formatFullDateTime(stationWarningDate),
@@ -552,10 +558,10 @@ function getRisk(score) {
 function renderFilters() {
   const counts = summarize(state.stations);
   const filters = [
-    { key: "risk:high", label: "高风险", count: counts.risk.high, tone: riskMeta.high.tone },
-    { key: "risk:mid", label: "中风险", count: counts.risk.mid, tone: riskMeta.mid.tone },
-    { key: "risk:low", label: "低风险", count: counts.risk.low, tone: riskMeta.low.tone },
-    { key: "risk:healthy", label: "健康", count: counts.risk.healthy, tone: riskMeta.healthy.tone },
+    { key: "risk:high", label: "婵°倕鍊归敃銏に夐幘缁樷挃?, count: counts.risk.high, tone: riskMeta.high.tone },
+    { key: "risk:mid", label: "婵炴垶鎼╅崣鍐夐幘缁樷挃?, count: counts.risk.mid, tone: riskMeta.mid.tone },
+    { key: "risk:low", label: "婵炶揪绲介柊锝壦夐幘缁樷挃?, count: counts.risk.low, tone: riskMeta.low.tone },
+    { key: "risk:healthy", label: "闂佺顑冮崕閬嶅箖?, count: counts.risk.healthy, tone: riskMeta.healthy.tone },
   ];
   els.statusFilters.innerHTML = filters
     .map(
@@ -649,9 +655,9 @@ function filterAlarmsByStations(stations) {
 
 function renderStations(stations) {
   els.selectedCount.textContent = state.selectedStationIds.size || stations.length;
-  els.resultText.textContent = `共 ${stations.length} 个场站`;
+  els.resultText.textContent = `闂?${stations.length} 婵炴垶鎼╂禍婊冣攦閳ь剛绱掗弮鈧悰?
   if (!stations.length) {
-    els.stationGrid.innerHTML = `<div class="empty">未找到匹配场站</div>`;
+    els.stationGrid.innerHTML = `<div class="empty">闂佸搫鐗滄禍婵囩珶濮椻偓瀹曟岸寮堕崹顔惧煃闂備焦婢樼粔鏉戔攦閳ь剛绱?/div>`;
     return;
   }
   els.stationGrid.innerHTML = stations.map(createStationCard).join("");
@@ -669,12 +675,12 @@ function createStationCard(station) {
         <span class="station-name" title="${station.id}${station.name}">${station.id}${station.name}</span>
         <span class="risk-dot ${risk.className}" title="${risk.label}"></span>
       </div>
-      <div class="metrics">
-        <div class="metric"><span>通讯状态</span><strong>${commMeta[station.comm].label}</strong></div>
-        <div class="metric"><span>额定容量/额定能量</span><strong>${station.rated}MW/${station.ratedEnergy}MWh</strong></div>
-        <div class="metric"><span>子系统数量</span><strong>${station.subsystemCount}</strong></div>
-        <div class="metric"><span>场站类型</span><strong>${station.stationType}</strong></div>
-      </div>
+        <div class="metrics">
+          <div class="metric"><span>闂備緡鍋呮穱娲敊閸℃稒鍋愰柤鍝ヮ暯閸?/span><strong>${commMeta[station.comm].label}</strong></div>
+          <div class="metric"><span>婵☆偆澧楃换鍌炴偩妤ｅ啯鍤勫ù鐘差儏濞?闁诲海鎳撶紞濠囧闯?/span><strong>${station.ratedEnergy}MWh/${station.rated}MW</strong></div>
+          <div class="metric"><span>闁诲孩绋掗崝妤呮焾鐎靛摜纾奸柣鏂挎啞濞堝爼姊?/span><strong>${station.subsystemCount}</strong></div>
+          <div class="metric"><span>闂侀潻绠掑▍锝夋偟椤栨粎灏甸悹鍥皺閳?/span><strong>${station.stationType}</strong></div>
+        </div>
       <div class="sos-line">
         <span class="sos-label">SOS</span><span class="${scoreClass(station.sos)}">${formatSosValue(station.sos)}</span>
         <div class="sos-track"><div class="sos-fill" style="width:${station.sos}%;background:${fillColor}"></div></div>
@@ -691,7 +697,7 @@ function renderStationPicker() {
   const allItem = `
     <button class="selector-option" type="button" data-id="all">
       <span class="selector-check ${state.selectedStationIds.size ? "" : "checked"}"></span>
-      <span>全部场站</span><strong>${state.stations.length}</strong>
+      <span>闂佺绻堥崝鎴﹀磿閹绢喖鎹堕柧蹇撴贡瑜?/span><strong>${state.stations.length}</strong>
     </button>`;
   els.stationPickerList.innerHTML =
     allItem +
@@ -747,8 +753,8 @@ function renderAlarms() {
   els.alarmCountLevel1.textContent = rangeAlarms.filter((alarm) => alarm.type === "level1").length;
   els.alarmCountLevel2.textContent = rangeAlarms.filter((alarm) => alarm.type === "level2").length;
   els.alarmCountLevel3.textContent = rangeAlarms.filter((alarm) => alarm.type === "level3").length;
-  els.alarmCloudCount.textContent = alarms.filter((alarm) => alarm.source === "云端").length;
-  els.alarmStationCount.textContent = alarms.filter((alarm) => alarm.source === "站端").length;
+  els.alarmCloudCount.textContent = alarms.filter((alarm) => alarm.source === "婵炲瓨绮嶉崹褰掝敂?).length;
+  els.alarmStationCount.textContent = alarms.filter((alarm) => alarm.source === "缂備焦姊归悷褔顢?).length;
   els.alarmList.innerHTML = alarms
     .map(
       (alarm) => `
@@ -758,14 +764,14 @@ function renderAlarms() {
             <div class="alarm-tags">
               <span class="alarm-level">${alarm.level}</span><span>${alarm.module}</span>
             </div>
-            <span class="alarm-source alarm-source-${alarm.source === "云端" ? "cloud" : "station"}">${alarm.source}</span>
+            <span class="alarm-source alarm-source-${alarm.source === "婵炲瓨绮嶉崹褰掝敂? ? "cloud" : "station"}">${alarm.source}</span>
           </div>
           <strong>${alarm.title}</strong>
           <div class="alarm-meta">
             <span class="alarm-station-name">${alarm.stationId}${alarm.stationName}</span>
             <time>${alarm.time}</time>
           </div>
-          <div class="alarm-location">预警位置：${alarm.location}</div>
+          <div class="alarm-location">婵☆偅婢樼€氼垶顢楅悢鍛婂鐎广儱娲ㄩ弸鍌炴煥?{alarm.location}</div>
         </div>
       </button>`
     )
@@ -973,7 +979,7 @@ function renderRiskAlarmPie(alarms) {
     ["level3", alarms.filter((alarm) => alarm.type === "level3").length],
   ];
   const colors = { level1: "#ff3d59", level2: "#f4a51c", level3: "#13c781" };
-  const labels = { level1: "一级", level2: "二级", level3: "三级" };
+  const labels = { level1: "婵炴垶鎸撮崑鎾剁磼?, level2: "婵炲瓨绮岄惉鍏碱殽?, level3: "婵炴垶鎸搁ˇ杈殽? };
   drawDonutChart(ctx, canvas, entries, (key) => colors[key]);
   els.riskAlarmPieLegend.innerHTML = entries
     .map(
@@ -996,9 +1002,9 @@ function renderRiskTrend(stations, range) {
   drawThreshold(ctx, pad, canvas.width, canvas.height, 80, "#f4a51c");
   state.riskTrendHitboxes = [];
   drawTrendGuide(ctx, pad, canvas, series);
-  drawTrendLine(ctx, series.max, pad, canvas, "#13c781", "最大值", series.labels, "max");
-  drawTrendLine(ctx, series.avg, pad, canvas, "#1689ff", "平均值", series.labels, "avg");
-  drawTrendLine(ctx, series.min, pad, canvas, "#a66bff", "最小值", series.labels, "min");
+  drawTrendLine(ctx, series.max, pad, canvas, "#13c781", "闂佸搫鐗冮崑鎾愁熆閸棗鍟犻崑?, series.labels, "max");
+  drawTrendLine(ctx, series.avg, pad, canvas, "#1689ff", "濡ょ姷鍋涢崯鍨焽鎼淬劌纾?, series.labels, "avg");
+  drawTrendLine(ctx, series.min, pad, canvas, "#a66bff", "闂佸搫鐗冮崑鎾绘倶韫囨挾绠伴柍?, series.labels, "min");
   ctx.fillStyle = "#8f97a8";
   ctx.font = "12px Microsoft YaHei";
   ctx.textAlign = "center";
@@ -1101,7 +1107,7 @@ function drawTrendLine(ctx, values, pad, canvas, color, label, labels = [], key 
 function renderRiskModules(alarms) {
   const canvas = setupCanvas(els.riskModuleCanvas);
   const ctx = canvas.getContext("2d");
-  const modules = ["电池系统", "电气系统", "环控系统", "消防系统"];
+  const modules = ["闂佹眹鍨归悘姘舵儓濠婂懎瀵查柤濮愬€楅崺?, "闂佹眹鍨归悘姘舵儍閻㈤潧瀵查柤濮愬€楅崺?, "闂佺粯绮犻崹杈╂暜閸撲礁瀵查柤濮愬€楅崺?, "濠电偞鍨甸悧鎾澄ｉ懡銈呭闁煎鍊楅崺?];
   const colors = ["#1689ff", "#13c781", "#f4a51c", "#ff3d59"];
   const entries = modules.map((module) => [module, alarms.filter((alarm) => alarm.module === module).length]);
   drawDonutChart(ctx, canvas, entries, (key) => colors[modules.indexOf(key)] || "#1689ff");
@@ -1261,12 +1267,12 @@ function handleRiskTrendHover(event) {
 function renderAlarmDetailFilters() {
   const alarms = state.allAlarms || [];
   const optionMap = {
-    level: { el: els.alarmDetailLevel, label: "全部等级", searchable: false, options: ["一级", "二级", "三级"] },
-    module: { el: els.alarmDetailModule, label: "全部设备模块", searchable: false, options: ["电池系统", "电气系统", "环控系统", "消防系统"] },
-    name: { el: els.alarmDetailName, label: "全部预警名称", searchable: true, options: uniqueSorted(alarms.map((alarm) => alarm.title)) },
-    station: { el: els.alarmDetailStation, label: "全部场站", searchable: true, options: uniqueSorted(alarms.map((alarm) => `${alarm.stationId}${alarm.stationName}`)) },
-    location: { el: els.alarmDetailLocation, label: "全部位置", searchable: true, options: uniqueSorted(alarms.map((alarm) => alarm.location)) },
-    source: { el: els.alarmDetailSource, label: "全部来源", searchable: false, options: ["云端", "站端"] },
+    level: { el: els.alarmDetailLevel, label: "闂佺绻堥崝鎴﹀磿鐎靛摜椹冲璺虹焸閻?, searchable: false, options: ["婵炴垶鎸撮崑鎾剁磼?, "婵炲瓨绮岄惉鍏碱殽?, "婵炴垶鎸搁ˇ杈殽?] },
+    module: { el: els.alarmDetailModule, label: "闂佺绻堥崝鎴﹀磿鐎靛憡濯奸柟顖嗗本校濠碘槅鍨埀顒冩珪閸?, searchable: false, options: ["闂佹眹鍨归悘姘舵儓濠婂懎瀵查柤濮愬€楅崺?, "闂佹眹鍨归悘姘舵儍閻㈤潧瀵查柤濮愬€楅崺?, "闂佺粯绮犻崹杈╂暜閸撲礁瀵查柤濮愬€楅崺?, "濠电偞鍨甸悧鎾澄ｉ懡銈呭闁煎鍊楅崺?] },
+    name: { el: els.alarmDetailName, label: "闂佺绻堥崝鎴﹀磿鐎涙﹫绱ｉ柛鏇ㄥ櫘閸斿懘鏌涘顒傂ょ悮?, searchable: true, options: uniqueSorted(alarms.map((alarm) => alarm.title)) },
+    station: { el: els.alarmDetailStation, label: "闂佺绻堥崝鎴﹀磿閹绢喖鎹堕柧蹇撴贡瑜?, searchable: true, options: uniqueSorted(alarms.map((alarm) => `${alarm.stationId}${alarm.stationName}`)) },
+    location: { el: els.alarmDetailLocation, label: "闂佺绻堥崝鎴﹀磿鐎涙ɑ濯寸€广儱娲ㄩ弸?, searchable: true, options: uniqueSorted(alarms.map((alarm) => alarm.location)) },
+    source: { el: els.alarmDetailSource, label: "闂佺绻堥崝鎴﹀磿閹绢喖绾ч柕澶涘閻?, searchable: false, options: ["婵炲瓨绮嶉崹褰掝敂?, "缂備焦姊归悷褔顢?] },
   };
   Object.entries(optionMap).forEach(([key, config]) => renderAlarmMultiSelect(key, config));
 }
@@ -1278,11 +1284,11 @@ function uniqueSorted(values) {
 function renderAlarmMultiSelect(key, config) {
   if (!config.el) return;
   const selected = state.alarmDetailSelections[key];
-  const title = selected.size ? `已选 ${selected.size}` : config.label;
+  const title = selected.size ? `閻庣懓鎲￠悡锟犲焵?${selected.size}` : config.label;
   config.el.innerHTML = `
     <button class="alarm-multi-trigger combo-input" type="button"><span>${title}</span></button>
     <div class="alarm-multi-menu">
-      ${config.searchable ? `<input class="alarm-multi-search" type="search" placeholder="搜索${config.label.replace("全部", "")}" />` : ""}
+      ${config.searchable ? `<input class="alarm-multi-search" type="search" placeholder="闂佺懓鍚嬬划搴ㄥ磼?{config.label.replace("闂佺绻堥崝鎴﹀磿?, "")}" />` : ""}
       <div class="alarm-multi-options">
         ${config.options.map((option) => `
           <label class="selector-option ${selected.has(option) ? "selected" : ""}" title="${option}">
@@ -1323,15 +1329,20 @@ function renderAlarmMultiSelect(key, config) {
 
 document.addEventListener("click", () => {
   document.querySelectorAll(".alarm-multi-select.open").forEach((item) => item.classList.remove("open"));
+  hideAlarmRowContextMenu();
 });
 
 function renderAlarmDetailPage() {
   const alarms = filterAlarmDetailItems();
+  const visibleIds = new Set(alarms.map((alarm) => alarm.id));
+  state.detailAlarmSelectedIds.forEach((id) => {
+    if (!visibleIds.has(id)) state.detailAlarmSelectedIds.delete(id);
+  });
   els.alarmDetailCount.textContent = alarms.length;
   els.alarmDetailTable.innerHTML = alarms
     .map(
       (alarm) => `
-      <tr data-alarm-id="${alarm.id}">
+      <tr data-alarm-id="${alarm.id}" class="${state.detailAlarmSelectedIds.has(alarm.id) ? "selected" : ""}">
         <td><span class="alarm-level-table alarm-${alarm.type}">${alarm.level}</span></td>
         <td>${alarm.title}</td>
         <td>${alarm.module}</td>
@@ -1339,7 +1350,7 @@ function renderAlarmDetailPage() {
         <td>${alarm.location}</td>
         <td>${alarm.eventTime}</td>
         <td>${alarm.warningTime}</td>
-        <td><span class="alarm-source alarm-source-${alarm.source === "云端" ? "cloud" : "station"}">${alarm.source}</span></td>
+        <td><span class="alarm-source alarm-source-${alarm.source === "婵炲瓨绮嶉崹褰掝敂? ? "cloud" : "station"}">${alarm.source}</span></td>
       </tr>`
     )
     .join("");
@@ -1347,19 +1358,69 @@ function renderAlarmDetailPage() {
     row.addEventListener("click", () => {
       const alarm = alarms.find((item) => item.id === row.dataset.alarmId);
       state.selectedAlarm = alarm;
+      state.detailAlarmSelectedIds.clear();
+      if (alarm) state.detailAlarmSelectedIds.add(alarm.id);
       els.alarmDetailTable.querySelectorAll("tr").forEach((item) => item.classList.remove("selected"));
       row.classList.add("selected");
       openAlarmModal(alarm);
     });
+    row.addEventListener("contextmenu", (event) => {
+      event.preventDefault();
+      const alarm = alarms.find((item) => item.id === row.dataset.alarmId);
+      if (!alarm) return;
+      if (event.ctrlKey || event.metaKey) {
+        if (state.detailAlarmSelectedIds.has(alarm.id)) {
+          state.detailAlarmSelectedIds.delete(alarm.id);
+        } else {
+          state.detailAlarmSelectedIds.add(alarm.id);
+        }
+      } else {
+        state.detailAlarmSelectedIds.add(alarm.id);
+      }
+      state.selectedAlarm = alarm;
+      renderAlarmDetailPage();
+      showAlarmRowContextMenu(event.clientX, event.clientY);
+    });
   });
   if (!alarms.length) {
-    els.alarmDetailTable.innerHTML = `<tr><td colspan="8">未找到匹配预警</td></tr>`;
+    els.alarmDetailTable.innerHTML = `<tr><td colspan="8">闁哄牜浜濇竟姗€宕氶弶鍨埍闂佹澘绉归。鈺冩媰?/td></tr>`;
+    state.detailAlarmSelectedIds.clear();
+    hideAlarmRowContextMenu();
   }
   if (!state.selectedAlarm || !alarms.some((alarm) => alarm.id === state.selectedAlarm.id)) {
     state.selectedAlarm = alarms[0] || null;
   }
 }
 
+function showAlarmRowContextMenu(clientX, clientY) {
+  if (!els.alarmRowContextMenu || !state.detailAlarmSelectedIds.size) return;
+  els.alarmBatchHandleBtn.textContent = "\u5904\u7406\u9009\u4e2d\u9884\u8b66\uff08" + state.detailAlarmSelectedIds.size + "\uff09";
+  els.alarmRowContextMenu.classList.add("show");
+  const panel = els.alarmRowContextMenu;
+  const maxLeft = window.innerWidth - panel.offsetWidth - 12;
+  const maxTop = window.innerHeight - panel.offsetHeight - 12;
+  panel.style.left = `${Math.max(12, Math.min(clientX, maxLeft))}px`;
+  panel.style.top = `${Math.max(12, Math.min(clientY, maxTop))}px`;
+}
+
+function hideAlarmRowContextMenu() {
+  if (!els.alarmRowContextMenu) return;
+  els.alarmRowContextMenu.classList.remove("show");
+}
+
+function handleBatchAlarmProcess(event) {
+  event.stopPropagation();
+  const count = state.detailAlarmSelectedIds.size;
+  if (!count) return;
+  hideAlarmRowContextMenu();
+  if (!els.alarmSelectionToast) return;
+  els.alarmSelectionToast.textContent = "\u5df2\u52a0\u5165\u5904\u7406\u961f\u5217\uff1a" + count + " \u6761\u9884\u8b66";
+  els.alarmSelectionToast.classList.add("show");
+  clearTimeout(handleBatchAlarmProcess.toastTimer);
+  handleBatchAlarmProcess.toastTimer = setTimeout(() => {
+    els.alarmSelectionToast.classList.remove("show");
+  }, 2200);
+}
 function filterAlarmDetailItems() {
   const start = els.alarmDetailStart.value ? new Date(`${els.alarmDetailStart.value}T00:00:00`) : null;
   const end = els.alarmDetailEnd.value ? new Date(`${els.alarmDetailEnd.value}T23:59:59`) : null;
@@ -1382,7 +1443,7 @@ function filterAlarmDetailItems() {
 
 function renderAlarmInspector(alarm) {
   if (!alarm) {
-    els.alarmInspectorBody.textContent = "点击任意预警查看完整内容";
+    els.alarmInspectorBody.textContent = "闂佺粯鍔楅幊鎾诲吹椤旂晫顩风紓浣姑竟鍫澪涢弶鍨伂妞ゆ帞鍠栧濠氬Ψ瑜庣粻娆撴倵閻熺増婀伴柡鍡秮瀹曟﹢宕ㄩ褍鏅?;
     return;
   }
   const duration = Math.max(1, ((alarm.id.length * 7) % 24) + (alarm.type === "level1" ? 6 : alarm.type === "level2" ? 3 : 1));
@@ -1394,25 +1455,25 @@ function renderAlarmInspector(alarm) {
         <span class="alarm-module-pill">${alarm.module}</span>
       </div>
       <strong>${alarm.title}</strong>
-      <p>${alarm.level === "一级" ? "立即复核云端诊断结果并安排现场排查。" : alarm.level === "二级" ? "持续观察趋势，纳入当班巡检计划。" : "记录风险变化，按计划跟踪闭环。"}</p>
+      <p>${alarm.level === "婵炴垶鎸撮崑鎾剁磼? ? "缂備焦鏌ㄩ鍛暤閸℃ê绶炵€广儱妫涙竟瀣瑰鍕仼妞ゅ浚鍓涢幏鐘崇節閸愨晝鍔风紓鍌欑劍閹稿鎮樻径鎰祦閻犻缚娅ｉ弳鏃堟煙閻戞ê绗ф鐐叉喘瀹曠兘鎮滃Ο铏圭懇闂佸搫琚崕顖炲焵? : alarm.level === "婵炲瓨绮岄惉鍏碱殽? ? "闂佸綊鏅查懗鍫曟偨閼姐倖鍠嗛柛灞炬皑濡绢亪鎮洪幒鎴剰濠电偛绉归弫宥呯暆閳ь剟骞樻總绋跨闁靛鍎崇粔濂告煟濠垫劕骞栭悹鎰緲铻為柍褜鍓涢幏瀣灳閸愯尙浜伴梺? : "闁荤姳鐒﹀妯肩礊瀹ュ棭妲归幖娣妽閻濓箓鏌涘▎鎯奉亞鈧灚鐓￠弫宥囦沪閹呮▎闁荤姳璁查埀顒€鍟块悘濠囨偣閾忕懓鏋欓梺鍙夌矒濮婂顢橀悩鑼暰闂?}</p>
     </div>
     <div class="alarm-detail-meta">
       <div class="alarm-detail-meta-card alarm-detail-meta-card-source">
-        <span>预警来源</span>
+        <span>婵☆偅婢樼€氼垶顢楅悢鐓庣骇闁靛濡囬悥?/span>
         <div class="alarm-detail-source-row">
           <strong class="alarm-detail-source-text">${alarm.source}</strong>
           ${
             linked
-              ? `<button class="alarm-linked-jump" type="button" data-linked-id="${linked.id}">${alarm.source === "云端" ? "查看站端关联预警" : "查看云端关联预警"}</button>`
+              ? `<button class="alarm-linked-jump" type="button" data-linked-id="${linked.id}">${alarm.source === "婵炲瓨绮嶉崹褰掝敂? ? "闂佸搫琚崕鍐诧耿閸涱垳鍗氭繛鍡樺焾娴煎倿鏌涜箛鎾舵瀮濞寸姴鐗婇敍鎰板礋椤曞懎濡? : "闂佸搫琚崕鍐诧耿閸涱喚顩查柟瀵稿娴煎倿鏌涜箛鎾舵瀮濞寸姴鐗婇敍鎰板礋椤曞懎濡?}</button>`
               : ""
           }
         </div>
       </div>
-      <div class="alarm-detail-meta-card"><span>所属场站</span><strong>${alarm.stationId}${alarm.stationName}</strong></div>
-      <div class="alarm-detail-meta-card"><span>预警位置</span><strong>${alarm.location}</strong></div>
-      <div class="alarm-detail-meta-card"><span>事件时间</span><strong>${alarm.eventTime}</strong></div>
-      <div class="alarm-detail-meta-card"><span>预警时间</span><strong>${alarm.warningTime}</strong></div>
-      <div class="alarm-detail-meta-card"><span>持续时长</span><strong>${duration} 小时</strong></div>
+      <div class="alarm-detail-meta-card"><span>闂佸湱顣介崑鎾绘倶閻愰潧浠滄繝褉鍋撶紓?/span><strong>${alarm.stationId}${alarm.stationName}</strong></div>
+      <div class="alarm-detail-meta-card"><span>婵☆偅婢樼€氼垶顢楅悢鍛婂鐎广儱娲ㄩ弸?/span><strong>${alarm.location}</strong></div>
+      <div class="alarm-detail-meta-card"><span>婵炲瓨绮岄鍕枎閵忋倕绫嶉柛顐ｆ礃閿?/span><strong>${alarm.eventTime}</strong></div>
+      <div class="alarm-detail-meta-card"><span>婵☆偅婢樼€氼垶顢楅悢鐓庣睄闁割偅娲橀敍?/span><strong>${alarm.warningTime}</strong></div>
+      <div class="alarm-detail-meta-card"><span>闂佸綊鏅查懗鍫曟偨婵犳艾绫嶉柛顐ｆ礃濮?/span><strong>${duration} 闁诲繐绻愮换鎴濐渻?/strong></div>
     </div>
   `;
   const jumpButton = els.alarmInspectorBody.querySelector(".alarm-linked-jump");
@@ -1449,15 +1510,15 @@ function closeAlarmModal() {
 function alarmTrendData(alarm) {
   const levelOffset = alarm.type === "level1" ? 18 : alarm.type === "level2" ? 10 : 4;
   const linkSeed = (alarm.linkGroupId || alarm.id).split("").reduce((sum, char) => sum + char.charCodeAt(0), 0);
-  const sourceOffset = alarm.source === "云端" ? 6 : -4;
-  const amplitude = alarm.source === "云端" ? 7.6 : 11.2;
-  const phase = (linkSeed % 9) * 0.18 + (alarm.source === "云端" ? 0.25 : 0.88);
-  const tailBoost = alarm.source === "云端" ? levelOffset / 4 : levelOffset / 6;
+  const sourceOffset = alarm.source === "婵炲瓨绮嶉崹褰掝敂? ? 6 : -4;
+  const amplitude = alarm.source === "婵炲瓨绮嶉崹褰掝敂? ? 7.6 : 11.2;
+  const phase = (linkSeed % 9) * 0.18 + (alarm.source === "婵炲瓨绮嶉崹褰掝敂? ? 0.25 : 0.88);
+  const tailBoost = alarm.source === "婵炲瓨绮嶉崹褰掝敂? ? levelOffset / 4 : levelOffset / 6;
   const base = 46 + levelOffset + (linkSeed % 8) + sourceOffset;
   return Array.from({ length: 18 }, (_, index) => {
     const swing = Math.sin(index * 0.68 + phase) * amplitude;
-    const ripple = Math.cos(index * 0.31 + (linkSeed % 5)) * (alarm.source === "云端" ? 3.2 : 4.6);
-    const tail = index > 11 ? tailBoost + (alarm.source === "站端" ? (index - 11) * 0.55 : (17 - index) * 0.18) : 0;
+    const ripple = Math.cos(index * 0.31 + (linkSeed % 5)) * (alarm.source === "婵炲瓨绮嶉崹褰掝敂? ? 3.2 : 4.6);
+    const tail = index > 11 ? tailBoost + (alarm.source === "缂備焦姊归悷褔顢? ? (index - 11) * 0.55 : (17 - index) * 0.18) : 0;
     const value = round(Math.max(20, Math.min(100, base + swing + ripple + tail)), 2);
     return {
       label: `${String(8 + Math.floor(index / 2)).padStart(2, "0")}:${index % 2 ? "30" : "00"}`,
@@ -1528,7 +1589,7 @@ function handleAlarmTrendHover(event) {
     els.alarmTrendTooltip.classList.remove("show");
     return;
   }
-  els.alarmTrendTooltip.innerHTML = `<strong>${hit.label}</strong><span style="color:${hit.color}">相关值 ${formatSosValue(hit.value)}</span>`;
+  els.alarmTrendTooltip.innerHTML = `<strong>${hit.label}</strong><span style="color:${hit.color}">闂佺儵鏅濋…鍫ュ矗瑜斿畷?${formatSosValue(hit.value)}</span>`;
   const box = els.alarmTrendChart.getBoundingClientRect();
   els.alarmTrendTooltip.style.left = `${Math.min(els.alarmTrendChart.clientWidth - 220, Math.max(8, event.clientX - box.left + 12))}px`;
   els.alarmTrendTooltip.style.top = `${Math.max(8, event.clientY - box.top + 12)}px`;
@@ -1588,7 +1649,7 @@ function renderDetail(station) {
   els.detailSos.style.color = risk.color;
   els.gaugeValue.textContent = formatSosValue(station.sos);
   els.gaugeValue.style.color = "#f4f8ff";
-  els.gaugeLabel.textContent = `当前风险等级：${risk.label}`;
+  els.gaugeLabel.textContent = `閻熸粎澧楅幐鍛婃櫠閻樻剚妲归幖娣妽閻濓妇绱掑☉姗嗘Ш濡ょ姴娲弫?{risk.label}`;
   els.gaugeLabel.style.color = risk.color;
   els.gaugeLabel.style.borderColor = `${risk.color}66`;
   els.gaugeLabel.style.background = `${risk.color}1f`;
@@ -1614,7 +1675,7 @@ function createSubsystems(station) {
     const drift = Math.sin((n + station.sos) * 0.55) * 14 - (n % 8 === 0 ? 22 : 0) + (n % 6 === 0 ? 9 : 0);
     const score = round(Math.min(100, Math.max(35, station.sos + drift)), 2);
     return {
-      name: `子系统#${String(n).padStart(2, "0")}`,
+      name: `闁诲孩绋掗崝妤呮焾鐎靛摜纾?${String(n).padStart(2, "0")}`,
       score,
       risk: getRisk(score),
     };
@@ -1811,7 +1872,7 @@ function renderBars(subsystems) {
       ctx.fillStyle = "#8f97a8";
       ctx.font = "11px Microsoft YaHei";
       ctx.textAlign = "center";
-      ctx.fillText(item.name.replace("子系统", ""), x + barWidth / 2, h - 18);
+      ctx.fillText(item.name.replace("闁诲孩绋掗崝妤呮焾鐎靛摜纾?, ""), x + barWidth / 2, h - 18);
     }
   });
 }
@@ -1855,7 +1916,7 @@ function handleDetailBarHover(event) {
 }
 
 function boxPlotParts(station) {
-  const names = ["电池系统", "电气系统", "环控系统", "消防系统"];
+  const names = ["闂佹眹鍨归悘姘舵儓濠婂懎瀵查柤濮愬€楅崺?, "闂佹眹鍨归悘姘舵儍閻㈤潧瀵查柤濮愬€楅崺?, "闂佺粯绮犻崹杈╂暜閸撲礁瀵查柤濮愬€楅崺?, "濠电偞鍨甸悧鎾澄ｉ懡銈呭闁煎鍊楅崺?];
   return names.map((name, index) => {
     const base = station.sos - index * 4 + Math.sin(index + station.sos) * 8;
     const low = round(Math.max(14, base - 30), 2);
@@ -1868,13 +1929,13 @@ function boxPlotParts(station) {
     if (index !== 1) {
       outliers.push({
         value: round(Math.max(8, low - 7 - index * 2), 2),
-        subsystem: `#${1 + ((index * 3 + Math.round(station.sos)) % Math.max(1, station.subsystemCount))}子系统`,
+        subsystem: `#${1 + ((index * 3 + Math.round(station.sos)) % Math.max(1, station.subsystemCount))}闁诲孩绋掗崝妤呮焾鐎靛摜纾奸柣?
       });
     }
     if (index === 2 || station.risk === "high") {
       outliers.push({
         value: round(Math.min(100, high + 6), 2),
-        subsystem: `#${2 + ((index * 5 + Math.round(station.sos)) % Math.max(2, station.subsystemCount))}子系统`,
+        subsystem: `#${2 + ((index * 5 + Math.round(station.sos)) % Math.max(2, station.subsystemCount))}闁诲孩绋掗崝妤呮焾鐎靛摜纾奸柣?
       });
     }
     return { name, low, q1, mid, q3, high, mean, outliers };
@@ -1942,7 +2003,7 @@ function renderBoxPlot(station) {
     ctx.fillStyle = "#8f97a8";
     ctx.font = "12px Microsoft YaHei";
     ctx.textAlign = "center";
-    ctx.fillText(part.name.replace("系统", ""), x, h - 14);
+    ctx.fillText(part.name.replace("缂備緡鍨靛畷鐢靛垝?, ""), x, h - 14);
     state.detailBoxHitboxes.push({ type: "box", x, y: (yQ1 + yQ3) / 2, boxWidth, yQ1, yQ3, part });
   });
 }
@@ -1973,12 +2034,12 @@ function handleBoxHover(event) {
   } else {
     els.boxTooltip.innerHTML = `
       <strong>${hit.part.name}</strong>
-      <span style="color:#1689ff">上边缘 ${formatSosValue(hit.part.high)}</span>
-      <span style="color:#1689ff">上四分位 ${formatSosValue(hit.part.q3)}</span>
-      <span style="color:#1689ff">中位数 ${formatSosValue(hit.part.mid)}</span>
-      <span style="color:#1689ff">均值 ${formatSosValue(hit.part.mean)}</span>
-      <span style="color:#1689ff">下四分位 ${formatSosValue(hit.part.q1)}</span>
-      <span style="color:#1689ff">下边缘 ${formatSosValue(hit.part.low)}</span>`;
+      <span style="color:#1689ff">婵炴垶鎸搁敃銊х博閻旇櫣纾?${formatSosValue(hit.part.high)}</span>
+      <span style="color:#1689ff">婵炴垶鎸搁敃銈吤洪幘璇茬闁糕剝娲滅粔?${formatSosValue(hit.part.q3)}</span>
+      <span style="color:#1689ff">婵炴垶鎼╅崢铏圭礊閸涙潙鏋?${formatSosValue(hit.part.mid)}</span>
+      <span style="color:#1689ff">闂佺鍐╂悙闁?${formatSosValue(hit.part.mean)}</span>
+      <span style="color:#1689ff">婵炴垶鎸搁鍛洪幘璇茬闁糕剝娲滅粔?${formatSosValue(hit.part.q1)}</span>
+      <span style="color:#1689ff">婵炴垶鎸搁鍫㈢博閻旇櫣纾?${formatSosValue(hit.part.low)}</span>`;
   }
   const box = els.boxChartWrap.getBoundingClientRect();
   els.boxTooltip.style.left = `${Math.min(els.boxChartWrap.clientWidth - 230, Math.max(8, event.clientX - box.left + 12))}px`;
@@ -2002,8 +2063,8 @@ function renderDetailAlarms(station) {
   els.detailAlarmCountLevel1.textContent = rangeAlarms.filter((alarm) => alarm.type === "level1").length;
   els.detailAlarmCountLevel2.textContent = rangeAlarms.filter((alarm) => alarm.type === "level2").length;
   els.detailAlarmCountLevel3.textContent = rangeAlarms.filter((alarm) => alarm.type === "level3").length;
-  els.detailAlarmCloudCount.textContent = alarms.filter((alarm) => alarm.source === "云端").length;
-  els.detailAlarmStationCount.textContent = alarms.filter((alarm) => alarm.source === "站端").length;
+  els.detailAlarmCloudCount.textContent = alarms.filter((alarm) => alarm.source === "婵炲瓨绮嶉崹褰掝敂?).length;
+  els.detailAlarmStationCount.textContent = alarms.filter((alarm) => alarm.source === "缂備焦姊归悷褔顢?).length;
   els.detailAlarmList.innerHTML = alarms.length
     ? alarms
         .map(
@@ -2014,7 +2075,7 @@ function renderDetailAlarms(station) {
               <div class="alarm-tags">
                 <span class="alarm-level">${alarm.level}</span><span>${alarm.module}</span>
               </div>
-              <span class="alarm-source alarm-source-${alarm.source === "云端" ? "cloud" : "station"}">${alarm.source}</span>
+              <span class="alarm-source alarm-source-${alarm.source === "婵炲瓨绮嶉崹褰掝敂? ? "cloud" : "station"}">${alarm.source}</span>
             </div>
             <strong>${alarm.title}</strong>
             <div class="alarm-meta">
@@ -2025,7 +2086,7 @@ function renderDetailAlarms(station) {
         </button>`
         )
         .join("")
-    : `<div class="empty detail-alarm-empty">当前场站暂无预警</div>`;
+    : `<div class="empty detail-alarm-empty">閻熸粎澧楅幐鍛婃櫠閻樿鎹堕柧蹇撴贡瑜版煡鏌￠崱妤€鈧懓螞閵堝棴绱ｉ柛鏇ㄥ櫘閸?/div>`;
   els.detailAlarmList.querySelectorAll(".alarm-item").forEach((item) => {
     item.addEventListener("click", () => {
       const alarm = alarms.find((entry) => entry.id === item.dataset.alarmId);
@@ -2036,16 +2097,16 @@ function renderDetailAlarms(station) {
 
 function renderTable() {
   const descriptions = {
-    high: "Pack 温差偏高，簇级电压离散度异常",
-    mid: "监测参数持续波动，建议跟踪运行趋势",
-    low: "存在优化项，建议纳入下次巡检",
-    healthy: "健康",
+    high: "Pack 濠电偞鎸撮弲娑樜熸繝鍥х；闊洦绋撹ぐ顖炴煥濞戞鐏遍柣顭掔悼閻ヮ亣顦撮柡浣规倐瀹曘垻鈧綆鍓﹂悗鏌ユ煛娓氬﹦鍒伴悗鐟板暱椤曪綁宕掑鍗炵厬",
+    mid: "闂佺儵鏅滈崹鍓佺矈閹绢喖鐭楅柛灞剧⊕濞堝爼鏌熼梹鎰厡闁汇垼顕ч埢鏃堝閻樻畫妤呮煥濞戞瀚扮紓鍌涙尵閹峰顢欑捄顭戔偓鈧梻濠庝憾娴滐絿鎹㈠鍥ㄥ仒鐎光偓閸愵€亪鏌?,
+    low: "闁诲孩绋掗敋婵犫偓椤忓懎顕辨俊顖氭惈椤曆冾渻閵堝洦顏熺紒杈ㄧ箓椤曟瑦銈﹀▎鎯ф暥缂備焦鍎抽崯鍧楀矗閸℃鈻旈悗锝庡亽閸嬔呪偓鍦《閸撴繈藟?,
+    healthy: "闂佺顑冮崕閬嶅箖?,
   };
   const suggestions = {
-    high: "立即复核 BMS 数据并安排现场排查",
-    mid: "观察 2 小时趋势，必要时调整运行策略",
-    low: "记录优化项，按计划维护",
-    healthy: "保持当前运行策略",
+    high: "缂備焦鏌ㄩ鍛暤閸℃ê绶炵€广儱妫涙竟?BMS 闂佽桨鑳舵晶妤€鐣垫笟鈧悰顔炬崉閾忚娈ч梺鍦劋鐢偤鐛崶顒€鎹堕柣鎴灻粭鎾绘煛?,
+    mid: "闁荤喐鐟ラ崐鎼佹儌?2 闁诲繐绻愮换鎴濐渻閸屾粍鎯ラ悗锝庝簻閳笺垽鏌ㄥ☉妯垮缂佺儵鍋撻柣鐔告磻閻掞箑顪冮崒婊勫闁告劏鏅滃▓濠氬级閳哄倸濮屾い銏″灩缁敻寮介锝嗩吅",
+    low: "闁荤姳鐒﹀妯肩礊瀹ュ棗顕辨俊顖氭惈椤曆冾渻閵堝洦顏熺紒杈ㄧ箞楠炴劖寰勬惔顔兼倎闂佸憡甯楃敮鐐睬庨鈧獮?,
+    healthy: "婵烇絽娲︾换鍐偓鍨閵囨劙骞橀崘宸瀫闁哄鏅滈崝姗€銆侀幋鐘甸┏闁哄稁鍋呭▓?,
   };
   const rows = state.detailSubsystems.map((item, index) => ({
     ...item,
@@ -2167,13 +2228,13 @@ function alarmOrder(type) {
 }
 
 function levelToType(level) {
-  return { 一级: "level1", 二级: "level2", 三级: "level3" }[level] ?? "level3";
+  return { 婵炴垶鎸撮崑鎾剁磼? "level1", 婵炲瓨绮岄惉鍏碱殽? "level2", 婵炴垶鎸搁ˇ杈殽? "level3" }[level] ?? "level3";
 }
 
 function pickRiskTemplate(templates, index) {
-  const fallback = { name: "子系统SOC不均衡提示", module: "电池系统", level: "三级", locationFormat: "#1子系统-Rack101-Pack1-Cell2" };
+  const fallback = { name: "闁诲孩绋掗崝妤呮焾鐎靛摜纾奸柣鎴犵潒C婵炴垶鎸哥粔鏉戭焽鎼达絾鍋橀柍鈺佸暙缁插湱绱掗埀?, module: "闂佹眹鍨归悘姘舵儓濠婂懎瀵查柤濮愬€楅崺?, level: "婵炴垶鎸搁ˇ杈殽?, locationFormat: "#1闁诲孩绋掗崝妤呮焾鐎靛摜纾?Rack101-Pack1-Cell2" };
   if (!templates.length) return fallback;
-  const level = index < 35 ? "一级" : index < 105 ? "二级" : "三级";
+  const level = index < 35 ? "婵炴垶鎸撮崑鎾剁磼? : index < 105 ? "婵炲瓨绮岄惉鍏碱殽? : "婵炴垶鎸搁ˇ杈殽?;
   const pool = templates.filter((item) => item.level === level);
   return (pool.length ? pool : templates)[index % (pool.length ? pool.length : templates.length)];
 }
@@ -2185,7 +2246,7 @@ function createAlarmLocation(format, station, index) {
   const pack = 1 + ((index * 3) % 8);
   const cells = [0, 1, 2].map((offset) => 1 + ((index * 7 + offset * 9) % 28));
   return format
-    .replace(/#\d+子系统/g, `#${subsystem}子系统`)
+    .replace(/#\d+闁诲孩绋掗崝妤呮焾鐎靛摜纾?g, `#${subsystem}闁诲孩绋掗崝妤呮焾鐎靛摜纾奸柣?
     .replace(/Rack\d+/g, `Rack${rack}`)
     .replace(/Pack\d+/g, `Pack${pack}`)
     .replace(/Cell\d+(?:,\d+)*/g, (match) => {
