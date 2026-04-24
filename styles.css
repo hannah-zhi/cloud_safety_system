@@ -2499,7 +2499,10 @@ h2 {
   vertical-align: top;
 }
 
-.alarm-detail-table th:first-child,
+.alarm-detail-table th:first-child {
+  padding-left: 52px;
+}
+
 .alarm-detail-table td:first-child {
   padding-left: 22px;
 }
