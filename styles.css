@@ -2543,7 +2543,7 @@ h2 {
   background: rgba(18, 152, 255, 0.12);
   color: #e6f1ff;
   font-size: 12px;
-  text-align: left;
+  text-align: center;
   padding: 0 10px;
 }
 
@@ -2575,6 +2575,83 @@ h2 {
 .alarm-selection-toast.show {
   opacity: 1;
   transform: translateY(0);
+}
+
+.alarm-row-check {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+.alarm-row-check input {
+  display: none;
+}
+
+.alarm-row-check i {
+  width: 14px;
+  height: 14px;
+  border: 1px solid rgba(122, 132, 160, 0.8);
+  border-radius: 3px;
+  background: rgba(12, 14, 22, 0.8);
+  display: inline-block;
+  position: relative;
+}
+
+.alarm-row-check input:checked + i {
+  border-color: rgba(18, 152, 255, 0.9);
+  background: rgba(18, 152, 255, 0.16);
+}
+
+.alarm-row-check input:checked + i::after {
+  content: "";
+  position: absolute;
+  left: 3px;
+  top: 0px;
+  width: 4px;
+  height: 8px;
+  border-right: 2px solid #36b4ff;
+  border-bottom: 2px solid #36b4ff;
+  transform: rotate(45deg);
+}
+
+.alarm-batch-bar {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(69, 73, 90, 0.55);
+}
+
+.alarm-batch-bar.show {
+  display: flex;
+}
+
+.alarm-batch-info {
+  color: #aeb8ca;
+  font-size: 13px;
+}
+
+.alarm-batch-info strong {
+  color: #eef3fb;
+}
+
+.alarm-batch-bar .query-btn[disabled] {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.sos-number-inputs input::-webkit-outer-spin-button,
+.sos-number-inputs input::-webkit-inner-spin-button {
+  opacity: 0.35;
+  filter: grayscale(1) brightness(0.75);
+}
+
+.sos-number-inputs input {
+  appearance: textfield;
+  -moz-appearance: textfield;
 }
 
 .alarm-detail-table td:nth-child(2),
