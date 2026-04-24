@@ -53,6 +53,7 @@ const state = {
   detailAlarmEndDate: "",
   activePage: "overview",
   selectedAlarm: null,
+  detailAlarmSelectedIds: new Set(),
   riskTrendRange: 7,
   riskBarHitboxes: [],
   riskTrendHitboxes: [],
@@ -184,6 +185,9 @@ function bindElements() {
     "alarmDetailReset",
     "alarmDetailCount",
     "alarmDetailTable",
+    "alarmRowContextMenu",
+    "alarmBatchHandleBtn",
+    "alarmSelectionToast",
     "alarmInspectorBody",
     "alarmDetailModal",
     "alarmModalMask",
@@ -225,6 +229,7 @@ function bindEvents() {
     if (!els.stationSelector.contains(event.target) && !els.stationPickerMenu.contains(event.target)) {
       closeStationPicker();
     }
+    hideAlarmRowContextMenu();
   });
   window.addEventListener("resize", positionStationPicker);
   window.addEventListener("scroll", positionStationPicker, true);
@@ -303,9 +308,11 @@ function bindEvents() {
     els.alarmDetailStart.value = "";
     els.alarmDetailEnd.value = "";
     state.selectedAlarm = null;
+    state.detailAlarmSelectedIds.clear();
     renderAlarmDetailFilters();
     renderAlarmDetailPage();
   });
+  els.alarmBatchHandleBtn?.addEventListener("click", handleBatchAlarmProcess);
   els.alarmModalClose.addEventListener("click", closeAlarmModal);
   els.alarmModalMask.addEventListener("click", closeAlarmModal);
   document.addEventListener("keydown", (event) => {
@@ -671,7 +678,7 @@ function createStationCard(station) {
       </div>
       <div class="metrics">
         <div class="metric"><span>通讯状态</span><strong>${commMeta[station.comm].label}</strong></div>
-        <div class="metric"><span>额定容量/额定能量</span><strong>${station.rated}MW/${station.ratedEnergy}MWh</strong></div>
+        <div class="metric"><span>额定能量/容量</span><strong>${station.ratedEnergy}MWh/${station.rated}MW</strong></div>
         <div class="metric"><span>子系统数量</span><strong>${station.subsystemCount}</strong></div>
         <div class="metric"><span>场站类型</span><strong>${station.stationType}</strong></div>
       </div>
@@ -1327,11 +1334,15 @@ document.addEventListener("click", () => {
 
 function renderAlarmDetailPage() {
   const alarms = filterAlarmDetailItems();
+  const visibleIds = new Set(alarms.map((alarm) => alarm.id));
+  state.detailAlarmSelectedIds.forEach((id) => {
+    if (!visibleIds.has(id)) state.detailAlarmSelectedIds.delete(id);
+  });
   els.alarmDetailCount.textContent = alarms.length;
   els.alarmDetailTable.innerHTML = alarms
     .map(
       (alarm) => `
-      <tr data-alarm-id="${alarm.id}">
+      <tr data-alarm-id="${alarm.id}" class="${state.detailAlarmSelectedIds.has(alarm.id) ? "selected" : ""}">
         <td><span class="alarm-level-table alarm-${alarm.type}">${alarm.level}</span></td>
         <td>${alarm.title}</td>
         <td>${alarm.module}</td>
@@ -1339,7 +1350,7 @@ function renderAlarmDetailPage() {
         <td>${alarm.location}</td>
         <td>${alarm.eventTime}</td>
         <td>${alarm.warningTime}</td>
-        <td><span class="alarm-source alarm-source-${alarm.source === "云端" ? "cloud" : "station"}">${alarm.source}</span></td>
+        <td><span class="alarm-source alarm-source-${alarm.source === "??" ? "cloud" : "station"}">${alarm.source}</span></td>
       </tr>`
     )
     .join("");
@@ -1347,17 +1358,63 @@ function renderAlarmDetailPage() {
     row.addEventListener("click", () => {
       const alarm = alarms.find((item) => item.id === row.dataset.alarmId);
       state.selectedAlarm = alarm;
-      els.alarmDetailTable.querySelectorAll("tr").forEach((item) => item.classList.remove("selected"));
-      row.classList.add("selected");
+      state.detailAlarmSelectedIds.clear();
+      if (alarm) state.detailAlarmSelectedIds.add(alarm.id);
+      renderAlarmDetailPage();
       openAlarmModal(alarm);
+    });
+    row.addEventListener("contextmenu", (event) => {
+      event.preventDefault();
+      const alarm = alarms.find((item) => item.id === row.dataset.alarmId);
+      if (!alarm) return;
+      if (state.detailAlarmSelectedIds.has(alarm.id)) {
+        state.detailAlarmSelectedIds.delete(alarm.id);
+      } else {
+        state.detailAlarmSelectedIds.add(alarm.id);
+      }
+      state.selectedAlarm = alarm;
+      renderAlarmDetailPage();
+      showAlarmRowContextMenu(event.clientX, event.clientY);
     });
   });
   if (!alarms.length) {
-    els.alarmDetailTable.innerHTML = `<tr><td colspan="8">未找到匹配预警</td></tr>`;
+    els.alarmDetailTable.innerHTML = `<tr><td colspan="8">\u672a\u627e\u5230\u5339\u914d\u9884\u8b66</td></tr>`;
+    state.detailAlarmSelectedIds.clear();
+    hideAlarmRowContextMenu();
   }
   if (!state.selectedAlarm || !alarms.some((alarm) => alarm.id === state.selectedAlarm.id)) {
     state.selectedAlarm = alarms[0] || null;
   }
+}
+
+function showAlarmRowContextMenu(clientX, clientY) {
+  if (!els.alarmRowContextMenu || !state.detailAlarmSelectedIds.size) return;
+  els.alarmBatchHandleBtn.textContent = "\u5904\u7406\u9009\u4e2d\u9884\u8b66\uff08" + state.detailAlarmSelectedIds.size + "\uff09";
+  els.alarmRowContextMenu.classList.add("show");
+  const menuWidth = 180;
+  const menuHeight = 48;
+  const left = Math.min(clientX, window.innerWidth - menuWidth - 12);
+  const top = Math.min(clientY, window.innerHeight - menuHeight - 12);
+  els.alarmRowContextMenu.style.left = `${Math.max(12, left)}px`;
+  els.alarmRowContextMenu.style.top = `${Math.max(12, top)}px`;
+}
+
+function hideAlarmRowContextMenu() {
+  if (!els.alarmRowContextMenu) return;
+  els.alarmRowContextMenu.classList.remove("show");
+}
+
+function handleBatchAlarmProcess(event) {
+  event.stopPropagation();
+  const count = state.detailAlarmSelectedIds.size;
+  if (!count || !els.alarmSelectionToast) return;
+  hideAlarmRowContextMenu();
+  els.alarmSelectionToast.textContent = "\u5df2\u52a0\u5165\u5904\u7406\u961f\u5217\uff1a" + count + " \u6761\u9884\u8b66";
+  els.alarmSelectionToast.classList.add("show");
+  clearTimeout(handleBatchAlarmProcess.toastTimer);
+  handleBatchAlarmProcess.toastTimer = setTimeout(() => {
+    els.alarmSelectionToast.classList.remove("show");
+  }, 2200);
 }
 
 function filterAlarmDetailItems() {
