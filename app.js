@@ -54,6 +54,8 @@ const state = {
   activePage: "overview",
   selectedAlarm: null,
   detailAlarmSelectedIds: new Set(),
+  detailAlarmSelectionMode: false,
+  detailAlarmContextId: null,
   riskTrendRange: 7,
   riskBarHitboxes: [],
   riskTrendHitboxes: [],
@@ -186,7 +188,10 @@ function bindElements() {
     "alarmDetailCount",
     "alarmDetailTable",
     "alarmRowContextMenu",
-    "alarmBatchHandleBtn",
+    "alarmMultiSelectBtn",
+    "alarmBatchBar",
+    "alarmBatchCount",
+    "alarmBatchAction",
     "alarmSelectionToast",
     "alarmInspectorBody",
     "alarmDetailModal",
@@ -312,7 +317,8 @@ function bindEvents() {
     renderAlarmDetailFilters();
     renderAlarmDetailPage();
   });
-  els.alarmBatchHandleBtn?.addEventListener("click", handleBatchAlarmProcess);
+  els.alarmMultiSelectBtn?.addEventListener("click", enableAlarmSelectionMode);
+  els.alarmBatchAction?.addEventListener("click", handleBatchAlarmProcess);
   els.alarmModalClose.addEventListener("click", closeAlarmModal);
   els.alarmModalMask.addEventListener("click", closeAlarmModal);
   document.addEventListener("keydown", (event) => {
@@ -1338,12 +1344,22 @@ function renderAlarmDetailPage() {
   state.detailAlarmSelectedIds.forEach((id) => {
     if (!visibleIds.has(id)) state.detailAlarmSelectedIds.delete(id);
   });
+  if (!alarms.length) {
+    state.detailAlarmSelectionMode = false;
+  }
   els.alarmDetailCount.textContent = alarms.length;
   els.alarmDetailTable.innerHTML = alarms
     .map(
       (alarm) => `
       <tr data-alarm-id="${alarm.id}" class="${state.detailAlarmSelectedIds.has(alarm.id) ? "selected" : ""}">
-        <td><span class="alarm-level-table alarm-${alarm.type}">${alarm.level}</span></td>
+        <td>
+          ${
+            state.detailAlarmSelectionMode
+              ? `<label class="alarm-row-check"><input type="checkbox" data-check-id="${alarm.id}" ${state.detailAlarmSelectedIds.has(alarm.id) ? "checked" : ""} /><i></i></label>`
+              : ""
+          }
+          <span class="alarm-level-table alarm-${alarm.type}">${alarm.level}</span>
+        </td>
         <td>${alarm.title}</td>
         <td>${alarm.module}</td>
         <td>${alarm.stationId}${alarm.stationName}</td>
@@ -1354,12 +1370,29 @@ function renderAlarmDetailPage() {
       </tr>`
     )
     .join("");
+  els.alarmDetailTable.querySelectorAll('input[data-check-id]').forEach((input) => {
+    input.addEventListener('click', (event) => event.stopPropagation());
+    input.addEventListener('change', () => {
+      const alarmId = input.dataset.checkId;
+      if (input.checked) state.detailAlarmSelectedIds.add(alarmId);
+      else state.detailAlarmSelectedIds.delete(alarmId);
+      updateAlarmBatchBar();
+      renderAlarmDetailPage();
+    });
+  });
   els.alarmDetailTable.querySelectorAll("tr").forEach((row) => {
     row.addEventListener("click", () => {
       const alarm = alarms.find((item) => item.id === row.dataset.alarmId);
+      if (!alarm) return;
       state.selectedAlarm = alarm;
+      if (state.detailAlarmSelectionMode) {
+        if (state.detailAlarmSelectedIds.has(alarm.id)) state.detailAlarmSelectedIds.delete(alarm.id);
+        else state.detailAlarmSelectedIds.add(alarm.id);
+        updateAlarmBatchBar();
+        renderAlarmDetailPage();
+        return;
+      }
       state.detailAlarmSelectedIds.clear();
-      if (alarm) state.detailAlarmSelectedIds.add(alarm.id);
       renderAlarmDetailPage();
       openAlarmModal(alarm);
     });
@@ -1367,32 +1400,44 @@ function renderAlarmDetailPage() {
       event.preventDefault();
       const alarm = alarms.find((item) => item.id === row.dataset.alarmId);
       if (!alarm) return;
-      if (state.detailAlarmSelectedIds.has(alarm.id)) {
-        state.detailAlarmSelectedIds.delete(alarm.id);
-      } else {
-        state.detailAlarmSelectedIds.add(alarm.id);
-      }
+      state.detailAlarmContextId = alarm.id;
       state.selectedAlarm = alarm;
-      renderAlarmDetailPage();
       showAlarmRowContextMenu(event.clientX, event.clientY);
     });
   });
   if (!alarms.length) {
-    els.alarmDetailTable.innerHTML = `<tr><td colspan="8">\u672a\u627e\u5230\u5339\u914d\u9884\u8b66</td></tr>`;
+    els.alarmDetailTable.innerHTML = `<tr><td colspan="8">???????</td></tr>`;
     state.detailAlarmSelectedIds.clear();
     hideAlarmRowContextMenu();
   }
   if (!state.selectedAlarm || !alarms.some((alarm) => alarm.id === state.selectedAlarm.id)) {
     state.selectedAlarm = alarms[0] || null;
   }
+  updateAlarmBatchBar();
+}
+
+function updateAlarmBatchBar() {
+  if (!els.alarmBatchBar || !els.alarmBatchCount || !els.alarmBatchAction) return;
+  const count = state.detailAlarmSelectedIds.size;
+  els.alarmBatchBar.classList.toggle('show', state.detailAlarmSelectionMode);
+  els.alarmBatchCount.textContent = String(count);
+  els.alarmBatchAction.disabled = count === 0;
+}
+
+function enableAlarmSelectionMode(event) {
+  event.stopPropagation();
+  hideAlarmRowContextMenu();
+  state.detailAlarmSelectionMode = true;
+  if (state.detailAlarmContextId) state.detailAlarmSelectedIds.add(state.detailAlarmContextId);
+  updateAlarmBatchBar();
+  renderAlarmDetailPage();
 }
 
 function showAlarmRowContextMenu(clientX, clientY) {
-  if (!els.alarmRowContextMenu || !state.detailAlarmSelectedIds.size) return;
-  els.alarmBatchHandleBtn.textContent = "\u5904\u7406\u9009\u4e2d\u9884\u8b66\uff08" + state.detailAlarmSelectedIds.size + "\uff09";
+  if (!els.alarmRowContextMenu) return;
   els.alarmRowContextMenu.classList.add("show");
-  const menuWidth = 180;
-  const menuHeight = 48;
+  const menuWidth = 132;
+  const menuHeight = 44;
   const left = Math.min(clientX, window.innerWidth - menuWidth - 12);
   const top = Math.min(clientY, window.innerHeight - menuHeight - 12);
   els.alarmRowContextMenu.style.left = `${Math.max(12, left)}px`;
@@ -1409,8 +1454,12 @@ function handleBatchAlarmProcess(event) {
   const count = state.detailAlarmSelectedIds.size;
   if (!count || !els.alarmSelectionToast) return;
   hideAlarmRowContextMenu();
-  els.alarmSelectionToast.textContent = "\u5df2\u52a0\u5165\u5904\u7406\u961f\u5217\uff1a" + count + " \u6761\u9884\u8b66";
+  els.alarmSelectionToast.textContent = "????????" + count + " ???";
   els.alarmSelectionToast.classList.add("show");
+  state.detailAlarmSelectedIds.clear();
+  state.detailAlarmSelectionMode = false;
+  updateAlarmBatchBar();
+  renderAlarmDetailPage();
   clearTimeout(handleBatchAlarmProcess.toastTimer);
   handleBatchAlarmProcess.toastTimer = setTimeout(() => {
     els.alarmSelectionToast.classList.remove("show");
