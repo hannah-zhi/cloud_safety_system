@@ -2521,7 +2521,7 @@ h2 {
   display: none;
   position: fixed;
   z-index: 2147483200;
-  min-width: 180px;
+  min-width: 88px;
   padding: 6px;
   border: 1px solid rgba(73, 91, 128, 0.82);
   border-radius: 6px;
@@ -2584,6 +2584,24 @@ h2 {
   vertical-align: middle;
 }
 
+.alarm-row-check-placeholder {
+  display: inline-block;
+  width: 22px;
+  flex: 0 0 22px;
+}
+
+.alarm-level-cell {
+  white-space: nowrap;
+}
+
+.alarm-level-cell .alarm-level-table {
+  vertical-align: middle;
+}
+
+.alarm-level-cell.selection-mode {
+  padding-left: 10px;
+}
+
 .alarm-row-check input {
   display: none;
 }
@@ -2617,12 +2635,20 @@ h2 {
 
 .alarm-batch-bar {
   display: none;
+  position: fixed;
+  left: 238px;
+  right: 28px;
+  bottom: 18px;
+  z-index: 1200;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  margin-top: 12px;
-  padding-top: 10px;
-  border-top: 1px solid rgba(69, 73, 90, 0.55);
+  gap: 16px;
+  padding: 12px 16px;
+  border: 1px solid rgba(73, 91, 128, 0.45);
+  border-radius: 6px;
+  background: rgba(38, 42, 55, 0.8);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.28);
 }
 
 .alarm-batch-bar.show {
@@ -2638,6 +2664,12 @@ h2 {
   color: #eef3fb;
 }
 
+.alarm-batch-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .alarm-batch-bar .query-btn[disabled] {
   opacity: 0.45;
   cursor: not-allowed;
@@ -2645,8 +2677,8 @@ h2 {
 
 .sos-number-inputs input::-webkit-outer-spin-button,
 .sos-number-inputs input::-webkit-inner-spin-button {
-  opacity: 0.35;
-  filter: grayscale(1) brightness(0.75);
+  opacity: 0.22;
+  filter: grayscale(1) brightness(0.58) saturate(0.7);
 }
 
 .sos-number-inputs input {
