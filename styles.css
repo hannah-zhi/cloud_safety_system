@@ -166,22 +166,31 @@ button {
 }
 
 .nav-link:hover,
-.nav-link.active,
-.nav-sublink:hover,
-.nav-sublink.active {
-  background: var(--blue);
-  color: #fff;
+.nav-sublink:hover {
+  background: rgba(18, 152, 255, 0.08);
+  color: #d7e7ff;
+}
+
+.nav-group.is-open > .nav-link,
+.nav-subgroup.is-open > .nav-sublink {
+  color: #d9e3f7;
 }
 
 .nav-caret {
-  font-size: 12px;
-  color: currentColor;
-  transition: transform 0.18s ease;
+  width: 8px;
+  height: 8px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(45deg);
+  transform-origin: center;
+  opacity: 0.78;
+  transition: transform 0.18s ease, opacity 0.18s ease;
 }
 
 .nav-group.is-open > .nav-link .nav-caret,
 .nav-subgroup.is-open > .nav-sublink .nav-caret {
-  transform: rotate(180deg);
+  transform: rotate(225deg);
+  opacity: 1;
 }
 
 .nav-children,
