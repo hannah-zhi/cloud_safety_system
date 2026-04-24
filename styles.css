@@ -2530,13 +2530,11 @@ h2 {
   position: fixed;
   z-index: 2147483200;
   min-width: 88px;
-  padding: 6px;
-  border: 1px solid rgba(73, 91, 128, 0.82);
-  border-radius: 6px;
-  background:
-    linear-gradient(180deg, rgba(34, 36, 48, 0.98), rgba(16, 18, 27, 0.98)),
-    rgba(12, 14, 22, 0.96);
-  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.42);
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
 }
 
 .alarm-row-context-menu.show {
