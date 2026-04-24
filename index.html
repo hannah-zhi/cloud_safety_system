@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>安全预警 - 远景数智运营系统</title>
-    <link rel="stylesheet" href="styles.css?v=20260424-overview-alarm-batch8" />
+    <link rel="stylesheet" href="styles.css?v=20260424-sidebar-menu-batch1" />
   </head>
   <body>
     <div class="shell">
@@ -20,8 +20,28 @@
         </div>
         <nav class="nav" aria-label="主导航">
           <a href="#"><span class="nav-icon">▣</span>全景概览</a>
-          <a class="active" href="#"><span class="nav-icon">◉</span>安全预警</a>
-          <a href="#"><span class="nav-icon">⌁</span>风险运营</a>
+          <div class="nav-group is-open is-active">
+            <button class="nav-link nav-toggle active" type="button" data-toggle-target="safetyMonitorMenu" aria-expanded="true">
+              <span class="nav-link-main"><span class="nav-icon">◉</span><span>安全监测</span></span>
+              <span class="nav-caret" aria-hidden="true">⌄</span>
+            </button>
+            <div class="nav-children" id="safetyMonitorMenu">
+              <div class="nav-subgroup is-open is-active">
+                <button class="nav-sublink nav-subtoggle active" type="button" data-toggle-target="safetyWarningPages" aria-expanded="true">
+                  <span>安全预警</span>
+                  <span class="nav-caret" aria-hidden="true">⌄</span>
+                </button>
+                <div class="nav-grandchildren" id="safetyWarningPages">
+                  <div class="nav-page-links" id="pageTabs" aria-label="安全预警页面切换">
+                    <button class="nav-page-link active" data-page="overview" type="button">场站总览</button>
+                    <button class="nav-page-link" data-page="risk" type="button">风险透视</button>
+                    <button class="nav-page-link" data-page="alarm" type="button">预警详情</button>
+                  </div>
+                </div>
+              </div>
+              <button class="nav-sublink" type="button">风险运营</button>
+            </div>
+          </div>
           <a href="#"><span class="nav-icon">♡</span>健康管理</a>
           <a href="#"><span class="nav-icon">▤</span>运营评估</a>
           <a href="#"><span class="nav-icon">⇄</span>交易协同</a>
@@ -40,12 +60,6 @@
             <span aria-hidden="true">⌄</span>
           </div>
         </header>
-
-        <nav class="page-tabs" id="pageTabs" aria-label="安全预警页面切换">
-          <button class="active" data-page="overview" type="button">场站总览</button>
-          <button data-page="risk" type="button">风险透视</button>
-          <button data-page="alarm" type="button">预警详情</button>
-        </nav>
 
         <section id="listView" class="view active-view" aria-labelledby="pageTitle">
           <div class="list-toolbar">
@@ -445,6 +459,6 @@
 
     <script src="site-data.js?v=20260415-siteconfig3"></script>
     <script src="risk-data.js?v=20260415-risk-list1"></script>
-    <script src="app.js?v=20260424-overview-alarm-batch8"></script>
+    <script src="app.js?v=20260424-sidebar-menu-batch1"></script>
   </body>
 </html>
