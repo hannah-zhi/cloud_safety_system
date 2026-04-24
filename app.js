@@ -192,6 +192,7 @@ function bindElements() {
     "alarmBatchBar",
     "alarmBatchCount",
     "alarmBatchAction",
+    "alarmBatchCancel",
     "alarmSelectionToast",
     "alarmInspectorBody",
     "alarmDetailModal",
@@ -314,11 +315,13 @@ function bindEvents() {
     els.alarmDetailEnd.value = "";
     state.selectedAlarm = null;
     state.detailAlarmSelectedIds.clear();
+    state.detailAlarmSelectionMode = false;
     renderAlarmDetailFilters();
     renderAlarmDetailPage();
   });
   els.alarmMultiSelectBtn?.addEventListener("click", enableAlarmSelectionMode);
   els.alarmBatchAction?.addEventListener("click", handleBatchAlarmProcess);
+  els.alarmBatchCancel?.addEventListener("click", cancelAlarmSelectionMode);
   els.alarmModalClose.addEventListener("click", closeAlarmModal);
   els.alarmModalMask.addEventListener("click", closeAlarmModal);
   document.addEventListener("keydown", (event) => {
@@ -1352,11 +1355,11 @@ function renderAlarmDetailPage() {
     .map(
       (alarm) => `
       <tr data-alarm-id="${alarm.id}" class="${state.detailAlarmSelectedIds.has(alarm.id) ? "selected" : ""}">
-        <td>
+        <td class="alarm-level-cell ${state.detailAlarmSelectionMode ? "selection-mode" : ""}">
           ${
             state.detailAlarmSelectionMode
               ? `<label class="alarm-row-check"><input type="checkbox" data-check-id="${alarm.id}" ${state.detailAlarmSelectedIds.has(alarm.id) ? "checked" : ""} /><i></i></label>`
-              : ""
+              : "<span class="alarm-row-check-placeholder"></span>"
           }
           <span class="alarm-level-table alarm-${alarm.type}">${alarm.level}</span>
         </td>
@@ -1433,10 +1436,19 @@ function enableAlarmSelectionMode(event) {
   renderAlarmDetailPage();
 }
 
+function cancelAlarmSelectionMode(event) {
+  event?.stopPropagation();
+  state.detailAlarmSelectionMode = false;
+  state.detailAlarmSelectedIds.clear();
+  hideAlarmRowContextMenu();
+  updateAlarmBatchBar();
+  renderAlarmDetailPage();
+}
+
 function showAlarmRowContextMenu(clientX, clientY) {
   if (!els.alarmRowContextMenu) return;
   els.alarmRowContextMenu.classList.add("show");
-  const menuWidth = 132;
+  const menuWidth = 100;
   const menuHeight = 44;
   const left = Math.min(clientX, window.innerWidth - menuWidth - 12);
   const top = Math.min(clientY, window.innerHeight - menuHeight - 12);
