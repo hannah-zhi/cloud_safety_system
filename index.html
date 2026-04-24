@@ -3,8 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>鐎瑰鍙忔０鍕劅 - 鏉╂粍娅欓弫鐗堟鏉╂劘鎯€缁崵绮?/title>
-    <link rel="stylesheet" href="styles.css?v=20260424-overview-alarm-batch1" />
+    <title>安全预警 - 远景数智运营系统</title>
+    <link rel="stylesheet" href="styles.css?v=20260424-restore-20260423-latest" />
   </head>
   <body>
     <div class="shell">
@@ -15,36 +15,36 @@
           </div>
           <div>
             <div class="brand-kicker">Hyper</div>
-            <div class="brand-name">鏉╂粍娅欓弫鐗堟鏉╂劘鎯€缁崵绮?/div>
+            <div class="brand-name">远景数智运营系统</div>
           </div>
         </div>
-        <nav class="nav" aria-label="娑撹顕遍懜?>
-          <a href="#"><span class="nav-icon">閳?/span>閸忋劍娅欏鍌濐潔</a>
-          <a class="active" href="#"><span class="nav-icon">閳?/span>鐎瑰鍙忔０鍕劅</a>
-          <a href="#"><span class="nav-icon">閳?/span>妞嬪酣娅撴潻鎰儉</a>
-          <a href="#"><span class="nav-icon">閳?/span>閸嬨儱鎮嶇粻锛勬倞</a>
-          <a href="#"><span class="nav-icon">閳?/span>鏉╂劘鎯€鐠囧嫪鍙?/a>
-          <a href="#"><span class="nav-icon">閳?/span>娴溿倖妲楅崡蹇撴倱</a>
-          <a href="#"><span class="nav-icon">閳?/span>閺佺増宓侀崚鍡樼€?/a>
-          <a href="#"><span class="nav-icon">閳?/span>閺佺増宓佹潻鎰儉</a>
+        <nav class="nav" aria-label="主导航">
+          <a href="#"><span class="nav-icon">▣</span>全景概览</a>
+          <a class="active" href="#"><span class="nav-icon">◉</span>安全预警</a>
+          <a href="#"><span class="nav-icon">⌁</span>风险运营</a>
+          <a href="#"><span class="nav-icon">♡</span>健康管理</a>
+          <a href="#"><span class="nav-icon">▤</span>运营评估</a>
+          <a href="#"><span class="nav-icon">⇄</span>交易协同</a>
+          <a href="#"><span class="nav-icon">◇</span>数据分析</a>
+          <a href="#"><span class="nav-icon">⚙</span>数据运营</a>
         </nav>
-        <button class="collapse-btn" type="button" aria-label="閺€鎯版崳娓氀嗙珶閺?>閳?/button>
+        <button class="collapse-btn" type="button" aria-label="收起侧边栏">≡</button>
       </aside>
 
       <main class="workspace">
         <header class="topbar">
-          <div class="topbar-spacer" id="pageTitle" aria-label="鐎瑰鍙忔０鍕劅"></div>
+          <div class="topbar-spacer" id="pageTitle" aria-label="安全预警"></div>
           <div class="top-actions">
             <span id="clock">--:--:--</span>
-            <span>缁崵绮虹粻锛勬倞閸?/span>
-            <span aria-hidden="true">閳?/span>
+            <span>系统管理员</span>
+            <span aria-hidden="true">⌄</span>
           </div>
         </header>
 
-        <nav class="page-tabs" id="pageTabs" aria-label="鐎瑰鍙忔０鍕劅妞ょ敻娼伴崚鍥ㄥ床">
-          <button class="active" data-page="overview" type="button">閸﹁櫣鐝幀鏄忣潔</button>
-          <button data-page="risk" type="button">妞嬪酣娅撻柅蹇氼潒</button>
-          <button data-page="alarm" type="button">妫板嫯顒熺拠锔藉剰</button>
+        <nav class="page-tabs" id="pageTabs" aria-label="安全预警页面切换">
+          <button class="active" data-page="overview" type="button">场站总览</button>
+          <button data-page="risk" type="button">风险透视</button>
+          <button data-page="alarm" type="button">预警详情</button>
         </nav>
 
         <section id="listView" class="view active-view" aria-labelledby="pageTitle">
@@ -52,18 +52,18 @@
             <div class="toolbar-left">
               <div class="station-combo" id="stationSelector">
                 <label class="combo-input">
-                  <span aria-hidden="true">閳?/span>
-                  <input id="searchInput" type="search" placeholder="閹兼粎鍌ㄩ崷铏圭彲" autocomplete="off" />
+                  <span aria-hidden="true">⌕</span>
+                  <input id="searchInput" type="search" placeholder="搜索场站" autocomplete="off" />
                   <strong id="selectedCount">110</strong>
                 </label>
               </div>
               <label class="sort-box">
-                <span aria-hidden="true">閳?/span>
-                <select id="sortSelect" aria-label="閹烘帒绨?>
-                  <option value="sosAsc" selected>SOS閺佹澘鈧?娴犲簼缍嗛崚浼寸彯</option>
-                  <option value="sosDesc">SOS閺佹澘鈧?娴犲酣鐝崚棰佺秵</option>
-                  <option value="idAsc">閸﹁櫣鐝紓鏍у娇-妞ゅ搫绨?/option>
-                  <option value="idDesc">閸﹁櫣鐝紓鏍у娇-閸婃帒绨?/option>
+                <span aria-hidden="true">☷</span>
+                <select id="sortSelect" aria-label="排序">
+                  <option value="sosAsc" selected>SOS数值-从低到高</option>
+                  <option value="sosDesc">SOS数值-从高到低</option>
+                  <option value="idAsc">场站编号-顺序</option>
+                  <option value="idDesc">场站编号-倒序</option>
                 </select>
               </label>
             </div>
@@ -73,82 +73,82 @@
           <div class="home-grid">
             <div class="station-workbench">
               <div class="overview-filter-row">
-                <div class="sos-range-panel" aria-label="SOS閺佹澘鈧壈瀵栭崶瀵哥摣闁?>
+                <div class="sos-range-panel" aria-label="SOS数值范围筛选">
                   <div class="sos-range-head">
-                    <span>SOS閼煎啫娲?/span>
+                    <span>SOS范围</span>
                     <div class="sos-number-inputs">
-                      <input id="sosMinInput" type="number" min="0" max="100" step="1" value="0" aria-label="SOS閺堚偓鐏忓繐鈧? />
+                      <input id="sosMinInput" type="number" min="0" max="100" step="1" value="0" aria-label="SOS最小值" />
                       <span>-</span>
-                      <input id="sosMaxInput" type="number" min="0" max="100" step="1" value="100" aria-label="SOS閺堚偓婢堆冣偓? />
+                      <input id="sosMaxInput" type="number" min="0" max="100" step="1" value="100" aria-label="SOS最大值" />
                     </div>
                   </div>
                   <div class="sos-range-slider">
                     <div class="sos-range-gradient"></div>
                     <div id="sosRangeFill" class="sos-range-fill"></div>
-                    <input id="sosMinRange" type="range" min="0" max="100" step="1" value="0" aria-label="SOS閺堚偓鐏忓繐鈧吋瀚嬮崝? />
-                    <input id="sosMaxRange" type="range" min="0" max="100" step="1" value="100" aria-label="SOS閺堚偓婢堆冣偓鍏煎珛閸? />
+                    <input id="sosMinRange" type="range" min="0" max="100" step="1" value="0" aria-label="SOS最小值拖动" />
+                    <input id="sosMaxRange" type="range" min="0" max="100" step="1" value="100" aria-label="SOS最大值拖动" />
                   </div>
                 </div>
-                <div class="status-row" id="statusFilters" aria-label="閻樿埖鈧胶鐡柅?></div>
+                <div class="status-row" id="statusFilters" aria-label="状态筛选"></div>
               </div>
               <div class="result-meta">
-                <span id="resultText">閸?110 娑擃亜婧€缁?/span>
-                <button id="clearFilterBtn" type="button">濞撳懐鈹栫粵娑⑩偓?/button>
+                <span id="resultText">共 110 个场站</span>
+                <button id="clearFilterBtn" type="button">清空筛选</button>
               </div>
               <div id="stationGrid" class="station-grid" aria-live="polite"></div>
             </div>
 
-            <aside class="alarm-panel" aria-label="妫板嫯顒熷〒鍛礋">
+            <aside class="alarm-panel" aria-label="预警清单">
               <div class="alarm-head">
                 <div>
-                  <div class="panel-title"><span></span>妫板嫯顒熷〒鍛礋</div>
-                  <p>閹稿顥撻梽鈺€寮楅柌宥呭濠婃艾濮╅崚閿嬫煀</p>
+                  <div class="panel-title"><span></span>预警清单</div>
+                  <p>按风险严重度滚动刷新</p>
                 </div>
-                <button id="alarmDetailJump" class="alarm-detail-link" type="button">閺屻儳婀呯拠锔藉剰</button>
+                <button id="alarmDetailJump" class="alarm-detail-link" type="button">查看详情</button>
               </div>
               <div class="alarm-tabs" id="alarmTabs">
-                <button class="active" data-type="all" type="button">閸忋劑鍎?<span id="alarmCountAll">0</span></button>
-                <button data-type="level1" type="button">娑撯偓缁?<span id="alarmCountLevel1">0</span></button>
-                <button data-type="level2" type="button">娴滃瞼楠?<span id="alarmCountLevel2">0</span></button>
-                <button data-type="level3" type="button">娑撳楠?<span id="alarmCountLevel3">0</span></button>
+                <button class="active" data-type="all" type="button">全部 <span id="alarmCountAll">0</span></button>
+                <button data-type="level1" type="button">一级 <span id="alarmCountLevel1">0</span></button>
+                <button data-type="level2" type="button">二级 <span id="alarmCountLevel2">0</span></button>
+                <button data-type="level3" type="button">三级 <span id="alarmCountLevel3">0</span></button>
               </div>
               <div class="alarm-time-tools">
-                <div class="alarm-quick-buttons" id="alarmTimeButtons" aria-label="妫板嫯顒熼弮鍫曟？韫囶偅宓庣粵娑⑩偓?>
-                  <button class="active" data-days="all" type="button">閸忋劑鍎?/button>
-                  <button data-days="30" type="button">閺堚偓鏉?0婢?/button>
-                  <button data-days="7" type="button">閺堚偓鏉?婢?/button>
-                  <button data-days="3" type="button">閺堚偓鏉?婢?/button>
+                <div class="alarm-quick-buttons" id="alarmTimeButtons" aria-label="预警时间快捷筛选">
+                  <button class="active" data-days="all" type="button">全部</button>
+                  <button data-days="30" type="button">最近30天</button>
+                  <button data-days="7" type="button">最近7天</button>
+                  <button data-days="3" type="button">最近3天</button>
                 </div>
-                <div class="alarm-date-range" aria-label="妫板嫯顒熼弮鍫曟？濞?>
-                  <input id="alarmStartDate" type="date" aria-label="瀵偓婵妫╅張? />
-                  <span>閼?/span>
-                  <input id="alarmEndDate" type="date" aria-label="缂佹挻娼弮銉︽埂" />
+                <div class="alarm-date-range" aria-label="预警时间段">
+                  <input id="alarmStartDate" type="date" aria-label="开始日期" />
+                  <span>至</span>
+                  <input id="alarmEndDate" type="date" aria-label="结束日期" />
                 </div>
               </div>
               <div class="alarm-summary alarm-source-summary">
-                <div><strong id="alarmCloudCount">--</strong><span>娴滄垹顏?/span></div>
-                <div><strong id="alarmStationCount">--</strong><span>缁旀瑧顏?/span></div>
+                <div><strong id="alarmCloudCount">--</strong><span>云端</span></div>
+                <div><strong id="alarmStationCount">--</strong><span>站端</span></div>
               </div>
               <div id="alarmList" class="alarm-list"></div>
             </aside>
           </div>
         </section>
 
-        <section id="riskView" class="view risk-view" aria-label="妞嬪酣娅撻柅蹇氼潒">
+        <section id="riskView" class="view risk-view" aria-label="风险透视">
           <div class="risk-summary-layout">
             <article class="panel risk-top-panel">
-              <div class="panel-title"><span></span>妞嬪酣娅撻崷铏圭彲 TOP5</div>
+              <div class="panel-title"><span></span>风险场站 TOP5</div>
               <div id="riskTopList" class="risk-top-list"></div>
             </article>
             <article class="panel risk-avg-panel">
-              <div class="panel-title"><span></span>閸忋劑鍣洪崷铏圭彲楠炲啿娼?SOS</div>
+              <div class="panel-title"><span></span>全量场站平均 SOS</div>
               <div class="risk-avg-gauge" id="riskAvgGauge">
                 <canvas id="riskAvgGaugeCanvas" width="300" height="180"></canvas>
                 <strong id="riskAvgSos">--</strong>
               </div>
             </article>
             <article class="panel">
-              <div class="panel-title"><span></span>閸﹁櫣鐝搴ㄦ珦缁涘楠囬崡鐘崇槷</div>
+              <div class="panel-title"><span></span>场站风险等级占比</div>
               <div class="donut-wrap">
                 <canvas id="riskPieCanvas" width="300" height="250"></canvas>
                 <div id="riskPieLegend" class="legend"></div>
@@ -156,23 +156,23 @@
             </article>
           </div>
 
-          <div class="risk-section-title">SOS 闁繗顫?/div>
+          <div class="risk-section-title">SOS 透视</div>
           <div class="risk-sos-grid">
             <article class="panel risk-bars-panel">
               <div class="panel-title-row">
-                <div class="panel-title"><span></span>閸﹁櫣鐝疭OS閸掑棗绔?/div>
+                <div class="panel-title"><span></span>场站SOS分布</div>
                 <div class="risk-bars-tools">
                   <div class="risk-legend">
-                    <span class="legend-red">妤傛﹢顥撻梽?/span>
-                    <span class="legend-yellow">娑擃參顥撻梽?/span>
-                    <span class="legend-green">娴ｅ酣顥撻梽?/span>
-                    <span class="legend-blue">閸嬨儱鎮?/span>
+                    <span class="legend-red">高风险</span>
+                    <span class="legend-yellow">中风险</span>
+                    <span class="legend-green">低风险</span>
+                    <span class="legend-blue">健康</span>
                   </div>
-                  <select id="riskBarSort" class="risk-sort-select" aria-label="閸﹁櫣鐝疭OS閸掑棗绔烽幒鎺戠碍">
-                    <option value="sosAsc" selected>SOS閺佹澘鈧?娴犲簼缍嗛崚浼寸彯</option>
-                    <option value="sosDesc">SOS閺佹澘鈧?娴犲酣鐝崚棰佺秵</option>
-                    <option value="idAsc">閸﹁櫣鐝紓鏍у娇-妞ゅ搫绨?/option>
-                    <option value="idDesc">閸﹁櫣鐝紓鏍у娇-閸婃帒绨?/option>
+                  <select id="riskBarSort" class="risk-sort-select" aria-label="场站SOS分布排序">
+                    <option value="sosAsc" selected>SOS数值-从低到高</option>
+                    <option value="sosDesc">SOS数值-从高到低</option>
+                    <option value="idAsc">场站编号-顺序</option>
+                    <option value="idDesc">场站编号-倒序</option>
                   </select>
                 </div>
               </div>
@@ -183,17 +183,17 @@
             </article>
             <article class="panel risk-trend-panel">
               <div class="panel-title-row">
-                <div class="panel-title"><span></span>閸忋劑鍣洪崷铏圭彲SOS鐡掑濞?/div>
+                <div class="panel-title"><span></span>全量场站SOS趋势</div>
                 <div class="range-buttons" id="riskTrendButtons">
-                  <button class="active" data-range="7" type="button">7婢?/button>
-                  <button data-range="15" type="button">15婢?/button>
-                  <button data-range="30" type="button">30婢?/button>
+                  <button class="active" data-range="7" type="button">7天</button>
+                  <button data-range="15" type="button">15天</button>
+                  <button data-range="30" type="button">30天</button>
                 </div>
               </div>
               <div class="risk-trend-legend">
-                <span class="trend-avg">閸忋劑鍣洪崷铏圭彲楠炲啿娼庨崐?/span>
-                <span class="trend-max">閺堚偓婢堆冣偓?/span>
-                <span class="trend-min">閺堚偓鐏忓繐鈧?/span>
+                <span class="trend-avg">全量场站平均值</span>
+                <span class="trend-max">最大值</span>
+                <span class="trend-min">最小值</span>
               </div>
               <div class="risk-trend-chart" id="riskTrendChart">
                 <canvas id="riskTrendCanvas" width="860" height="300"></canvas>
@@ -204,37 +204,37 @@
 
         </section>
 
-        <section id="alarmDetailView" class="view alarm-detail-view" aria-label="妫板嫯顒熺拠锔藉剰">
+        <section id="alarmDetailView" class="view alarm-detail-view" aria-label="预警详情">
           <div class="risk-alarm-grid alarm-overview-grid">
             <article class="panel">
-              <div class="panel-title"><span></span>妫板嫯顒熺粵澶岄獓閸楃姵鐦?/div>
+              <div class="panel-title"><span></span>预警等级占比</div>
               <div class="donut-wrap">
                 <canvas id="riskAlarmPieCanvas" width="300" height="250"></canvas>
                 <div id="riskAlarmPieLegend" class="legend"></div>
               </div>
             </article>
             <article class="panel risk-wide-panel">
-              <div class="panel-title"><span></span>妫板嫯顒熷Ο鈥虫健閸掑棗绔?/div>
+              <div class="panel-title"><span></span>预警模块分布</div>
               <div class="donut-wrap">
                 <canvas id="riskModuleCanvas" width="300" height="250"></canvas>
                 <div id="riskModuleLegend" class="legend"></div>
               </div>
             </article>
             <article class="panel risk-alarm-top-panel">
-              <div class="panel-title"><span></span>閸涘﹨顒熺猾璇茬€?TOP5</div>
+              <div class="panel-title"><span></span>告警类型 TOP5</div>
               <div id="riskAlarmNameTopList" class="risk-alarm-top-list"></div>
             </article>
           </div>
           <div class="panel alarm-detail-main">
             <div class="panel-title-row">
-              <div class="panel-title"><span></span>妞嬪酣娅撴０鍕劅閸掓銆?/div>
-              <button class="export-btn" type="button">鐎电厧鍤?/button>
+              <div class="panel-title"><span></span>风险预警列表</div>
+              <button class="export-btn" type="button">导出</button>
             </div>
             <div class="alarm-detail-filterbar">
-              <div class="alarm-detail-date" aria-label="閺冨爼妫跨粵娑⑩偓?>
-                <input id="alarmDetailStart" type="date" aria-label="瀵偓婵妞傞梻? />
-                <span>閳?/span>
-                <input id="alarmDetailEnd" type="date" aria-label="缂佹挻娼弮鍫曟？" />
+              <div class="alarm-detail-date" aria-label="时间筛选">
+                <input id="alarmDetailStart" type="date" aria-label="开始时间" />
+                <span>→</span>
+                <input id="alarmDetailEnd" type="date" aria-label="结束时间" />
               </div>
               <div id="alarmDetailLevel" class="alarm-multi-select" data-filter="level"></div>
               <div id="alarmDetailModule" class="alarm-multi-select" data-filter="module"></div>
@@ -242,22 +242,22 @@
               <div id="alarmDetailStation" class="alarm-multi-select searchable" data-filter="station"></div>
               <div id="alarmDetailLocation" class="alarm-multi-select searchable" data-filter="location"></div>
               <div id="alarmDetailSource" class="alarm-multi-select" data-filter="source"></div>
-              <button class="query-btn" type="button">閺屻儴顕?/button>
-              <button id="alarmDetailReset" class="reset-btn" type="button">闁插秶鐤?/button>
-              <div class="alarm-detail-count">閸?<strong id="alarmDetailCount">0</strong> 閺?/div>
+              <button class="query-btn" type="button">查询</button>
+              <button id="alarmDetailReset" class="reset-btn" type="button">重置</button>
+              <div class="alarm-detail-count">共 <strong id="alarmDetailCount">0</strong> 条</div>
             </div>
             <div class="alarm-detail-table-wrap">
               <table class="alarm-detail-table">
                 <thead>
                   <tr>
-                    <th>缁涘楠?/th>
-                    <th>妫板嫯顒熼崥宥囆?/th>
-                    <th>濡€虫健</th>
-                    <th>閸﹁櫣鐝?/th>
-                    <th>娴ｅ秶鐤?/th>
-                    <th>娴滃娆㈤弮鍫曟？</th>
-                    <th>妫板嫯顒熼弮鍫曟？</th>
-                    <th>閺夈儲绨?/th>
+                    <th>等级</th>
+                    <th>预警名称</th>
+                    <th>模块</th>
+                    <th>场站</th>
+                    <th>位置</th>
+                    <th>事件时间</th>
+                    <th>预警时间</th>
+                    <th>来源</th>
                   </tr>
                 </thead>
                 <tbody id="alarmDetailTable"></tbody>
@@ -266,37 +266,32 @@
           </div>
         </section>
 
-        <div id="alarmRowContextMenu" class="alarm-row-context-menu" aria-hidden="true">
-  <button id="alarmBatchHandleBtn" type="button">澶勭悊閫変腑棰勮</button>
-</div>
-<div id="alarmSelectionToast" class="alarm-selection-toast" aria-live="polite"></div>
-
-<div id="alarmDetailModal" class="alarm-modal" aria-hidden="true">
+        <div id="alarmDetailModal" class="alarm-modal" aria-hidden="true">
           <div class="alarm-modal-mask" id="alarmModalMask"></div>
-          <article class="alarm-modal-panel" role="dialog" aria-modal="true" aria-label="妫板嫯顒熺拠锔藉剰瀵湱鐛?>
-            <button id="alarmModalClose" class="alarm-modal-close" type="button">鑴?/button>
-            <div class="panel-title"><span></span>妫板嫯顒熺拠锔藉剰</div>
+          <article class="alarm-modal-panel" role="dialog" aria-modal="true" aria-label="预警详情弹窗">
+            <button id="alarmModalClose" class="alarm-modal-close" type="button">×</button>
+            <div class="panel-title"><span></span>预警详情</div>
             <div id="alarmInspectorBody" class="alarm-inspector-body"></div>
             <div class="alarm-modal-chart">
               <div class="panel-title-row">
-                <div class="panel-title"><span></span>閻╃鍙ч弫鐗堝祦鐡掑濞?/div>
-                <div id="alarmTrendLegend" class="alarm-trend-legend">鐎圭偞妞傞崐?/div>
+                <div class="panel-title"><span></span>相关数据趋势</div>
+                <div id="alarmTrendLegend" class="alarm-trend-legend">实时值</div>
               </div>
               <div class="alarm-trend-chart" id="alarmTrendChart">
                 <canvas id="alarmTrendCanvas" width="860" height="260"></canvas>
                 <div id="alarmTrendTooltip" class="risk-bars-tooltip"></div>
               </div>
               <div class="alarm-modal-actions">
-                <button type="button">婢跺嫮鎮?/button>
-                <button type="button">閸掑棙鐎?/button>
+                <button type="button">处理</button>
+                <button type="button">分析</button>
               </div>
             </div>
           </article>
         </div>
 
-        <section id="detailView" class="view detail-view" aria-label="閸楁洜鐝€瑰鍙忕拠锔藉剰">
+        <section id="detailView" class="view detail-view" aria-label="单站安全详情">
           <div class="detail-head">
-            <button id="backBtn" class="back-btn" type="button">閳?鏉╂柨娲栭崷铏圭彲閸掓銆?/button>
+            <button id="backBtn" class="back-btn" type="button">‹ 返回场站列表</button>
             <div>
               <h2 id="detailTitle">--</h2>
             </div>
@@ -311,21 +306,21 @@
             <div class="detail-chart-stack">
               <div class="dashboard-grid">
                 <article class="panel gauge-panel">
-                  <div class="panel-title"><span></span>閸忋劎鐝ぐ鎾冲 SOS 鐎瑰鍙忛幐鍥ㄦ殶</div>
+                  <div class="panel-title"><span></span>全站当前 SOS 安全指数</div>
                   <div class="gauge detail-sos-gauge" id="gauge">
                     <canvas id="gaugeCanvas" width="300" height="180"></canvas>
                     <strong class="gauge-value" id="gaugeValue">--</strong>
-                    <div class="gauge-label" id="gaugeLabel" hidden>瑜版挸澧犳搴ㄦ珦缁涘楠囬敍?-</div>
+                    <div class="gauge-label" id="gaugeLabel" hidden>当前风险等级：--</div>
                   </div>
                 </article>
 
                 <article class="panel trend-panel">
                   <div class="panel-title-row">
-                    <div class="panel-title"><span></span>閸忋劎鐝?SOS 鐎瑰鍙忛幐鍥ㄦ殶閸樺棗褰剁搾瀣◢</div>
+                    <div class="panel-title"><span></span>全站 SOS 安全指数历史趋势</div>
                     <div class="range-buttons" id="rangeButtons">
-                      <button class="active" data-range="7" type="button">7婢?/button>
-                      <button data-range="15" type="button">15婢?/button>
-                      <button data-range="30" type="button">30婢?/button>
+                      <button class="active" data-range="7" type="button">7天</button>
+                      <button data-range="15" type="button">15天</button>
+                      <button data-range="30" type="button">30天</button>
                     </div>
                   </div>
                   <div class="detail-trend-chart" id="detailTrendChart">
@@ -335,7 +330,7 @@
                 </article>
 
                 <article class="panel donut-panel">
-                  <div class="panel-title"><span></span>鐎涙劗閮寸紒鐔碱棑闂勨晝鐡戠痪褍鍨庣敮?/div>
+                  <div class="panel-title"><span></span>子系统风险等级分布</div>
                   <div class="donut-wrap">
                     <canvas id="donutCanvas" width="260" height="210"></canvas>
                     <div id="donutLegend" class="legend"></div>
@@ -344,19 +339,19 @@
 
                 <article class="panel subsystem-panel">
                   <div class="panel-title-row">
-                    <div class="panel-title"><span></span>閸氬嫬鐡欑化鑽ょ埠 SOS 鐎瑰鍙忛幐鍥ㄦ殶</div>
+                    <div class="panel-title"><span></span>各子系统 SOS 安全指数</div>
                     <div class="detail-bars-tools">
                       <div class="risk-legend">
-                        <span class="legend-red">妤傛﹢顥撻梽?/span>
-                        <span class="legend-yellow">娑擃參顥撻梽?/span>
-                        <span class="legend-green">娴ｅ酣顥撻梽?/span>
-                        <span class="legend-blue">閸嬨儱鎮?/span>
+                        <span class="legend-red">高风险</span>
+                        <span class="legend-yellow">中风险</span>
+                        <span class="legend-green">低风险</span>
+                        <span class="legend-blue">健康</span>
                       </div>
-                      <select id="subsystemSortBtn" class="risk-sort-select" aria-label="鐎涙劗閮寸紒鐑籓S閹烘帒绨?>
-                        <option value="idAsc">鐎涙劗閮寸紒鐔虹椽閸?妞ゅ搫绨?/option>
-                        <option value="idDesc">鐎涙劗閮寸紒鐔虹椽閸?閸婃帒绨?/option>
-                        <option value="sosAsc">SOS閺佹澘鈧?娴犲簼缍嗛崚浼寸彯</option>
-                        <option value="sosDesc">SOS閺佹澘鈧?娴犲酣鐝崚棰佺秵</option>
+                      <select id="subsystemSortBtn" class="risk-sort-select" aria-label="子系统SOS排序">
+                        <option value="idAsc">子系统编号-顺序</option>
+                        <option value="idDesc">子系统编号-倒序</option>
+                        <option value="sosAsc">SOS数值-从低到高</option>
+                        <option value="sosDesc">SOS数值-从高到低</option>
                       </select>
                     </div>
                   </div>
@@ -367,7 +362,7 @@
                 </article>
 
                 <article class="panel parts-panel">
-                  <div class="panel-title"><span></span>鐠佹儳顦柈銊ゆ SOS 閹稿洦鏆熼崚鍡樼€?/div>
+                  <div class="panel-title"><span></span>设备部件 SOS 指数分析</div>
                   <div class="box-chart-wrap" id="boxChartWrap">
                     <canvas id="boxCanvas" width="430" height="300"></canvas>
                     <div id="boxTooltip" class="risk-bars-tooltip"></div>
@@ -377,18 +372,18 @@
 
               <article class="panel table-panel">
                 <div class="panel-title-row">
-                  <div class="panel-title"><span></span>SOS 鐎瑰鍙忛幐鍥ㄦ殶鐠囷附鍎忓〒鍛礋</div>
-                  <button class="export-btn" type="button">鐎电厧鍤?/button>
+                  <div class="panel-title"><span></span>SOS 安全指数详情清单</div>
+                  <button class="export-btn" type="button">导出</button>
                 </div>
                 <div class="table-wrap">
                   <table>
                     <thead>
                       <tr>
-                        <th><button class="table-sort-btn" data-sort-key="name" type="button">鐎涙劗閮寸紒?/button></th>
-                        <th><button class="table-sort-btn active asc" data-sort-key="score" type="button">瑜版挸澧?SOS 閹稿洦鏆?/button></th>
-                        <th><button class="table-sort-btn" data-sort-key="date" type="button">閺囧瓨鏌婇弮銉︽埂</button></th>
-                        <th>妞嬪酣娅撻幓蹇氬牚</th>
-                        <th>婢跺嫮鐤嗗楦款唴</th>
+                        <th><button class="table-sort-btn" data-sort-key="name" type="button">子系统</button></th>
+                        <th><button class="table-sort-btn active asc" data-sort-key="score" type="button">当前 SOS 指数</button></th>
+                        <th><button class="table-sort-btn" data-sort-key="date" type="button">更新日期</button></th>
+                        <th>风险描述</th>
+                        <th>处置建议</th>
                       </tr>
                     </thead>
                     <tbody id="alertTable"></tbody>
@@ -396,35 +391,35 @@
                 </div>
               </article>
             </div>
-            <aside class="alarm-panel detail-alarm-panel" aria-label="閸楁洜鐝０鍕劅濞撳懎宕?>
+            <aside class="alarm-panel detail-alarm-panel" aria-label="单站预警清单">
               <div class="alarm-head">
                 <div>
-                  <div class="panel-title"><span></span>妫板嫯顒熷〒鍛礋</div>
-                  <p id="detailAlarmSubtitle">閹稿顥撻梽鈺€寮楅柌宥呭濠婃艾濮╅崚閿嬫煀</p>
+                  <div class="panel-title"><span></span>预警清单</div>
+                  <p id="detailAlarmSubtitle">按风险严重度滚动刷新</p>
                 </div>
               </div>
               <div class="alarm-tabs detail-alarm-tabs" id="detailAlarmTabs">
-                <button class="active" data-type="all" type="button">閸忋劑鍎?<span id="detailAlarmCountAll">0</span></button>
-                <button data-type="level1" type="button">娑撯偓缁?<span id="detailAlarmCountLevel1">0</span></button>
-                <button data-type="level2" type="button">娴滃瞼楠?<span id="detailAlarmCountLevel2">0</span></button>
-                <button data-type="level3" type="button">娑撳楠?<span id="detailAlarmCountLevel3">0</span></button>
+                <button class="active" data-type="all" type="button">全部 <span id="detailAlarmCountAll">0</span></button>
+                <button data-type="level1" type="button">一级 <span id="detailAlarmCountLevel1">0</span></button>
+                <button data-type="level2" type="button">二级 <span id="detailAlarmCountLevel2">0</span></button>
+                <button data-type="level3" type="button">三级 <span id="detailAlarmCountLevel3">0</span></button>
               </div>
               <div class="alarm-time-tools detail-alarm-time-tools">
-                <div class="alarm-quick-buttons" id="detailAlarmTimeButtons" aria-label="閸楁洜鐝０鍕劅閺冨爼妫胯箛顐ｅ祹缁涙盯鈧?>
-                  <button class="active" data-days="all" type="button">閸忋劑鍎?/button>
-                  <button data-days="30" type="button">閺堚偓鏉?0婢?/button>
-                  <button data-days="7" type="button">閺堚偓鏉?婢?/button>
-                  <button data-days="3" type="button">閺堚偓鏉?婢?/button>
+                <div class="alarm-quick-buttons" id="detailAlarmTimeButtons" aria-label="单站预警时间快捷筛选">
+                  <button class="active" data-days="all" type="button">全部</button>
+                  <button data-days="30" type="button">最近30天</button>
+                  <button data-days="7" type="button">最近7天</button>
+                  <button data-days="3" type="button">最近3天</button>
                 </div>
-                <div class="alarm-date-range" aria-label="閸楁洜鐝０鍕劅閺冨爼妫垮▓?>
-                  <input id="detailAlarmStartDate" type="date" aria-label="瀵偓婵妫╅張? />
-                  <span>閼?/span>
-                  <input id="detailAlarmEndDate" type="date" aria-label="缂佹挻娼弮銉︽埂" />
+                <div class="alarm-date-range" aria-label="单站预警时间段">
+                  <input id="detailAlarmStartDate" type="date" aria-label="开始日期" />
+                  <span>至</span>
+                  <input id="detailAlarmEndDate" type="date" aria-label="结束日期" />
                 </div>
               </div>
               <div class="alarm-summary alarm-source-summary">
-                <div><strong id="detailAlarmCloudCount">--</strong><span>娴滄垹顏?/span></div>
-                <div><strong id="detailAlarmStationCount">--</strong><span>缁旀瑧顏?/span></div>
+                <div><strong id="detailAlarmCloudCount">--</strong><span>云端</span></div>
+                <div><strong id="detailAlarmStationCount">--</strong><span>站端</span></div>
               </div>
               <div id="detailAlarmList" class="alarm-list detail-alarm-list"></div>
             </aside>
@@ -438,6 +433,6 @@
 
     <script src="site-data.js?v=20260415-siteconfig3"></script>
     <script src="risk-data.js?v=20260415-risk-list1"></script>
-    <script src="app.js?v=20260424-overview-alarm-batch1"></script>
+    <script src="app.js?v=20260424-restore-20260423-latest"></script>
   </body>
 </html>
