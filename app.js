@@ -1463,15 +1463,7 @@ function hideAlarmRowContextMenu() {
 
 function handleBatchAlarmProcess(event) {
   event.stopPropagation();
-  const count = state.detailAlarmSelectedIds.size;
-  if (!count || !els.alarmSelectionToast) return;
   hideAlarmRowContextMenu();
-  els.alarmSelectionToast.textContent = "批量处理功能预留中，已选 " + count + " 条预警";
-  els.alarmSelectionToast.classList.add("show");
-  clearTimeout(handleBatchAlarmProcess.toastTimer);
-  handleBatchAlarmProcess.toastTimer = setTimeout(() => {
-    els.alarmSelectionToast.classList.remove("show");
-  }, 2200);
 }
 
 function filterAlarmDetailItems() {
