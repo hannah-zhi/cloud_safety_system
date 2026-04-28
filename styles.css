@@ -2594,6 +2594,7 @@ h2 {
   width: 100%;
   border-collapse: collapse;
   font-size: 12px;
+  table-layout: fixed;
 }
 
 .alarm-detail-table th,
@@ -2604,12 +2605,23 @@ h2 {
   vertical-align: top;
 }
 
+.alarm-detail-table th:first-child,
+.alarm-detail-table td:first-child {
+  width: 118px;
+  box-sizing: border-box;
+}
+
 .alarm-detail-table th:first-child {
-  padding-left: 52px;
+  padding-left: 22px;
 }
 
 .alarm-detail-table td:first-child {
   padding-left: 22px;
+}
+
+.alarm-detail-table th:nth-child(2),
+.alarm-detail-table td:nth-child(2) {
+  width: 250px;
 }
 
 .alarm-detail-table th {
@@ -2707,6 +2719,7 @@ h2 {
   align-items: center;
   gap: 8px;
   white-space: nowrap;
+  min-height: 22px;
 }
 
 .alarm-level-cell .alarm-level-table {
