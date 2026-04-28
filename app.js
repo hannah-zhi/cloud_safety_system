@@ -1365,13 +1365,15 @@ function renderAlarmDetailPage() {
     .map(
       (alarm) => `
       <tr data-alarm-id="${alarm.id}" class="${state.detailAlarmSelectedIds.has(alarm.id) ? "selected" : ""}">
-        <td class="alarm-level-cell ${state.detailAlarmSelectionMode ? "selection-mode" : ""}">
-          ${
-            state.detailAlarmSelectionMode
-              ? `<label class="alarm-row-check"><input type="checkbox" data-check-id="${alarm.id}" ${state.detailAlarmSelectedIds.has(alarm.id) ? "checked" : ""} /><i></i></label>`
-              : '<span class="alarm-row-check-placeholder"></span>'
-          }
-          <span class="alarm-level-table alarm-${alarm.type}">${alarm.level}</span>
+        <td class="alarm-level-cell">
+          <div class="alarm-level-cell-inner ${state.detailAlarmSelectionMode ? "selection-mode" : ""}">
+            ${
+              state.detailAlarmSelectionMode
+                ? `<label class="alarm-row-check"><input type="checkbox" data-check-id="${alarm.id}" ${state.detailAlarmSelectedIds.has(alarm.id) ? "checked" : ""} /><i></i></label>`
+                : '<span class="alarm-row-check-placeholder"></span>'
+            }
+            <span class="alarm-level-table alarm-${alarm.type}">${alarm.level}</span>
+          </div>
         </td>
         <td>${alarm.title}</td>
         <td>${alarm.module}</td>
