@@ -2287,12 +2287,28 @@ function levelToType(level) {
   return { 一级: "level1", 二级: "level2", 三级: "level3" }[level] ?? "level3";
 }
 
+function alarmTemplateWeight(template) {
+  const weightMap = {
+    铜排螺栓松动/绝缘子故障: 7,
+    多电芯容量偏高异常: 6,
+    PCS控制参数调整-进口水温偏低: 5,
+    单电芯温度偏低: 4,
+    多颗电芯温度偏低/电芯温度一致性差: 3,
+    单电芯SOC偏高异常: 3,
+    多电芯SOC偏高异常: 2,
+    直流主控配电柜空调长时间温度异常: 2,
+  };
+  return weightMap[template.name] ?? 1;
+}
+
 function pickRiskTemplate(templates, index) {
   const fallback = { name: "子系统SOC不均衡提示", module: "电池系统", level: "三级", locationFormat: "#1子系统-Rack101-Pack1-Cell2" };
   if (!templates.length) return fallback;
   const level = index < 35 ? "一级" : index < 105 ? "二级" : "三级";
   const pool = templates.filter((item) => item.level === level);
-  return (pool.length ? pool : templates)[index % (pool.length ? pool.length : templates.length)];
+  const source = pool.length ? pool : templates;
+  const weightedPool = source.flatMap((item) => Array.from({ length: alarmTemplateWeight(item) }, () => item));
+  return weightedPool[index % weightedPool.length];
 }
 
 function createAlarmLocation(format, station, index) {
