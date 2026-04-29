@@ -1353,6 +1353,9 @@ document.addEventListener("click", () => {
 
 function renderAlarmDetailPage() {
   const alarms = filterAlarmDetailItems();
+  if (state.activePage === "alarm") {
+    renderAlarmOverview(alarms);
+  }
   const visibleIds = new Set(alarms.map((alarm) => alarm.id));
   state.detailAlarmSelectedIds.forEach((id) => {
     if (!visibleIds.has(id)) state.detailAlarmSelectedIds.delete(id);
@@ -1542,8 +1545,7 @@ function renderAlarmInspector(alarm) {
   }
 }
 
-function renderAlarmOverview() {
-  const alarms = state.allAlarms;
+function renderAlarmOverview(alarms = filterAlarmDetailItems()) {
   renderSafely(() => renderRiskAlarmPie(alarms));
   renderSafely(() => renderRiskModules(alarms));
   renderSafely(() => renderRiskAlarmNameTop(alarms));
