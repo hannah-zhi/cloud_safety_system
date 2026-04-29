@@ -1146,11 +1146,9 @@ function renderRiskAlarmNameTop(alarms) {
   const counts = new Map();
   alarms.forEach((alarm) => counts.set(alarm.title, (counts.get(alarm.title) || 0) + 1));
   const top = [...counts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5);
-  const adjusted = top.map(([name, count], index) => [name, Math.max(1, count + [9, 5, 2, -2, -5][index])]);
-  const max = Math.max(1, ...adjusted.map(([, count]) => count));
+  const max = Math.max(1, ...top.map(([, count]) => count));
   els.riskAlarmNameTopList.innerHTML = top
-    .map(([name], index) => {
-      const count = adjusted[index][1];
+    .map(([name, count], index) => {
       const color = colorSet[index % colorSet.length];
       return `
         <div class="alarm-name-top-row" style="--top-color:${color}">
