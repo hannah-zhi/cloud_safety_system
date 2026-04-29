@@ -2574,6 +2574,7 @@ h2 {
   width: 100%;
   border-collapse: collapse;
   font-size: 12px;
+  table-layout: fixed;
 }
 
 .alarm-detail-table th,
@@ -2590,6 +2591,43 @@ h2 {
 
 .alarm-detail-table td:first-child {
   padding-left: 22px;
+}
+
+.alarm-detail-table th:nth-child(1),
+.alarm-detail-table td:nth-child(1) {
+  width: 8%;
+}
+
+.alarm-detail-table th:nth-child(2),
+.alarm-detail-table td:nth-child(2) {
+  width: 22%;
+}
+
+.alarm-detail-table th:nth-child(3),
+.alarm-detail-table td:nth-child(3) {
+  width: 8%;
+}
+
+.alarm-detail-table th:nth-child(4),
+.alarm-detail-table td:nth-child(4) {
+  width: 16%;
+}
+
+.alarm-detail-table th:nth-child(5),
+.alarm-detail-table td:nth-child(5) {
+  width: 18%;
+}
+
+.alarm-detail-table th:nth-child(6),
+.alarm-detail-table td:nth-child(6),
+.alarm-detail-table th:nth-child(7),
+.alarm-detail-table td:nth-child(7) {
+  width: 11%;
+}
+
+.alarm-detail-table th:nth-child(8),
+.alarm-detail-table td:nth-child(8) {
+  width: 6%;
 }
 
 .alarm-detail-table th {
