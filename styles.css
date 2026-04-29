@@ -2600,7 +2600,7 @@ h2 {
 
 .alarm-detail-table th:nth-child(2),
 .alarm-detail-table td:nth-child(2) {
-  width: 22%;
+  width: 20%;
 }
 
 .alarm-detail-table th:nth-child(3),
@@ -2610,7 +2610,7 @@ h2 {
 
 .alarm-detail-table th:nth-child(4),
 .alarm-detail-table td:nth-child(4) {
-  width: 16%;
+  width: 18%;
 }
 
 .alarm-detail-table th:nth-child(5),
