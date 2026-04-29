@@ -172,8 +172,7 @@ button {
   color: #d7e7ff;
 }
 
-.nav-group.is-open > .nav-link,
-.nav-subgroup.is-open > .nav-sublink {
+.nav-group.is-open > .nav-link {
   color: #d9e3f7;
 }
 
@@ -192,19 +191,16 @@ button {
   transition: transform 0.18s ease, opacity 0.18s ease;
 }
 
-.nav-group.is-open > .nav-link .nav-caret,
-.nav-subgroup.is-open > .nav-sublink .nav-caret {
+.nav-group.is-open > .nav-link .nav-caret {
   transform: rotate(225deg);
   opacity: 1;
 }
 
-.nav-children,
-.nav-grandchildren {
+.nav-children {
   display: none;
 }
 
-.nav-group.is-open > .nav-children,
-.nav-subgroup.is-open > .nav-grandchildren {
+.nav-group.is-open > .nav-children {
   display: block;
 }
 
@@ -212,10 +208,6 @@ button {
   margin-top: 6px;
   padding-left: 0;
   border-left: 1px solid rgba(73, 91, 128, 0.28);
-}
-
-.nav-subgroup {
-  margin-bottom: 6px;
 }
 
 .nav-sublink {
@@ -237,20 +229,11 @@ button {
   display: grid;
   gap: 6px;
   margin-top: 6px;
-  padding-left: 38px;
+  padding-left: 0;
 }
 
 .nav-page-link {
-  height: 30px;
-  border: 0;
-  border-radius: 4px;
-  background: transparent;
   color: #8f9bb0;
-  text-align: left;
-  padding: 0 12px;
-  font-size: 13px;
-  cursor: pointer;
-  transition: background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
 }
 
 .nav-page-link:hover {
@@ -2154,10 +2137,7 @@ h2 {
 }
 
 .risk-section-title {
-  margin: 18px 0 10px;
-  color: #d8e8ff;
-  font-size: 16px;
-  font-weight: 600;
+  display: none;
 }
 
 .risk-sos-grid,
