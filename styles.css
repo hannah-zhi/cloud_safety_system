@@ -2479,7 +2479,7 @@ h2 {
   height: 8px;
   border-right: 1.5px solid #d8deea;
   border-bottom: 1.5px solid #d8deea;
-  transform: translateY(-65%) rotate(45deg);
+  transform: translateY(-50%) rotate(45deg);
   opacity: 0.9;
   pointer-events: none;
   transition: transform 0.18s ease, opacity 0.18s ease;
@@ -2497,7 +2497,7 @@ h2 {
 }
 
 .alarm-multi-select.open .alarm-multi-trigger::after {
-  transform: translateY(-25%) rotate(225deg);
+  transform: translateY(-50%) rotate(225deg);
 }
 
 .alarm-multi-menu {
@@ -2505,7 +2505,8 @@ h2 {
   position: absolute;
   top: 38px;
   left: 0;
-  width: min(360px, 90vw);
+  width: 100%;
+  min-width: 100%;
   max-height: 320px;
   z-index: 2147483000;
   border: 1px solid rgba(69, 77, 98, 0.9);
@@ -2513,6 +2514,11 @@ h2 {
   background: #171a24;
   box-shadow: 0 24px 52px rgba(0, 0, 0, 0.68), 0 0 0 1px rgba(18, 152, 255, 0.2);
   padding: 8px;
+}
+
+.alarm-multi-select.searchable .alarm-multi-menu {
+  width: min(360px, 90vw);
+  min-width: 100%;
 }
 
 .alarm-multi-select.open .alarm-multi-menu {
