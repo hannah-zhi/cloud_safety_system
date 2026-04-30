@@ -2466,6 +2466,23 @@ h2 {
   display: flex;
   align-items: center;
   text-align: left;
+  position: relative;
+  padding-right: 28px;
+}
+
+.alarm-multi-trigger::after {
+  content: "";
+  position: absolute;
+  right: 11px;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  border-right: 1.5px solid #d8deea;
+  border-bottom: 1.5px solid #d8deea;
+  transform: translateY(-65%) rotate(45deg);
+  opacity: 0.9;
+  pointer-events: none;
+  transition: transform 0.18s ease, opacity 0.18s ease;
 }
 
 .alarm-multi-trigger span {
@@ -2480,8 +2497,7 @@ h2 {
 }
 
 .alarm-multi-select.open .alarm-multi-trigger::after {
-  margin-top: 4px;
-  transform: rotate(225deg);
+  transform: translateY(-25%) rotate(225deg);
 }
 
 .alarm-multi-menu {
