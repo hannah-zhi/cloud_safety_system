@@ -2474,7 +2474,7 @@ h2 {
   content: "";
   position: absolute;
   right: 11px;
-  top: 58%;
+  top: 50%;
   width: 8px;
   height: 8px;
   border-right: 1.5px solid #d8deea;
@@ -2494,10 +2494,6 @@ h2 {
 
 .alarm-multi-select.open .alarm-multi-trigger {
   border-color: rgba(18, 152, 255, 0.72);
-}
-
-.alarm-multi-select.open .alarm-multi-trigger::after {
-  transform: translateY(-50%) rotate(225deg);
 }
 
 .alarm-multi-menu {
