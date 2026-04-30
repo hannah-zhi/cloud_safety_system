@@ -2497,7 +2497,7 @@ h2 {
 }
 
 .alarm-multi-select.open .alarm-multi-trigger::after {
-  transform: translateY(-50%) rotate(225deg);
+  transform: translateY(-38%) rotate(225deg);
 }
 
 .alarm-multi-menu {
