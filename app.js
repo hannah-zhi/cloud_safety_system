@@ -697,7 +697,7 @@ function createStationCard(station) {
       </div>
       <div class="metrics">
         <div class="metric"><span>通讯状态</span><strong>${commMeta[station.comm].label}</strong></div>
-        <div class="metric"><span>额定能量/容量</span><strong>${station.ratedEnergy}MWh/${station.rated}MW</strong></div>
+        <div class="metric"><span>额定容量/能量</span><strong>${station.rated}MW/${station.ratedEnergy}MWh</strong></div>
         <div class="metric"><span>子系统数量</span><strong>${station.subsystemCount}</strong></div>
         <div class="metric"><span>场站类型</span><strong>${station.stationType}</strong></div>
       </div>
