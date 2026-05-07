@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>安全预警 - 远景数智运营系统</title>
-    <link rel="stylesheet" href="styles.css?v=20260508-alarm-workflow1" />
+    <link rel="stylesheet" href="styles.css?v=20260508-alarm-workflow2" />
   </head>
   <body>
     <div class="shell">
@@ -303,8 +303,16 @@
                 <button id="alarmProcessBtn" type="button">处理</button>
                 <button id="alarmAnalysisBtn" type="button">分析</button>
               </div>
-              <div id="alarmProcessPanel" class="alarm-process-panel"></div>
             </div>
+          </article>
+        </div>
+
+        <div id="alarmProcessModal" class="alarm-modal alarm-process-modal" aria-hidden="true">
+          <div class="alarm-modal-mask" id="alarmProcessModalMask"></div>
+          <article class="alarm-modal-panel alarm-process-modal-panel" role="dialog" aria-modal="true" aria-label="预警处理弹窗">
+            <button id="alarmProcessModalClose" class="alarm-modal-close" type="button">×</button>
+            <div class="panel-title"><span></span>预警处理</div>
+            <div id="alarmProcessPanel" class="alarm-process-panel"></div>
           </article>
         </div>
 
@@ -452,6 +460,6 @@
 
     <script src="site-data.js?v=20260415-siteconfig3"></script>
     <script src="risk-data.js?v=20260415-risk-list1"></script>
-    <script src="app.js?v=20260508-alarm-workflow1"></script>
+    <script src="app.js?v=20260508-alarm-workflow2"></script>
   </body>
 </html>

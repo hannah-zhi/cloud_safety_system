@@ -205,6 +205,9 @@ function bindElements() {
     "alarmTrendTooltip",
     "alarmProcessBtn",
     "alarmAnalysisBtn",
+    "alarmProcessModal",
+    "alarmProcessModalMask",
+    "alarmProcessModalClose",
     "alarmProcessPanel",
     "boxChartWrap",
     "boxTooltip",
@@ -340,6 +343,8 @@ function bindEvents() {
   els.alarmBatchCancel?.addEventListener("click", cancelAlarmSelectionMode);
   els.alarmModalClose.addEventListener("click", closeAlarmModal);
   els.alarmModalMask.addEventListener("click", closeAlarmModal);
+  els.alarmProcessModalClose?.addEventListener("click", closeAlarmProcessModal);
+  els.alarmProcessModalMask?.addEventListener("click", closeAlarmProcessModal);
   els.alarmProcessBtn?.addEventListener("click", () => {
     state.alarmProcessMode = state.selectedAlarmGroup?.srCompleted ? "srClose" : "choose";
     renderAlarmProcessPanel();
@@ -349,7 +354,10 @@ function bindEvents() {
     renderAlarmProcessPanel();
   });
   document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape") closeAlarmModal();
+    if (event.key === "Escape") {
+      if (els.alarmProcessModal?.classList.contains("show")) closeAlarmProcessModal();
+      else closeAlarmModal();
+    }
   });
   els.alarmTrendCanvas.addEventListener("mousemove", handleAlarmTrendHover);
   els.alarmTrendCanvas.addEventListener("mouseleave", () => {
@@ -1528,7 +1536,7 @@ function filterAlarmDetailItems() {
 }
 
 function alarmGroupKey(alarm) {
-  return [alarm.title, alarm.module, alarm.stationId, alarm.location].join("||");
+  return [alarm.title, alarm.module, alarm.stationId, alarm.location, alarm.source].join("||");
 }
 
 function alarmTimestamp(alarm, key = "warningTime") {
@@ -1603,17 +1611,36 @@ function renderAlarmInspector(alarmOrGroup) {
       <strong>${alarm.title}</strong>
       <p>${alarm.level === "一级" ? "立即复核云端诊断结果并安排现场排查。" : alarm.level === "二级" ? "持续观察趋势，纳入当班巡检计划。" : "记录风险变化，按计划跟踪闭环。"}</p>
     </div>
-    <div class="alarm-group-strip">
-      ${group.alarms
-        .map(
-          (item, index) => `
-        <button class="alarm-group-card ${item.id === alarm.id ? "active" : ""}" type="button" data-alarm-id="${item.id}">
-          <span>${index === 0 ? "最新预警" : `历史预警 ${index + 1}`}</span>
-          <strong>${item.warningTime}</strong>
-          <em>${item.source} · ${item.status}</em>
-        </button>`
-        )
-        .join("")}
+    <div class="alarm-group-table-wrap">
+      <table class="alarm-group-table">
+        <thead>
+          <tr>
+            <th>序号</th>
+            <th>等级</th>
+            <th>事件时间</th>
+            <th>预警时间</th>
+            <th>来源</th>
+            <th>状态</th>
+            <th>位置</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${group.alarms
+            .map(
+              (item, index) => `
+            <tr class="${item.id === alarm.id ? "active" : ""}" data-alarm-id="${item.id}">
+              <td>${index === 0 ? "最新" : `历史 ${index + 1}`}</td>
+              <td><span class="alarm-level-table alarm-${item.type}">${item.level}</span></td>
+              <td>${item.eventTime}</td>
+              <td>${item.warningTime}</td>
+              <td><span class="alarm-source alarm-source-${item.source === "云端" ? "cloud" : "station"}">${item.source}</span></td>
+              <td><span class="alarm-status-pill ${statusClass(item.status)}">${item.status}</span></td>
+              <td>${item.location}</td>
+            </tr>`
+            )
+            .join("")}
+        </tbody>
+      </table>
     </div>
     <div class="alarm-detail-meta">
       <div class="alarm-detail-meta-card alarm-detail-meta-card-source">
@@ -1635,14 +1662,14 @@ function renderAlarmInspector(alarmOrGroup) {
       <div class="alarm-detail-meta-card"><span>当前状态</span><strong class="alarm-status-text">${alarm.status}</strong></div>
     </div>
   `;
-  els.alarmInspectorBody.querySelectorAll(".alarm-group-card").forEach((button) => {
-    button.addEventListener("click", () => {
-      state.activeModalAlarmId = button.dataset.alarmId;
+  els.alarmInspectorBody.querySelectorAll(".alarm-group-table tbody tr").forEach((row) => {
+    row.addEventListener("click", () => {
+      state.activeModalAlarmId = row.dataset.alarmId;
       state.selectedAlarm = group.alarms.find((item) => item.id === state.activeModalAlarmId) || group.latest;
       renderAlarmInspector(group);
       renderAlarmTrend(state.selectedAlarm);
       state.alarmProcessMode = null;
-      renderAlarmProcessPanel();
+      closeAlarmProcessModal();
     });
   });
   const jumpButton = els.alarmInspectorBody.querySelector(".alarm-linked-jump");
@@ -1671,7 +1698,7 @@ function openAlarmModal(alarm) {
   els.alarmDetailModal.classList.add("show");
   els.alarmDetailModal.setAttribute("aria-hidden", "false");
   renderAlarmTrend(group.latest);
-  renderAlarmProcessPanel();
+  closeAlarmProcessModal();
 }
 
 function closeAlarmModal() {
@@ -1680,17 +1707,32 @@ function closeAlarmModal() {
   els.alarmDetailModal.setAttribute("aria-hidden", "true");
   els.alarmTrendTooltip.classList.remove("show");
   state.alarmProcessMode = null;
-  if (els.alarmProcessPanel) els.alarmProcessPanel.classList.remove("show");
+  closeAlarmProcessModal();
+}
+
+function closeAlarmProcessModal() {
+  if (!els.alarmProcessModal) return;
+  els.alarmProcessModal.classList.remove("show");
+  els.alarmProcessModal.setAttribute("aria-hidden", "true");
+  state.alarmProcessMode = null;
+  if (els.alarmProcessPanel) {
+    els.alarmProcessPanel.classList.remove("show");
+    els.alarmProcessPanel.innerHTML = "";
+  }
 }
 
 function renderAlarmProcessPanel() {
   if (!els.alarmProcessPanel) return;
   const group = state.selectedAlarmGroup;
   if (!group || !state.alarmProcessMode) {
+    els.alarmProcessModal?.classList.remove("show");
+    els.alarmProcessModal?.setAttribute("aria-hidden", "true");
     els.alarmProcessPanel.classList.remove("show");
     els.alarmProcessPanel.innerHTML = "";
     return;
   }
+  els.alarmProcessModal?.classList.add("show");
+  els.alarmProcessModal?.setAttribute("aria-hidden", "false");
   els.alarmProcessPanel.classList.add("show");
   if (state.alarmProcessMode === "analysis") {
     els.alarmProcessPanel.innerHTML = `

@@ -2983,46 +2983,45 @@ h2 {
   line-height: 1.55;
 }
 
-.alarm-group-strip {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-  gap: 10px;
+.alarm-group-table-wrap {
   margin-top: 12px;
-}
-
-.alarm-group-card {
-  min-height: 72px;
-  padding: 9px 10px;
   border: 1px solid rgba(57, 63, 82, 0.76);
-  border-radius: 4px;
   background: rgba(12, 14, 22, 0.34);
+  overflow: auto;
+}
+
+.alarm-group-table {
+  width: 100%;
+  min-width: 780px;
+  border-collapse: collapse;
+}
+
+.alarm-group-table th,
+.alarm-group-table td {
+  height: 36px;
+  padding: 0 10px;
+  border-bottom: 1px solid rgba(57, 63, 82, 0.58);
   color: #dce4f2;
-  text-align: left;
-}
-
-.alarm-group-card:hover,
-.alarm-group-card.active {
-  border-color: rgba(18, 152, 255, 0.72);
-  background:
-    linear-gradient(180deg, rgba(18, 152, 255, 0.17), rgba(18, 152, 255, 0.06)),
-    rgba(12, 14, 22, 0.5);
-}
-
-.alarm-group-card span,
-.alarm-group-card em {
-  display: block;
-  color: #8f99ad;
   font-size: 12px;
-  font-style: normal;
-  line-height: 1.35;
+  text-align: left;
+  white-space: nowrap;
 }
 
-.alarm-group-card strong {
-  display: block;
-  margin: 6px 0;
-  color: #f4f8ff;
-  font-size: 13px;
-  line-height: 1.25;
+.alarm-group-table th {
+  background: rgba(44, 47, 60, 0.82);
+  color: #8f99ad;
+  font-weight: 500;
+}
+
+.alarm-group-table tbody tr {
+  cursor: pointer;
+}
+
+.alarm-group-table tbody tr:hover,
+.alarm-group-table tbody tr.active {
+  background:
+    linear-gradient(90deg, rgba(18, 152, 255, 0.18), rgba(18, 152, 255, 0.05)),
+    rgba(12, 14, 22, 0.42);
 }
 
 .alarm-detail-badges {
@@ -3149,6 +3148,19 @@ h2 {
   padding: 18px;
 }
 
+.alarm-process-modal {
+  z-index: 20020;
+}
+
+.alarm-process-modal .alarm-modal-mask {
+  background: rgba(0, 0, 0, 0.42);
+}
+
+.alarm-process-modal-panel {
+  width: min(760px, calc(100vw - 80px));
+  max-height: calc(100vh - 96px);
+}
+
 .alarm-modal-close {
   position: absolute;
   top: 12px;
@@ -3202,7 +3214,7 @@ h2 {
 
 .alarm-process-panel {
   display: none;
-  margin-top: 12px;
+  margin-top: 14px;
   padding: 12px;
   border: 1px solid rgba(73, 91, 128, 0.52);
   border-radius: 4px;
@@ -3295,7 +3307,7 @@ h2 {
 
 .sr-form-grid {
   display: grid;
-  grid-template-columns: 0.8fr 0.9fr 1.4fr 1.1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1px;
   border: 1px solid rgba(57, 63, 82, 0.76);
   background: rgba(57, 63, 82, 0.76);
@@ -3327,6 +3339,10 @@ h2 {
 }
 
 .sr-attachment-field {
+  grid-column: span 2;
+}
+
+.sr-guide-field {
   grid-column: span 2;
 }
 
