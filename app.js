@@ -1543,6 +1543,15 @@ function alarmTimestamp(alarm, key = "warningTime") {
   return new Date(String(alarm[key] || "").replace(/\//g, "-")).getTime() || 0;
 }
 
+function alarmDurationHours(alarm) {
+  return Math.max(1, ((alarm.id.length * 7) % 24) + (alarm.type === "level1" ? 6 : alarm.type === "level2" ? 3 : 1));
+}
+
+function beijingDateTimeLocal(date = new Date()) {
+  const beijing = new Date(date.getTime() + 8 * 60 * 60 * 1000);
+  return beijing.toISOString().slice(0, 16);
+}
+
 function groupAlarmsForTable(alarms) {
   const map = new Map();
   alarms.forEach((alarm) => {
@@ -1600,16 +1609,21 @@ function renderAlarmInspector(alarmOrGroup) {
     els.alarmInspectorBody.textContent = "点击任意预警查看完整内容";
     return;
   }
-  const duration = Math.max(1, ((alarm.id.length * 7) % 24) + (alarm.type === "level1" ? 6 : alarm.type === "level2" ? 3 : 1));
   const linked = alarm.linkedAlarmId ? state.allAlarms.find((item) => item.id === alarm.linkedAlarmId) : null;
   els.alarmInspectorBody.innerHTML = `
     <div class="alarm-detail-hero alarm-hero-${alarm.type}">
+      <span class="alarm-source-corner alarm-source-corner-${alarm.source === "云端" ? "cloud" : "station"}">${alarm.source}</span>
       <div class="alarm-detail-badges">
         <span class="alarm-level-table alarm-${alarm.type}">${alarm.level}</span>
         <span class="alarm-module-pill">${alarm.module}</span>
       </div>
       <strong>${alarm.title}</strong>
       <p>${alarm.level === "一级" ? "立即复核云端诊断结果并安排现场排查。" : alarm.level === "二级" ? "持续观察趋势，纳入当班巡检计划。" : "记录风险变化，按计划跟踪闭环。"}</p>
+      ${
+        linked
+          ? `<button class="alarm-linked-jump" type="button" data-linked-id="${linked.id}">${alarm.source === "云端" ? "查看关联站端预警" : "查看关联云端预警"}</button>`
+          : ""
+      }
     </div>
     <div class="alarm-group-table-wrap">
       <table class="alarm-group-table">
@@ -1617,11 +1631,11 @@ function renderAlarmInspector(alarmOrGroup) {
           <tr>
             <th>序号</th>
             <th>等级</th>
+            <th>位置</th>
             <th>事件时间</th>
             <th>预警时间</th>
-            <th>来源</th>
+            <th>持续时长</th>
             <th>状态</th>
-            <th>位置</th>
           </tr>
         </thead>
         <tbody>
@@ -1629,37 +1643,18 @@ function renderAlarmInspector(alarmOrGroup) {
             .map(
               (item, index) => `
             <tr class="${item.id === alarm.id ? "active" : ""}" data-alarm-id="${item.id}">
-              <td>${index === 0 ? "最新" : `历史 ${index + 1}`}</td>
+              <td>${index + 1}</td>
               <td><span class="alarm-level-table alarm-${item.type}">${item.level}</span></td>
+              <td>${item.location}</td>
               <td>${item.eventTime}</td>
               <td>${item.warningTime}</td>
-              <td><span class="alarm-source alarm-source-${item.source === "云端" ? "cloud" : "station"}">${item.source}</span></td>
+              <td>${alarmDurationHours(item)} 小时</td>
               <td><span class="alarm-status-pill ${statusClass(item.status)}">${item.status}</span></td>
-              <td>${item.location}</td>
             </tr>`
             )
             .join("")}
         </tbody>
       </table>
-    </div>
-    <div class="alarm-detail-meta">
-      <div class="alarm-detail-meta-card alarm-detail-meta-card-source">
-        <span>预警来源</span>
-        <div class="alarm-detail-source-row">
-          <strong class="alarm-detail-source-text">${alarm.source}</strong>
-          ${
-            linked
-              ? `<button class="alarm-linked-jump" type="button" data-linked-id="${linked.id}">${alarm.source === "云端" ? "查看站端关联预警" : "查看云端关联预警"}</button>`
-              : ""
-          }
-        </div>
-      </div>
-      <div class="alarm-detail-meta-card"><span>所属场站</span><strong>${alarm.stationId}${alarm.stationName}</strong></div>
-      <div class="alarm-detail-meta-card"><span>预警位置</span><strong>${alarm.location}</strong></div>
-      <div class="alarm-detail-meta-card"><span>事件时间</span><strong>${alarm.eventTime}</strong></div>
-      <div class="alarm-detail-meta-card"><span>预警时间</span><strong>${alarm.warningTime}</strong></div>
-      <div class="alarm-detail-meta-card"><span>持续时长</span><strong>${duration} 小时</strong></div>
-      <div class="alarm-detail-meta-card"><span>当前状态</span><strong class="alarm-status-text">${alarm.status}</strong></div>
     </div>
   `;
   els.alarmInspectorBody.querySelectorAll(".alarm-group-table tbody tr").forEach((row) => {
@@ -1762,16 +1757,14 @@ function renderAlarmProcessPanel() {
     `;
   } else if (state.alarmProcessMode === "sr") {
     const srNo = group.latest.srNo || `S${263 + (group.latest.id.length % 70)}`;
-    const workOrderNo = group.latest.workOrderNo || `M${2276504 + (group.latest.id.length % 900)}`;
+    const srSendTime = group.latest.srSendDate || beijingDateTimeLocal();
     els.alarmProcessPanel.innerHTML = `
-      <div class="process-head"><strong>下发 SR</strong><span>操作指导支持编辑与附件上传</span></div>
+      <div class="process-head"><strong>下发 SR</strong></div>
       <div class="sr-form-grid">
         <label><span>SR编号</span><input id="srNoInput" value="${srNo}" /></label>
-        <label><span>工单编号</span><input id="workOrderInput" value="${workOrderNo}" /></label>
-        <label class="sr-guide-field"><span>操作指导</span><textarea id="srGuideInput">5%，经与研发沟通需要更换</textarea></label>
-        <label><span>SR发出日期</span><input id="srSendDateInput" type="datetime-local" value="2026-01-14T10:43" /></label>
+        <label><span>SR发出时间</span><input id="srSendDateInput" type="datetime-local" value="${srSendTime}" /></label>
         <label><span>期望完成时间</span><input id="srDueDateInput" type="date" value="2026-03-31" /></label>
-        <label class="sr-attachment-field"><span>附件</span><input id="srAttachmentInput" type="file" multiple /></label>
+        <label class="sr-guide-field"><span>操作指导</span><textarea id="srGuideInput"></textarea><span class="sr-attachment-label">附件</span><input id="srAttachmentInput" type="file" multiple /></label>
       </div>
       <div class="process-actions">
         <button type="button" data-process-action="submit-sr">确认下发</button>
@@ -1842,7 +1835,6 @@ function handleAlarmProcessAction(action) {
       srIssued: true,
       srCompleted: false,
       srNo: els.alarmProcessPanel.querySelector("#srNoInput")?.value.trim() || "",
-      workOrderNo: els.alarmProcessPanel.querySelector("#workOrderInput")?.value.trim() || "",
       srGuide: els.alarmProcessPanel.querySelector("#srGuideInput")?.value.trim() || "",
       srSendDate: els.alarmProcessPanel.querySelector("#srSendDateInput")?.value || "",
       srDueDate: els.alarmProcessPanel.querySelector("#srDueDateInput")?.value || "",

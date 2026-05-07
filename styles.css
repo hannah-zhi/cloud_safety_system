@@ -2940,6 +2940,8 @@ h2 {
 }
 
 .alarm-detail-hero {
+  position: relative;
+  overflow: hidden;
   padding: 14px;
   border: 1px solid rgba(73, 91, 128, 0.72);
   border-radius: 4px;
@@ -2983,6 +2985,49 @@ h2 {
   line-height: 1.55;
 }
 
+.alarm-source-corner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 72px;
+  height: 34px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding: 6px 0 0 8px;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  z-index: 1;
+}
+
+.alarm-source-corner::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto auto 0;
+  width: 0;
+  height: 0;
+  border-top: 52px solid rgba(18, 152, 255, 0.92);
+  border-right: 52px solid transparent;
+  z-index: -1;
+}
+
+.alarm-source-corner-station::before {
+  border-top-color: rgba(19, 199, 129, 0.92);
+}
+
+.alarm-source-corner::after {
+  content: "";
+  position: absolute;
+  top: 8px;
+  left: 6px;
+  width: 42px;
+  height: 42px;
+  border-top: 3px solid rgba(255, 255, 255, 0.42);
+  border-left: 3px solid rgba(255, 255, 255, 0.42);
+  transform: skew(-10deg);
+}
+
 .alarm-group-table-wrap {
   margin-top: 12px;
   border: 1px solid rgba(57, 63, 82, 0.76);
@@ -2992,7 +3037,7 @@ h2 {
 
 .alarm-group-table {
   width: 100%;
-  min-width: 780px;
+  min-width: 760px;
   border-collapse: collapse;
 }
 
@@ -3028,6 +3073,7 @@ h2 {
   display: flex;
   align-items: center;
   gap: 8px;
+  margin-left: 48px;
 }
 
 .alarm-module-pill {
@@ -3094,23 +3140,26 @@ h2 {
 }
 
 .alarm-linked-jump {
+  position: absolute;
+  right: 14px;
+  bottom: 14px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: 24px;
-  flex: 0 0 auto;
-  border: 1px solid rgba(18, 152, 255, 0.72);
+  min-width: 106px;
+  height: 28px;
+  border: 2px solid #ff514f;
   border-radius: 4px;
-  background: rgba(18, 152, 255, 0.14);
-  color: #dceaff;
-  padding: 0 8px;
+  background: rgba(255, 81, 79, 0.08);
+  color: #ffe7e7;
+  padding: 0 10px;
   font-size: 11px;
   line-height: 1;
   white-space: nowrap;
 }
 
 .alarm-linked-jump:hover {
-  background: rgba(18, 152, 255, 0.24);
+  background: rgba(255, 81, 79, 0.18);
 }
 
 .alarm-modal {
@@ -3334,16 +3383,16 @@ h2 {
 }
 
 .sr-form-grid textarea {
-  min-height: 58px;
+  min-height: 96px;
   resize: vertical;
-}
-
-.sr-attachment-field {
-  grid-column: span 2;
 }
 
 .sr-guide-field {
   grid-column: span 2;
+}
+
+.sr-attachment-label {
+  margin-top: 10px;
 }
 
 .sr-return-card {
