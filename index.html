@@ -254,6 +254,7 @@
               <table class="alarm-detail-table">
                 <thead>
                   <tr>
+                    <th></th>
                     <th>等级</th>
                     <th>预警名称</th>
                     <th>模块</th>
@@ -261,6 +262,7 @@
                     <th>位置</th>
                     <th>事件时间</th>
                     <th>预警时间</th>
+                    <th>状态</th>
                     <th>来源</th>
                   </tr>
                 </thead>
@@ -298,9 +300,10 @@
                 <div id="alarmTrendTooltip" class="risk-bars-tooltip"></div>
               </div>
               <div class="alarm-modal-actions">
-                <button type="button">处理</button>
-                <button type="button">分析</button>
+                <button id="alarmProcessBtn" type="button">处理</button>
+                <button id="alarmAnalysisBtn" type="button">分析</button>
               </div>
+              <div id="alarmProcessPanel" class="alarm-process-panel"></div>
             </div>
           </article>
         </div>

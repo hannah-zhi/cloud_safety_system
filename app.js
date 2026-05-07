@@ -53,6 +53,9 @@ const state = {
   detailAlarmEndDate: "",
   activePage: "overview",
   selectedAlarm: null,
+  selectedAlarmGroup: null,
+  activeModalAlarmId: null,
+  alarmProcessMode: null,
   detailAlarmSelectedIds: new Set(),
   detailAlarmSelectionMode: false,
   detailAlarmContextId: null,
@@ -200,6 +203,9 @@ function bindElements() {
     "alarmModalClose",
     "alarmTrendChart",
     "alarmTrendTooltip",
+    "alarmProcessBtn",
+    "alarmAnalysisBtn",
+    "alarmProcessPanel",
     "boxChartWrap",
     "boxTooltip",
     "clock",
@@ -334,6 +340,14 @@ function bindEvents() {
   els.alarmBatchCancel?.addEventListener("click", cancelAlarmSelectionMode);
   els.alarmModalClose.addEventListener("click", closeAlarmModal);
   els.alarmModalMask.addEventListener("click", closeAlarmModal);
+  els.alarmProcessBtn?.addEventListener("click", () => {
+    state.alarmProcessMode = state.selectedAlarmGroup?.srCompleted ? "srClose" : "choose";
+    renderAlarmProcessPanel();
+  });
+  els.alarmAnalysisBtn?.addEventListener("click", () => {
+    state.alarmProcessMode = "analysis";
+    renderAlarmProcessPanel();
+  });
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape") closeAlarmModal();
   });
@@ -506,6 +520,13 @@ function createAlarms(stations) {
         eventTime: formatFullDateTime(eventDate),
         warningTime: formatFullDateTime(date),
         time: `${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")} ${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`,
+        status: "待处理",
+        srIssued: false,
+        srCompleted: false,
+        srNo: "",
+        workOrderNo: "",
+        closeReason: "",
+        closeRemark: "",
       };
     });
 
@@ -1351,26 +1372,32 @@ document.addEventListener("click", () => {
 
 function renderAlarmDetailPage() {
   const alarms = filterAlarmDetailItems();
+  const groups = groupAlarmsForTable(alarms);
   if (state.activePage === "alarm") {
     renderAlarmOverview(alarms);
   }
-  const visibleIds = new Set(alarms.map((alarm) => alarm.id));
+  const visibleIds = new Set(groups.map((group) => group.id));
   state.detailAlarmSelectedIds.forEach((id) => {
     if (!visibleIds.has(id)) state.detailAlarmSelectedIds.delete(id);
   });
-  if (!alarms.length) {
+  if (!groups.length) {
     state.detailAlarmSelectionMode = false;
   }
-  els.alarmDetailCount.textContent = alarms.length;
+  els.alarmDetailCount.textContent = groups.length;
   els.alarmDetailTable.innerHTML = alarms
-    .map(
-      (alarm) => `
-      <tr data-alarm-id="${alarm.id}" class="${state.detailAlarmSelectedIds.has(alarm.id) ? "selected" : ""}">
+    .length
+    ? groups
+      .map((group) => {
+        const alarm = group.latest;
+        const sources = uniqueSorted(group.alarms.map((item) => item.source)).join("/");
+        return `
+      <tr data-alarm-id="${group.id}" class="${state.detailAlarmSelectedIds.has(group.id) ? "selected" : ""}">
+        <td class="alarm-mail-cell">${group.srCompleted ? '<span class="alarm-mail-badge" title="SR已返回">✉</span>' : ""}</td>
         <td class="alarm-level-cell">
           <div class="alarm-level-cell-inner ${state.detailAlarmSelectionMode ? "selection-mode" : ""}">
             ${
               state.detailAlarmSelectionMode
-                ? `<label class="alarm-row-check"><input type="checkbox" data-check-id="${alarm.id}" ${state.detailAlarmSelectedIds.has(alarm.id) ? "checked" : ""} /><i></i></label>`
+                ? `<label class="alarm-row-check"><input type="checkbox" data-check-id="${group.id}" ${state.detailAlarmSelectedIds.has(group.id) ? "checked" : ""} /><i></i></label>`
                 : '<span class="alarm-row-check-placeholder"></span>'
             }
             <span class="alarm-level-table alarm-${alarm.type}">${alarm.level}</span>
@@ -1382,52 +1409,53 @@ function renderAlarmDetailPage() {
         <td>${alarm.location}</td>
         <td>${alarm.eventTime}</td>
         <td>${alarm.warningTime}</td>
-        <td><span class="alarm-source alarm-source-${alarm.source === "云端" ? "cloud" : "station"}">${alarm.source}</span></td>
-      </tr>`
-    )
-    .join("");
+        <td><span class="alarm-status-pill ${statusClass(alarm.status)}">${alarm.status}</span></td>
+        <td><span class="alarm-source alarm-source-${sources.includes("站端") && !sources.includes("云端") ? "station" : "cloud"}">${sources}</span></td>
+      </tr>`;
+      })
+      .join("")
+    : `<tr><td colspan="10">暂无匹配预警</td></tr>`;
   els.alarmDetailTable.querySelectorAll('input[data-check-id]').forEach((input) => {
     input.addEventListener('click', (event) => event.stopPropagation());
     input.addEventListener('change', () => {
-      const alarmId = input.dataset.checkId;
-      if (input.checked) state.detailAlarmSelectedIds.add(alarmId);
-      else state.detailAlarmSelectedIds.delete(alarmId);
+      const groupId = input.dataset.checkId;
+      if (input.checked) state.detailAlarmSelectedIds.add(groupId);
+      else state.detailAlarmSelectedIds.delete(groupId);
       updateAlarmBatchBar();
       renderAlarmDetailPage();
     });
   });
   els.alarmDetailTable.querySelectorAll("tr").forEach((row) => {
     row.addEventListener("click", () => {
-      const alarm = alarms.find((item) => item.id === row.dataset.alarmId);
-      if (!alarm) return;
-      state.selectedAlarm = alarm;
+      const group = groups.find((item) => item.id === row.dataset.alarmId);
+      if (!group) return;
+      state.selectedAlarm = group.latest;
       if (state.detailAlarmSelectionMode) {
-        if (state.detailAlarmSelectedIds.has(alarm.id)) state.detailAlarmSelectedIds.delete(alarm.id);
-        else state.detailAlarmSelectedIds.add(alarm.id);
+        if (state.detailAlarmSelectedIds.has(group.id)) state.detailAlarmSelectedIds.delete(group.id);
+        else state.detailAlarmSelectedIds.add(group.id);
         updateAlarmBatchBar();
         renderAlarmDetailPage();
         return;
       }
       state.detailAlarmSelectedIds.clear();
       renderAlarmDetailPage();
-      openAlarmModal(alarm);
+      openAlarmModal(group);
     });
     row.addEventListener("contextmenu", (event) => {
       event.preventDefault();
-      const alarm = alarms.find((item) => item.id === row.dataset.alarmId);
-      if (!alarm) return;
-      state.detailAlarmContextId = alarm.id;
-      state.selectedAlarm = alarm;
+      const group = groups.find((item) => item.id === row.dataset.alarmId);
+      if (!group) return;
+      state.detailAlarmContextId = group.id;
+      state.selectedAlarm = group.latest;
       showAlarmRowContextMenu(event.clientX, event.clientY);
     });
   });
-  if (!alarms.length) {
-    els.alarmDetailTable.innerHTML = `<tr><td colspan="8">???????</td></tr>`;
+  if (!groups.length) {
     state.detailAlarmSelectedIds.clear();
     hideAlarmRowContextMenu();
   }
   if (!state.selectedAlarm || !alarms.some((alarm) => alarm.id === state.selectedAlarm.id)) {
-    state.selectedAlarm = alarms[0] || null;
+    state.selectedAlarm = groups[0]?.latest || null;
   }
   updateAlarmBatchBar();
 }
@@ -1499,8 +1527,68 @@ function filterAlarmDetailItems() {
   });
 }
 
-function renderAlarmInspector(alarm) {
-  if (!alarm) {
+function alarmGroupKey(alarm) {
+  return [alarm.title, alarm.module, alarm.stationId, alarm.location].join("||");
+}
+
+function alarmTimestamp(alarm, key = "warningTime") {
+  return new Date(String(alarm[key] || "").replace(/\//g, "-")).getTime() || 0;
+}
+
+function groupAlarmsForTable(alarms) {
+  const map = new Map();
+  alarms.forEach((alarm) => {
+    const id = alarmGroupKey(alarm);
+    if (!map.has(id)) map.set(id, { id, alarms: [] });
+    map.get(id).alarms.push(alarm);
+  });
+  return [...map.values()]
+    .map((group) => {
+      group.alarms.sort((a, b) => alarmTimestamp(b) - alarmTimestamp(a));
+      group.latest = group.alarms[0];
+      group.srIssued = group.alarms.some((alarm) => alarm.srIssued);
+      group.srCompleted = group.alarms.some((alarm) => alarm.srCompleted);
+      return group;
+    })
+    .sort((a, b) => alarmOrder(a.latest.type) - alarmOrder(b.latest.type) || alarmTimestamp(b.latest) - alarmTimestamp(a.latest));
+}
+
+function getAlarmGroupFromAlarm(alarm) {
+  if (!alarm) return null;
+  return groupAlarmsForTable(state.allAlarms.filter((item) => alarmGroupKey(item) === alarmGroupKey(alarm)))[0] || null;
+}
+
+function getAlarmGroup(groupOrAlarm) {
+  if (!groupOrAlarm) return null;
+  if (Array.isArray(groupOrAlarm.alarms)) return groupOrAlarm;
+  return getAlarmGroupFromAlarm(groupOrAlarm);
+}
+
+function statusClass(status) {
+  if (String(status).includes("排查中")) return "status-investigating";
+  if (String(status).includes("关闭")) return "status-closed";
+  return "status-pending";
+}
+
+function updateAlarmGroup(group, patch) {
+  if (!group) return;
+  const ids = new Set(group.alarms.map((alarm) => alarm.id));
+  state.allAlarms.forEach((alarm) => {
+    if (ids.has(alarm.id)) Object.assign(alarm, patch);
+  });
+  state.alarms.forEach((alarm) => {
+    if (ids.has(alarm.id)) Object.assign(alarm, patch);
+  });
+  state.selectedAlarmGroup = getAlarmGroupFromAlarm(group.latest);
+  state.selectedAlarm = state.selectedAlarmGroup?.alarms.find((alarm) => alarm.id === state.activeModalAlarmId) || state.selectedAlarmGroup?.latest || null;
+  renderAlarms();
+  if (state.activePage === "alarm") renderAlarmDetailPage();
+}
+
+function renderAlarmInspector(alarmOrGroup) {
+  const group = getAlarmGroup(alarmOrGroup);
+  const alarm = group?.alarms.find((item) => item.id === state.activeModalAlarmId) || group?.latest || null;
+  if (!group || !alarm) {
     els.alarmInspectorBody.textContent = "点击任意预警查看完整内容";
     return;
   }
@@ -1514,6 +1602,18 @@ function renderAlarmInspector(alarm) {
       </div>
       <strong>${alarm.title}</strong>
       <p>${alarm.level === "一级" ? "立即复核云端诊断结果并安排现场排查。" : alarm.level === "二级" ? "持续观察趋势，纳入当班巡检计划。" : "记录风险变化，按计划跟踪闭环。"}</p>
+    </div>
+    <div class="alarm-group-strip">
+      ${group.alarms
+        .map(
+          (item, index) => `
+        <button class="alarm-group-card ${item.id === alarm.id ? "active" : ""}" type="button" data-alarm-id="${item.id}">
+          <span>${index === 0 ? "最新预警" : `历史预警 ${index + 1}`}</span>
+          <strong>${item.warningTime}</strong>
+          <em>${item.source} · ${item.status}</em>
+        </button>`
+        )
+        .join("")}
     </div>
     <div class="alarm-detail-meta">
       <div class="alarm-detail-meta-card alarm-detail-meta-card-source">
@@ -1532,8 +1632,19 @@ function renderAlarmInspector(alarm) {
       <div class="alarm-detail-meta-card"><span>事件时间</span><strong>${alarm.eventTime}</strong></div>
       <div class="alarm-detail-meta-card"><span>预警时间</span><strong>${alarm.warningTime}</strong></div>
       <div class="alarm-detail-meta-card"><span>持续时长</span><strong>${duration} 小时</strong></div>
+      <div class="alarm-detail-meta-card"><span>当前状态</span><strong class="alarm-status-text">${alarm.status}</strong></div>
     </div>
   `;
+  els.alarmInspectorBody.querySelectorAll(".alarm-group-card").forEach((button) => {
+    button.addEventListener("click", () => {
+      state.activeModalAlarmId = button.dataset.alarmId;
+      state.selectedAlarm = group.alarms.find((item) => item.id === state.activeModalAlarmId) || group.latest;
+      renderAlarmInspector(group);
+      renderAlarmTrend(state.selectedAlarm);
+      state.alarmProcessMode = null;
+      renderAlarmProcessPanel();
+    });
+  });
   const jumpButton = els.alarmInspectorBody.querySelector(".alarm-linked-jump");
   if (jumpButton) {
     jumpButton.addEventListener("click", () => {
@@ -1550,11 +1661,17 @@ function renderAlarmOverview(alarms = filterAlarmDetailItems()) {
 }
 
 function openAlarmModal(alarm) {
-  if (!alarm) return;
-  renderAlarmInspector(alarm);
+  const group = getAlarmGroup(alarm);
+  if (!group) return;
+  state.selectedAlarmGroup = group;
+  state.selectedAlarm = group.latest;
+  state.activeModalAlarmId = group.latest.id;
+  state.alarmProcessMode = null;
+  renderAlarmInspector(group);
   els.alarmDetailModal.classList.add("show");
   els.alarmDetailModal.setAttribute("aria-hidden", "false");
-  renderAlarmTrend(alarm);
+  renderAlarmTrend(group.latest);
+  renderAlarmProcessPanel();
 }
 
 function closeAlarmModal() {
@@ -1562,6 +1679,168 @@ function closeAlarmModal() {
   els.alarmDetailModal.classList.remove("show");
   els.alarmDetailModal.setAttribute("aria-hidden", "true");
   els.alarmTrendTooltip.classList.remove("show");
+  state.alarmProcessMode = null;
+  if (els.alarmProcessPanel) els.alarmProcessPanel.classList.remove("show");
+}
+
+function renderAlarmProcessPanel() {
+  if (!els.alarmProcessPanel) return;
+  const group = state.selectedAlarmGroup;
+  if (!group || !state.alarmProcessMode) {
+    els.alarmProcessPanel.classList.remove("show");
+    els.alarmProcessPanel.innerHTML = "";
+    return;
+  }
+  els.alarmProcessPanel.classList.add("show");
+  if (state.alarmProcessMode === "analysis") {
+    els.alarmProcessPanel.innerHTML = `
+      <div class="process-head"><strong>分析结论</strong><span>基于当前选中预警趋势</span></div>
+      <div class="process-note">建议结合 ${state.selectedAlarm?.module || "--"} 数据曲线、同位置历史预警和现场巡检记录确认根因。</div>
+    `;
+    return;
+  }
+  if (state.alarmProcessMode === "choose") {
+    els.alarmProcessPanel.innerHTML = `
+      <div class="process-head"><strong>处理方式</strong><span>请选择本组预警闭环路径</span></div>
+      <div class="process-choice-grid">
+        <button type="button" data-process-action="close-now">关闭预警</button>
+        <button type="button" data-process-action="open-sr">下发 SR</button>
+      </div>
+    `;
+  } else if (state.alarmProcessMode === "close") {
+    els.alarmProcessPanel.innerHTML = `
+      <div class="process-head"><strong>关闭预警</strong><span>关闭后列表状态立即更新</span></div>
+      <div class="process-options">
+        ${["误报", "数据异常", "其他"].map((reason) => `<label><input name="closeReason" type="radio" value="${reason}" />${reason}</label>`).join("")}
+      </div>
+      <textarea id="alarmCloseRemark" placeholder="选择“其他”时必须填写具体原因"></textarea>
+      <div class="process-actions">
+        <button type="button" data-process-action="confirm-close">确认关闭</button>
+      </div>
+    `;
+  } else if (state.alarmProcessMode === "sr") {
+    const srNo = group.latest.srNo || `S${263 + (group.latest.id.length % 70)}`;
+    const workOrderNo = group.latest.workOrderNo || `M${2276504 + (group.latest.id.length % 900)}`;
+    els.alarmProcessPanel.innerHTML = `
+      <div class="process-head"><strong>下发 SR</strong><span>操作指导支持编辑与附件上传</span></div>
+      <div class="sr-form-grid">
+        <label><span>SR编号</span><input id="srNoInput" value="${srNo}" /></label>
+        <label><span>工单编号</span><input id="workOrderInput" value="${workOrderNo}" /></label>
+        <label class="sr-guide-field"><span>操作指导</span><textarea id="srGuideInput">5%，经与研发沟通需要更换</textarea></label>
+        <label><span>SR发出日期</span><input id="srSendDateInput" type="datetime-local" value="2026-01-14T10:43" /></label>
+        <label><span>期望完成时间</span><input id="srDueDateInput" type="date" value="2026-03-31" /></label>
+        <label class="sr-attachment-field"><span>附件</span><input id="srAttachmentInput" type="file" multiple /></label>
+      </div>
+      <div class="process-actions">
+        <button type="button" data-process-action="submit-sr">确认下发</button>
+      </div>
+    `;
+  } else if (state.alarmProcessMode === "srSubmitted") {
+    els.alarmProcessPanel.innerHTML = `
+      <div class="process-head"><strong>SR 已下发</strong><span>列表状态已变更为“排查中”</span></div>
+      <div class="sr-return-card">
+        <span>等待 SR 完成返回。演示态可点击下方按钮模拟返回，返回后列表等级列前会出现信封标记。</span>
+        <button type="button" data-process-action="complete-sr">模拟 SR 完成返回</button>
+      </div>
+    `;
+  } else if (state.alarmProcessMode === "srClose") {
+    els.alarmProcessPanel.innerHTML = `
+      <div class="process-head"><strong>SR 返回确认</strong><span>请选择预警类型判断结果</span></div>
+      <div class="process-options">
+        <label><input name="srCloseReason" type="radio" value="类型准确" />类型准确</label>
+        <label><input name="srCloseReason" type="radio" value="类型不准确" />类型不准确</label>
+      </div>
+      <div class="process-actions">
+        <button type="button" data-process-action="confirm-sr-close">确认关闭</button>
+      </div>
+    `;
+  }
+  bindAlarmProcessPanel();
+}
+
+function bindAlarmProcessPanel() {
+  els.alarmProcessPanel.querySelectorAll("[data-process-action]").forEach((button) => {
+    button.addEventListener("click", () => handleAlarmProcessAction(button.dataset.processAction));
+  });
+}
+
+function handleAlarmProcessAction(action) {
+  const group = state.selectedAlarmGroup;
+  if (!group) return;
+  if (action === "close-now") {
+    state.alarmProcessMode = "close";
+    renderAlarmProcessPanel();
+    return;
+  }
+  if (action === "open-sr") {
+    state.alarmProcessMode = "sr";
+    renderAlarmProcessPanel();
+    return;
+  }
+  if (action === "confirm-close") {
+    const reason = els.alarmProcessPanel.querySelector("input[name='closeReason']:checked")?.value;
+    const remark = els.alarmProcessPanel.querySelector("#alarmCloseRemark")?.value.trim() || "";
+    if (!reason || (reason === "其他" && !remark)) {
+      showAlarmProcessError(reason === "其他" ? "请补充其他原因" : "请选择关闭原因");
+      return;
+    }
+    updateAlarmGroup(group, {
+      status: `关闭-${reason}`,
+      closeReason: reason,
+      closeRemark: remark,
+    });
+    state.alarmProcessMode = null;
+    renderAlarmInspector(state.selectedAlarmGroup);
+    renderAlarmProcessPanel();
+    return;
+  }
+  if (action === "submit-sr") {
+    updateAlarmGroup(group, {
+      status: "排查中",
+      srIssued: true,
+      srCompleted: false,
+      srNo: els.alarmProcessPanel.querySelector("#srNoInput")?.value.trim() || "",
+      workOrderNo: els.alarmProcessPanel.querySelector("#workOrderInput")?.value.trim() || "",
+      srGuide: els.alarmProcessPanel.querySelector("#srGuideInput")?.value.trim() || "",
+      srSendDate: els.alarmProcessPanel.querySelector("#srSendDateInput")?.value || "",
+      srDueDate: els.alarmProcessPanel.querySelector("#srDueDateInput")?.value || "",
+      srAttachmentCount: els.alarmProcessPanel.querySelector("#srAttachmentInput")?.files.length || 0,
+    });
+    state.alarmProcessMode = "srSubmitted";
+    renderAlarmInspector(state.selectedAlarmGroup);
+    renderAlarmProcessPanel();
+    return;
+  }
+  if (action === "complete-sr") {
+    updateAlarmGroup(group, { srCompleted: true });
+    state.alarmProcessMode = "srClose";
+    renderAlarmInspector(state.selectedAlarmGroup);
+    renderAlarmProcessPanel();
+    return;
+  }
+  if (action === "confirm-sr-close") {
+    const reason = els.alarmProcessPanel.querySelector("input[name='srCloseReason']:checked")?.value;
+    if (!reason) {
+      showAlarmProcessError("请选择类型判断结果");
+      return;
+    }
+    updateAlarmGroup(group, {
+      status: reason === "类型准确" ? "关闭-准确" : "关闭-类型不准确",
+      srCloseReason: reason,
+    });
+    state.alarmProcessMode = null;
+    renderAlarmInspector(state.selectedAlarmGroup);
+    renderAlarmProcessPanel();
+  }
+}
+
+function showAlarmProcessError(message) {
+  const old = els.alarmProcessPanel.querySelector(".process-error");
+  old?.remove();
+  const error = document.createElement("div");
+  error.className = "process-error";
+  error.textContent = message;
+  els.alarmProcessPanel.appendChild(error);
 }
 
 function alarmTrendData(alarm) {
