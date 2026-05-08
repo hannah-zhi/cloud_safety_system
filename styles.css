@@ -3343,7 +3343,9 @@ h2 {
 
 .process-head span,
 .process-note,
-.sr-return-card span {
+.sr-return-card span,
+.sr-alarm-context span,
+.sr-decision-row > span {
   color: #9ba5b8;
   font-size: 12px;
   line-height: 1.55;
@@ -3390,7 +3392,8 @@ h2 {
 }
 
 .alarm-process-panel textarea,
-.alarm-process-panel input {
+.alarm-process-panel input,
+.alarm-process-panel select {
   border: 1px solid rgba(85, 92, 113, 0.72);
   border-radius: 2px;
   background: rgba(8, 10, 18, 0.72);
@@ -3414,6 +3417,38 @@ h2 {
   background: rgba(57, 63, 82, 0.76);
 }
 
+.sr-alarm-context {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1px;
+  margin-bottom: 10px;
+  border: 1px solid rgba(57, 63, 82, 0.76);
+  background: rgba(57, 63, 82, 0.76);
+}
+
+.sr-alarm-context div {
+  min-width: 0;
+  padding: 9px 10px;
+  background: rgba(28, 32, 45, 0.96);
+}
+
+.sr-alarm-context strong {
+  display: block;
+  margin-top: 5px;
+  color: #f3f7ff;
+  font-size: 13px;
+  line-height: 1.35;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 760px) {
+  .sr-alarm-context {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 .sr-form-grid label {
   min-width: 0;
   padding: 10px 12px;
@@ -3428,7 +3463,8 @@ h2 {
 }
 
 .sr-form-grid input,
-.sr-form-grid textarea {
+.sr-form-grid textarea,
+.sr-form-grid select {
   width: 100%;
   min-height: 32px;
   padding: 6px 8px;
@@ -3442,6 +3478,23 @@ h2 {
 .sr-full-field,
 .sr-guide-field {
   grid-column: span 2;
+}
+
+.sr-return-grid textarea {
+  min-height: 72px;
+}
+
+.sr-decision-row {
+  padding: 10px 12px;
+  background: #242632;
+}
+
+.sr-decision-row .process-options {
+  margin-top: 8px;
+}
+
+.sr-other-mode[hidden] {
+  display: none;
 }
 
 .sr-return-card {

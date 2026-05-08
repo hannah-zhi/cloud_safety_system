@@ -1592,6 +1592,75 @@ function addDaysToDateTimeLocal(value, days) {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}T${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
 }
 
+function srFailureModesForAlarm(alarm) {
+  const title = alarm.title || "";
+  if (title.includes("绝缘")) return ["绝缘电阻异常", "线束松动", "绝缘子故障", "采样回路异常", "其他"];
+  if (title.includes("电压")) return ["单体压差过大", "采样线束异常", "电芯一致性衰减", "BMS采样异常", "其他"];
+  if (title.includes("温")) return ["热管理异常", "温度探头异常", "冷却回路异常", "电芯过热", "其他"];
+  if (title.includes("通讯") || title.includes("通信")) return ["通讯链路中断", "网关离线", "规约解析异常", "设备地址冲突", "其他"];
+  return ["设备状态异常", "传感器采样异常", "控制策略异常", "现场环境异常", "其他"];
+}
+
+function renderSrAlarmContext(alarm) {
+  return `
+    <div class="sr-alarm-context">
+      <div><span>场站</span><strong>${alarm.station}</strong></div>
+      <div><span>位置</span><strong>${alarm.location}</strong></div>
+      <div><span>模块</span><strong>${alarm.module}</strong></div>
+      <div><span>预警名称</span><strong>${alarm.title}</strong></div>
+    </div>
+  `;
+}
+
+function renderSrIssueForm(group) {
+  const alarm = group.latest;
+  const srNo = alarm.srNo || `S${263 + (alarm.id.length % 70)}`;
+  const srSendTime = alarm.srSendDate || beijingDateTimeLocal();
+  const srDueTime = alarm.srDueDate || addDaysToDateTimeLocal(srSendTime, 14);
+  return `
+    <div class="process-head"><strong>下发 SR</strong></div>
+    ${renderSrAlarmContext(alarm)}
+    <div class="sr-form-grid">
+      <label class="sr-full-field"><span>SR编号</span><input id="srNoInput" value="${srNo}" /></label>
+      <label class="sr-guide-field"><span>操作指导</span><textarea id="srGuideInput"></textarea></label>
+      <label class="sr-full-field"><span>附件</span><input id="srAttachmentInput" type="file" multiple /></label>
+      <label><span>SR下发时间</span><input id="srSendDateInput" type="datetime-local" value="${srSendTime}" /></label>
+      <label><span>期望完成时间</span><input id="srDueDateInput" type="datetime-local" value="${srDueTime}" /></label>
+    </div>
+    <div class="process-actions">
+      <button type="button" data-process-action="submit-sr">确认下发</button>
+    </div>
+  `;
+}
+
+function renderSrReturnConfirmation(group) {
+  const alarm = group.latest;
+  const modes = srFailureModesForAlarm(alarm);
+  return `
+    <div class="process-head"><strong>SR 返回确认</strong></div>
+    <div class="sr-form-grid sr-return-grid">
+      <label><span>SR编号</span><input id="srReturnNoInput" value="${alarm.srNo || ""}" readonly /></label>
+      <label><span>关联工单编号</span><input id="srWorkOrderInput" value="${alarm.srWorkOrderNo || alarm.workOrderNo || `M${2276500 + (alarm.id.length % 900)}`}" /></label>
+      <label class="sr-full-field"><span>排查结论</span><textarea id="srConclusionInput" placeholder="填写现场排查结论">${alarm.srConclusion || ""}</textarea></label>
+      <div class="sr-full-field sr-decision-row">
+        <span>确认结果</span>
+        <div class="process-options">
+          <label><input name="srCloseReason" type="radio" value="类型准确" />类型准确</label>
+          <label><input name="srCloseReason" type="radio" value="类型不准确" />类型不准确</label>
+        </div>
+      </div>
+      <label class="sr-full-field"><span>类型选择</span><select id="srFailureModeSelect">
+        <option value="">请选择失效模式</option>
+        ${modes.map((mode) => `<option value="${mode}">${mode}</option>`).join("")}
+      </select></label>
+      <label class="sr-full-field sr-other-mode" hidden><span>具体失效模式</span><input id="srFailureModeOther" placeholder="请输入具体失效模式" /></label>
+    </div>
+    <div class="process-actions">
+      <button type="button" data-process-action="confirm-sr-close">确认关闭</button>
+    </div>
+  `;
+}
+
 function groupAlarmsForTable(alarms) {
   const map = new Map();
   alarms.forEach((alarm) => {
@@ -1827,12 +1896,23 @@ function renderAlarmProcessPanel() {
       </div>
     `;
   }
+  if (state.alarmProcessMode === "sr") {
+    els.alarmProcessPanel.innerHTML = renderSrIssueForm(group);
+  } else if (state.alarmProcessMode === "srClose") {
+    els.alarmProcessPanel.innerHTML = renderSrReturnConfirmation(group);
+  }
   bindAlarmProcessPanel();
 }
 
 function bindAlarmProcessPanel() {
   els.alarmProcessPanel.querySelectorAll("[data-process-action]").forEach((button) => {
     button.addEventListener("click", () => handleAlarmProcessAction(button.dataset.processAction));
+  });
+  const failureModeSelect = els.alarmProcessPanel.querySelector("#srFailureModeSelect");
+  const otherModeField = els.alarmProcessPanel.querySelector(".sr-other-mode");
+  failureModeSelect?.addEventListener("change", () => {
+    if (!otherModeField) return;
+    otherModeField.hidden = failureModeSelect.value !== "其他";
   });
 }
 
@@ -1891,13 +1971,23 @@ function handleAlarmProcessAction(action) {
   }
   if (action === "confirm-sr-close") {
     const reason = els.alarmProcessPanel.querySelector("input[name='srCloseReason']:checked")?.value;
+    const selectedMode = els.alarmProcessPanel.querySelector("#srFailureModeSelect")?.value || "";
+    const customMode = els.alarmProcessPanel.querySelector("#srFailureModeOther")?.value.trim() || "";
+    const failureMode = selectedMode === "其他" ? customMode : selectedMode;
     if (!reason) {
       showAlarmProcessError("请选择类型判断结果");
+      return;
+    }
+    if (!selectedMode || (selectedMode === "其他" && !customMode)) {
+      showAlarmProcessError(selectedMode === "其他" ? "请输入具体失效模式" : "请选择失效模式");
       return;
     }
     updateAlarmGroup(group, {
       status: reason === "类型准确" ? "关闭-准确" : "关闭-类型不准确",
       srCloseReason: reason,
+      srWorkOrderNo: els.alarmProcessPanel.querySelector("#srWorkOrderInput")?.value.trim() || "",
+      srConclusion: els.alarmProcessPanel.querySelector("#srConclusionInput")?.value.trim() || "",
+      srFailureMode: failureMode,
     });
     state.alarmProcessMode = null;
     renderAlarmInspector(state.selectedAlarmGroup);
