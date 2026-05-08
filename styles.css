@@ -2436,7 +2436,7 @@ h2 {
 
 .alarm-detail-filterbar {
   display: grid;
-  grid-template-columns: minmax(230px, 1.1fr) minmax(110px, 0.48fr) minmax(138px, 0.6fr) repeat(3, minmax(150px, 0.78fr)) minmax(110px, 0.48fr) auto auto auto;
+  grid-template-columns: minmax(230px, 1.1fr) minmax(110px, 0.48fr) minmax(156px, 0.72fr) minmax(138px, 0.6fr) repeat(3, minmax(150px, 0.78fr)) minmax(110px, 0.48fr) auto auto auto;
   gap: 8px;
   align-items: center;
   margin-top: 12px;
@@ -2459,6 +2459,10 @@ h2 {
 .alarm-multi-select {
   position: relative;
   min-width: 0;
+}
+
+#alarmDetailStatus {
+  min-width: 156px;
 }
 
 .alarm-multi-trigger {
@@ -2753,11 +2757,13 @@ h2 {
 
 .alarm-level-cell {
   white-space: nowrap;
+  text-align: center;
 }
 
 .alarm-level-cell-inner {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   min-height: 22px;
 }
@@ -2768,6 +2774,11 @@ h2 {
 
 .alarm-level-cell-inner.selection-mode {
   padding-left: 0;
+  justify-content: flex-start;
+}
+
+.alarm-level-cell-inner:not(.selection-mode) .alarm-row-check-placeholder {
+  display: none;
 }
 
 .alarm-row-check input {
@@ -3361,6 +3372,44 @@ h2 {
 .alarm-modal-actions button:first-child {
   background: var(--blue);
   color: #fff;
+}
+
+.alarm-modal-actions button:disabled {
+  border-color: rgba(112, 119, 137, 0.42);
+  background: rgba(112, 119, 137, 0.14);
+  color: #8f97a8;
+  cursor: not-allowed;
+}
+
+.station-handled-panel {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.station-handled-panel div {
+  min-width: 0;
+  min-height: 68px;
+  padding: 10px 12px;
+  border: 1px solid rgba(143, 151, 168, 0.36);
+  border-radius: 4px;
+  background: rgba(143, 151, 168, 0.08);
+}
+
+.station-handled-panel span {
+  display: block;
+  margin-bottom: 6px;
+  color: #9ca5b8;
+  font-size: 12px;
+}
+
+.station-handled-panel strong {
+  display: block;
+  color: #dce4f2;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.45;
 }
 
 .alarm-process-panel {

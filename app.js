@@ -618,6 +618,27 @@ function createAlarms(stations) {
     });
   }
 
+  const stationHandledGroupIds = new Set();
+  alarms.forEach((alarm) => {
+    if (alarm.source === "站端" && alarm.linkGroupId) {
+      const index = Number(alarm.linkGroupId.replace("pair-", ""));
+      if (Number.isFinite(index) && index % 4 === 1) stationHandledGroupIds.add(alarm.linkGroupId);
+    }
+  });
+  alarms.forEach((alarm) => {
+    const shouldMarkStandalone = alarm.source === "站端" && !alarm.linkGroupId && Number(alarm.id.split("-").pop()) % 11 === 0;
+    if (stationHandledGroupIds.has(alarm.linkGroupId) || shouldMarkStandalone) {
+      const closedAt = alarm.closedAt || formatFullDateTime(new Date(alarmTimestamp(alarm) + 46 * 60 * 1000));
+      Object.assign(alarm, {
+        status: "关闭-站端已处理",
+        closedAt,
+        stationHandled: true,
+        stationAction: "站端已完成现场复核，执行端子紧固、线束复插、BMS采样通道复测，并同步复核云端诊断结果。",
+        stationConclusion: "站端排查确认现场异常已消除，复测数据恢复稳定；关联云端预警同步关闭，无需再次下发处理。",
+      });
+    }
+  });
+
   return alarms.sort((a, b) => alarmOrder(a.type) - alarmOrder(b.type));
 }
 
@@ -1362,11 +1383,11 @@ function renderAlarmDetailFilters() {
   ]);
   const optionMap = {
     level: { el: els.alarmDetailLevel, label: "全部等级", searchable: false, options: ["一级", "二级", "三级"] },
+    status: { el: els.alarmDetailStatus, label: "全部状态", searchable: false, options: statusOptions },
     module: { el: els.alarmDetailModule, label: "全部设备模块", searchable: false, options: ["电池系统", "电气系统", "环控系统", "消防系统"] },
     name: { el: els.alarmDetailName, label: "全部预警名称", searchable: true, options: uniqueSorted(alarms.map((alarm) => alarm.title)) },
     station: { el: els.alarmDetailStation, label: "全部场站", searchable: true, options: uniqueSorted(alarms.map((alarm) => `${alarm.stationId}${alarm.stationName}`)) },
     location: { el: els.alarmDetailLocation, label: "全部位置", searchable: true, options: uniqueSorted(alarms.map((alarm) => alarm.location)) },
-    status: { el: els.alarmDetailStatus, label: "全部状态", searchable: false, options: statusOptions },
     source: { el: els.alarmDetailSource, label: "全部来源", searchable: false, options: ["云端", "站端"] },
   };
   Object.entries(optionMap).forEach(([key, config]) => renderAlarmMultiSelect(key, config));
@@ -1650,6 +1671,16 @@ function renderRootCausePanel(alarm) {
   `;
 }
 
+function renderStationHandledPanel(alarm) {
+  if (!alarm.stationHandled) return "";
+  return `
+    <div class="station-handled-panel">
+      <div><span>站端排查动作</span><strong>${alarm.stationAction || "站端已完成现场复核和参数复测。"}</strong></div>
+      <div><span>站端排查结论</span><strong>${alarm.stationConclusion || "站端已处理完成，关联云端预警同步关闭。"}</strong></div>
+    </div>
+  `;
+}
+
 function renderSrResultReview(group) {
   const alarm = group.latest;
   return `
@@ -1817,6 +1848,7 @@ function renderAlarmInspector(alarmOrGroup) {
       <div><span>场站</span><strong>${alarm.stationId}${alarm.stationName}</strong></div>
       <div><span>位置</span><strong>${alarm.location}</strong></div>
     </div>
+    ${renderStationHandledPanel(group.latest)}
     <div class="alarm-group-table-wrap">
       <table class="alarm-group-table">
         <thead>
@@ -1879,6 +1911,10 @@ function renderAlarmInspector(alarmOrGroup) {
     renderAlarmInspector(state.selectedAlarmGroup);
     renderAlarmTable();
   });
+  if (els.alarmProcessBtn) {
+    els.alarmProcessBtn.disabled = Boolean(group.latest.stationHandled);
+    els.alarmProcessBtn.title = group.latest.stationHandled ? "站端已处理完成，无需再次处理" : "";
+  }
 }
 
 function renderAlarmOverview(alarms = filterAlarmDetailItems()) {
@@ -1906,6 +1942,10 @@ function closeAlarmModal() {
   els.alarmDetailModal.classList.remove("show");
   els.alarmDetailModal.setAttribute("aria-hidden", "true");
   els.alarmTrendTooltip.classList.remove("show");
+  if (els.alarmProcessBtn) {
+    els.alarmProcessBtn.disabled = false;
+    els.alarmProcessBtn.title = "";
+  }
   state.alarmProcessMode = null;
   closeAlarmProcessModal();
 }
