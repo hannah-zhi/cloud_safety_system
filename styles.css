@@ -3537,6 +3537,51 @@ h2 {
   display: none;
 }
 
+.root-cause-panel {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+  padding: 12px;
+  border: 1px solid rgba(244, 165, 28, 0.42);
+  border-radius: 4px;
+  background: rgba(244, 165, 28, 0.08);
+}
+
+.root-cause-panel strong {
+  display: block;
+  color: #f4f8ff;
+  font-size: 14px;
+}
+
+.root-cause-panel span {
+  display: block;
+  margin-top: 4px;
+  color: #aeb8cb;
+  font-size: 12px;
+}
+
+.root-cause-panel textarea {
+  width: 100%;
+  min-height: 72px;
+  padding: 8px;
+  border: 1px solid rgba(85, 92, 113, 0.72);
+  border-radius: 2px;
+  background: rgba(8, 10, 18, 0.72);
+  color: #eef3fb;
+  font: inherit;
+  resize: vertical;
+}
+
+.root-cause-panel button {
+  justify-self: end;
+  min-height: 34px;
+  padding: 0 14px;
+  border: 1px solid rgba(18, 152, 255, 0.72);
+  border-radius: 4px;
+  background: var(--blue);
+  color: #fff;
+}
+
 .sr-return-card {
   display: flex;
   align-items: center;

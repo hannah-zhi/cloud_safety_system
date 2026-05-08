@@ -1594,11 +1594,40 @@ function addDaysToDateTimeLocal(value, days) {
 
 function srFailureModesForAlarm(alarm) {
   const title = alarm.title || "";
+  if (title.includes("铜排") || title.includes("螺栓")) return ["铜排螺栓松动", "绝缘子故障", "连接排发热", "装配力矩不足", "其他"];
   if (title.includes("绝缘")) return ["绝缘电阻异常", "线束松动", "绝缘子故障", "采样回路异常", "其他"];
   if (title.includes("电压")) return ["单体压差过大", "采样线束异常", "电芯一致性衰减", "BMS采样异常", "其他"];
   if (title.includes("温")) return ["热管理异常", "温度探头异常", "冷却回路异常", "电芯过热", "其他"];
   if (title.includes("通讯") || title.includes("通信")) return ["通讯链路中断", "网关离线", "规约解析异常", "设备地址冲突", "其他"];
   return ["设备状态异常", "传感器采样异常", "控制策略异常", "现场环境异常", "其他"];
+}
+
+function srReturnConclusionForAlarm(alarm) {
+  const title = alarm.title || "";
+  if (title.includes("铜排") || title.includes("螺栓")) return "现场已完成排查，确认该Pack存在铜排螺栓松动。";
+  if (title.includes("绝缘")) return "现场已完成排查，确认该支路存在绝缘子老化及绝缘电阻下降。";
+  if (title.includes("电压")) return "现场已完成排查，确认该Pack存在单体压差扩大及采样线束接触异常。";
+  if (title.includes("温")) return "现场已完成排查，确认该设备存在温度探头漂移及局部散热不均。";
+  if (title.includes("通讯") || title.includes("通信")) return "现场已完成排查，确认该设备存在网关链路不稳定及通讯中断。";
+  return `现场已完成排查，确认${alarm.location}存在${alarm.title}相关异常。`;
+}
+
+function failureModeNeedsRootCause(mode) {
+  return ["采样回路异常", "BMS采样异常", "传感器采样异常", "控制策略异常", "现场环境异常", "规约解析异常", "装配力矩不足", "其他"].includes(mode);
+}
+
+function renderRootCausePanel(alarm) {
+  if (alarm.status !== "关闭-待补充根因") return "";
+  return `
+    <div class="root-cause-panel">
+      <div>
+        <strong>根因补充</strong>
+        <span>当前预警已关闭，需补充根因后完成最终闭环。</span>
+      </div>
+      <textarea id="alarmRootCauseInput" placeholder="请输入根因说明，例如：装配力矩不足导致铜排螺栓松动，复紧后绝缘恢复正常。">${alarm.rootCause || ""}</textarea>
+      <button type="button" id="alarmRootCauseSubmit">提交根因</button>
+    </div>
+  `;
 }
 
 function renderSrAlarmContext(alarm) {
@@ -1637,7 +1666,7 @@ function renderSrIssueForm(group) {
 function renderSrReturnConfirmation(group) {
   const alarm = group.latest;
   const modes = srFailureModesForAlarm(alarm);
-  const conclusion = alarm.srConclusion || `${alarm.module}${alarm.title}已完成现场排查，请确认预警类型判断结果。`;
+  const conclusion = alarm.srConclusion || srReturnConclusionForAlarm(alarm);
   return `
     <div class="process-head"><strong>SR 返回确认</strong></div>
     <div class="sr-form-grid sr-return-grid">
@@ -1766,6 +1795,7 @@ function renderAlarmInspector(alarmOrGroup) {
         </tbody>
       </table>
     </div>
+    ${renderRootCausePanel(group.latest)}
   `;
   els.alarmInspectorBody.querySelectorAll(".alarm-group-table tbody tr").forEach((row) => {
     row.addEventListener("click", () => {
@@ -1784,6 +1814,18 @@ function renderAlarmInspector(alarmOrGroup) {
       if (target) openAlarmModal(target);
     });
   }
+  const rootCauseSubmit = els.alarmInspectorBody.querySelector("#alarmRootCauseSubmit");
+  rootCauseSubmit?.addEventListener("click", () => {
+    const rootCause = els.alarmInspectorBody.querySelector("#alarmRootCauseInput")?.value.trim() || "";
+    if (!rootCause) return;
+    updateAlarmGroup(group, {
+      status: group.latest.pendingFinalStatus || "关闭-准确",
+      rootCause,
+      pendingRootCause: false,
+    });
+    renderAlarmInspector(state.selectedAlarmGroup);
+    renderAlarmTable();
+  });
 }
 
 function renderAlarmOverview(alarms = filterAlarmDetailItems()) {
@@ -1984,15 +2026,20 @@ function handleAlarmProcessAction(action) {
       showAlarmProcessError(selectedMode === "其他" ? "请输入具体失效模式" : "请选择失效模式");
       return;
     }
+    const finalStatus = reason === "类型准确" ? "关闭-准确" : "关闭-类型不准确";
+    const needsRootCause = failureModeNeedsRootCause(selectedMode);
     updateAlarmGroup(group, {
-      status: reason === "类型准确" ? "关闭-准确" : "关闭-类型不准确",
+      status: needsRootCause ? "关闭-待补充根因" : finalStatus,
       srCloseReason: reason,
       srWorkOrderNo: els.alarmProcessPanel.querySelector("#srWorkOrderInput")?.value.trim() || "",
       srConclusion: els.alarmProcessPanel.querySelector("#srConclusionInput")?.value.trim() || "",
       srFailureMode: failureMode,
+      pendingRootCause: needsRootCause,
+      pendingFinalStatus: finalStatus,
     });
     state.alarmProcessMode = null;
     renderAlarmInspector(state.selectedAlarmGroup);
+    renderAlarmTable();
     renderAlarmProcessPanel();
   }
 }
