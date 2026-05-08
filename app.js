@@ -79,6 +79,7 @@ const state = {
     name: new Set(),
     station: new Set(),
     location: new Set(),
+    status: new Set(),
     source: new Set(),
   },
   activeFilter: "all",
@@ -182,6 +183,7 @@ function bindElements() {
     "alarmDetailName",
     "alarmDetailStation",
     "alarmDetailLocation",
+    "alarmDetailStatus",
     "alarmDetailLevel",
     "alarmDetailModule",
     "alarmDetailSource",
@@ -1347,12 +1349,24 @@ function handleRiskTrendHover(event) {
 
 function renderAlarmDetailFilters() {
   const alarms = state.allAlarms || [];
+  const statusOptions = uniqueSorted([
+    "待处理",
+    "排查中",
+    "关闭-误报",
+    "关闭-数据异常",
+    "关闭-其他",
+    "关闭-待补充根因",
+    "关闭-准确",
+    "关闭-类型不准确",
+    ...alarms.map((alarm) => alarm.status),
+  ]);
   const optionMap = {
     level: { el: els.alarmDetailLevel, label: "全部等级", searchable: false, options: ["一级", "二级", "三级"] },
     module: { el: els.alarmDetailModule, label: "全部设备模块", searchable: false, options: ["电池系统", "电气系统", "环控系统", "消防系统"] },
     name: { el: els.alarmDetailName, label: "全部预警名称", searchable: true, options: uniqueSorted(alarms.map((alarm) => alarm.title)) },
     station: { el: els.alarmDetailStation, label: "全部场站", searchable: true, options: uniqueSorted(alarms.map((alarm) => `${alarm.stationId}${alarm.stationName}`)) },
     location: { el: els.alarmDetailLocation, label: "全部位置", searchable: true, options: uniqueSorted(alarms.map((alarm) => alarm.location)) },
+    status: { el: els.alarmDetailStatus, label: "全部状态", searchable: false, options: statusOptions },
     source: { el: els.alarmDetailSource, label: "全部来源", searchable: false, options: ["云端", "站端"] },
   };
   Object.entries(optionMap).forEach(([key, config]) => renderAlarmMultiSelect(key, config));
@@ -1552,7 +1566,7 @@ function handleBatchAlarmProcess(event) {
 function filterAlarmDetailItems() {
   const start = els.alarmDetailStart.value ? new Date(`${els.alarmDetailStart.value}T00:00:00`) : null;
   const end = els.alarmDetailEnd.value ? new Date(`${els.alarmDetailEnd.value}T23:59:59`) : null;
-  const { level, module, name, station, location, source } = state.alarmDetailSelections;
+  const { level, module, name, station, location, status, source } = state.alarmDetailSelections;
   return state.allAlarms.filter((alarm) => {
     const date = new Date(`${alarm.dateISO}T12:00:00`);
     const stationLabel = `${alarm.stationId}${alarm.stationName}`;
@@ -1562,6 +1576,7 @@ function filterAlarmDetailItems() {
       (!name.size || name.has(alarm.title)) &&
       (!station.size || station.has(stationLabel)) &&
       (!location.size || location.has(alarm.location)) &&
+      (!status.size || status.has(alarm.status)) &&
       (!source.size || source.has(alarm.source)) &&
       (!start || date >= start) &&
       (!end || date <= end)
@@ -1758,17 +1773,24 @@ function statusClass(status) {
 
 function updateAlarmGroup(group, patch) {
   if (!group) return;
+  const nextPatch = { ...patch };
+  if (String(nextPatch.status || "").includes("关闭") && !nextPatch.closedAt) {
+    nextPatch.closedAt = group.latest.closedAt || formatFullDateTime(new Date());
+  }
   const ids = new Set(group.alarms.map((alarm) => alarm.id));
   state.allAlarms.forEach((alarm) => {
-    if (ids.has(alarm.id)) Object.assign(alarm, patch);
+    if (ids.has(alarm.id)) Object.assign(alarm, nextPatch);
   });
   state.alarms.forEach((alarm) => {
-    if (ids.has(alarm.id)) Object.assign(alarm, patch);
+    if (ids.has(alarm.id)) Object.assign(alarm, nextPatch);
   });
   state.selectedAlarmGroup = getAlarmGroupFromAlarm(group.latest);
   state.selectedAlarm = state.selectedAlarmGroup?.alarms.find((alarm) => alarm.id === state.activeModalAlarmId) || state.selectedAlarmGroup?.latest || null;
   renderAlarms();
-  if (state.activePage === "alarm") renderAlarmDetailPage();
+  if (state.activePage === "alarm") {
+    renderAlarmDetailFilters();
+    renderAlarmDetailPage();
+  }
 }
 
 function renderAlarmInspector(alarmOrGroup) {
@@ -1803,6 +1825,7 @@ function renderAlarmInspector(alarmOrGroup) {
             <th>等级</th>
             <th>事件时间</th>
             <th>预警时间</th>
+            <th>关闭时间</th>
             <th>持续时长</th>
             <th>状态</th>
           </tr>
@@ -1816,6 +1839,7 @@ function renderAlarmInspector(alarmOrGroup) {
               <td><span class="alarm-level-table alarm-${item.type}">${item.level}</span></td>
               <td>${item.eventTime}</td>
               <td>${item.warningTime}</td>
+              <td>${item.closedAt || ""}</td>
               <td>${alarmDurationHours(item)} 小时</td>
               <td><span class="alarm-status-pill ${statusClass(item.status)}">${item.status}</span></td>
             </tr>`
