@@ -1688,20 +1688,21 @@ function renderStationHandledPanel(alarm) {
 function renderClosedAlarmSummary(alarm) {
   if (!String(alarm.status || "").includes("关闭")) return "";
   const srNo = alarm.srNo || "--";
-  const guide = alarm.srGuide || (alarm.stationHandled ? "站端已完成现场处理，无需下发 SR。" : "--");
+  const actionLabel = alarm.stationHandled ? "处理动作" : "操作指导";
+  const guide = alarm.srGuide || (alarm.stationHandled ? alarm.stationAction || "站端已完成现场处理，无需下发 SR。" : "--");
   const conclusion =
     alarm.srConclusion ||
     alarm.stationConclusion ||
     (alarm.closeReason ? `预警已按“${alarm.closeReason}”关闭。` : "预警已关闭，闭环信息已归档。");
-  const accuracy = alarm.srCloseReason || (alarm.stationHandled ? "站端已处理" : "--");
-  const failureMode = alarm.srFailureMode || (alarm.stationHandled ? "站端现场处置" : "--");
+  const accuracy = alarm.srCloseReason || (alarm.stationHandled ? "类型准确" : "--");
+  const failureMode = alarm.srFailureMode || (alarm.stationHandled ? srFailureModesForAlarm(alarm)[0] || "站端现场处置" : "--");
   const rootCause = alarm.rootCause || "";
   return `
     <div class="closed-summary-panel">
       <div><span>SR编号</span><strong>${srNo}</strong></div>
-      <div><span>操作指导</span><strong>${guide}</strong></div>
+      <div><span>${actionLabel}</span><strong>${guide}</strong></div>
       <div><span>排查结论</span><strong>${conclusion}</strong></div>
-      <div><span>预警准确/不准确</span><strong>${accuracy}</strong></div>
+      <div><span>预警准确性</span><strong>${accuracy}</strong></div>
       <div><span>失效类型</span><strong>${failureMode}</strong></div>
       ${rootCause ? `<div class="closed-summary-root-cause"><span>根因</span><strong>${rootCause}</strong></div>` : ""}
     </div>
@@ -1881,7 +1882,6 @@ function renderAlarmInspector(alarmOrGroup) {
       <div><span>场站</span><strong>${alarm.stationId}${alarm.stationName}</strong></div>
       <div><span>位置</span><strong>${alarm.location}</strong></div>
     </div>
-    ${renderStationHandledPanel(group.latest)}
     ${renderClosedAlarmSummary(group.latest)}
     <div class="alarm-group-table-wrap">
       <table class="alarm-group-table">
