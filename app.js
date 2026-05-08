@@ -1602,10 +1602,11 @@ function srFailureModesForAlarm(alarm) {
 }
 
 function renderSrAlarmContext(alarm) {
+  const stationLabel = `${alarm.stationId || ""}${alarm.stationName || ""}`;
   return `
     <div class="sr-alarm-context">
-      <div><span>场站</span><strong>${alarm.station}</strong></div>
-      <div><span>位置</span><strong>${alarm.location}</strong></div>
+      <div><span>场站</span><strong title="${stationLabel}">${stationLabel}</strong></div>
+      <div><span>位置</span><strong title="${alarm.location}">${alarm.location}</strong></div>
       <div><span>模块</span><strong>${alarm.module}</strong></div>
       <div><span>预警名称</span><strong>${alarm.title}</strong></div>
     </div>
@@ -1636,12 +1637,13 @@ function renderSrIssueForm(group) {
 function renderSrReturnConfirmation(group) {
   const alarm = group.latest;
   const modes = srFailureModesForAlarm(alarm);
+  const conclusion = alarm.srConclusion || `${alarm.module}${alarm.title}已完成现场排查，请确认预警类型判断结果。`;
   return `
     <div class="process-head"><strong>SR 返回确认</strong></div>
     <div class="sr-form-grid sr-return-grid">
       <label><span>SR编号</span><input id="srReturnNoInput" value="${alarm.srNo || ""}" readonly /></label>
       <label><span>关联工单编号</span><input id="srWorkOrderInput" value="${alarm.srWorkOrderNo || alarm.workOrderNo || `M${2276500 + (alarm.id.length % 900)}`}" /></label>
-      <label class="sr-full-field"><span>排查结论</span><textarea id="srConclusionInput" placeholder="填写现场排查结论">${alarm.srConclusion || ""}</textarea></label>
+      <label class="sr-full-field"><span>排查结论</span><textarea id="srConclusionInput" readonly>${conclusion}</textarea></label>
       <div class="sr-full-field sr-decision-row">
         <span>确认结果</span>
         <div class="process-options">

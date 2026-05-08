@@ -2989,11 +2989,11 @@ h2 {
   position: absolute;
   top: 0;
   left: 0;
-  width: 78px;
-  height: 78px;
+  width: 70px;
+  height: 70px;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: flex-start;
+  justify-content: flex-start;
   padding: 0;
   color: #dff7ff;
   font-size: 12px;
@@ -3004,20 +3004,22 @@ h2 {
 
 .alarm-source-corner > span {
   position: relative;
-  top: -10px;
-  left: -10px;
+  top: 17px;
+  left: 9px;
+  width: 38px;
+  text-align: center;
   transform: rotate(-45deg);
 }
 
 .alarm-source-corner::before {
   content: "";
   position: absolute;
-  top: -38px;
-  left: -38px;
-  width: 96px;
-  height: 96px;
+  top: 0;
+  left: 0;
+  width: 68px;
+  height: 68px;
   border: 1px solid rgba(18, 152, 255, 0.26);
-  background: linear-gradient(135deg, rgba(18, 152, 255, 0.46), rgba(18, 152, 255, 0.18));
+  background: linear-gradient(135deg, rgba(18, 152, 255, 0.42), rgba(18, 152, 255, 0.16));
   clip-path: polygon(0 0, 100% 0, 0 100%);
   z-index: -1;
 }
@@ -3413,6 +3415,7 @@ h2 {
   background: rgba(8, 10, 18, 0.72);
   color: #eef3fb;
   color-scheme: dark;
+  font: inherit;
 }
 
 #alarmCloseRemark {
@@ -3452,9 +3455,7 @@ h2 {
   color: #f3f7ff;
   font-size: 13px;
   line-height: 1.35;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow-wrap: anywhere;
 }
 
 @media (max-width: 760px) {
@@ -3496,6 +3497,12 @@ h2 {
 
 .sr-return-grid textarea {
   min-height: 72px;
+}
+
+.sr-return-grid textarea[readonly] {
+  color: #dce4f2;
+  background: rgba(12, 14, 22, 0.42);
+  cursor: default;
 }
 
 .sr-decision-row {
