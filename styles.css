@@ -3486,6 +3486,11 @@ h2 {
   background: rgba(16, 20, 31, 0.64);
 }
 
+.closed-summary-panel .closed-summary-root-cause {
+  grid-column: 1 / -1;
+  min-height: 64px;
+}
+
 .closed-summary-panel span {
   display: block;
   margin-bottom: 6px;

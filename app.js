@@ -1836,6 +1836,12 @@ function updateAlarmGroup(group, patch) {
     nextPatch.closedAt = group.latest.closedAt || formatFullDateTime(new Date());
   }
   const ids = new Set(group.alarms.map((alarm) => alarm.id));
+  const linkedGroupIds = new Set(group.alarms.map((alarm) => alarm.linkGroupId).filter(Boolean));
+  if (linkedGroupIds.size) {
+    state.allAlarms.forEach((alarm) => {
+      if (linkedGroupIds.has(alarm.linkGroupId)) ids.add(alarm.id);
+    });
+  }
   state.allAlarms.forEach((alarm) => {
     if (ids.has(alarm.id)) Object.assign(alarm, nextPatch);
   });
