@@ -2435,11 +2435,12 @@ h2 {
 }
 
 .alarm-detail-filterbar {
-  display: grid;
-  grid-template-columns: minmax(230px, 1.1fr) minmax(110px, 0.48fr) minmax(156px, 0.72fr) minmax(138px, 0.6fr) repeat(3, minmax(150px, 0.78fr)) minmax(110px, 0.48fr) auto auto auto;
+  display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   align-items: center;
   margin-top: 12px;
+  overflow-x: hidden;
 }
 
 .alarm-detail-filterbar input,
@@ -2462,7 +2463,39 @@ h2 {
 }
 
 #alarmDetailStatus {
-  min-width: 156px;
+  flex: 0 0 236px;
+  min-width: 236px;
+}
+
+.alarm-detail-date {
+  flex: 0 0 230px;
+}
+
+#alarmDetailLevel {
+  flex: 0 0 110px;
+}
+
+#alarmDetailModule,
+#alarmDetailSource {
+  flex: 0 0 132px;
+}
+
+#alarmDetailName,
+#alarmDetailStation,
+#alarmDetailLocation {
+  flex: 1 1 168px;
+}
+
+.alarm-detail-filterbar > button {
+  flex: 0 0 auto;
+}
+
+#alarmDetailStatus .alarm-multi-menu {
+  min-width: 236px;
+}
+
+#alarmDetailStatus .selector-option span {
+  white-space: nowrap;
 }
 
 .alarm-multi-trigger {
@@ -2766,6 +2799,7 @@ h2 {
   justify-content: center;
   gap: 8px;
   min-height: 22px;
+  width: 100%;
 }
 
 .alarm-level-cell-inner .alarm-level-table {
@@ -2775,6 +2809,22 @@ h2 {
 .alarm-level-cell-inner.selection-mode {
   padding-left: 0;
   justify-content: flex-start;
+}
+
+.alarm-detail-table th:nth-child(2),
+.alarm-detail-table td:nth-child(2) {
+  text-align: center;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.alarm-detail-table td:nth-child(2) .alarm-level-cell-inner:not(.selection-mode) {
+  justify-content: center;
+}
+
+.alarm-detail-table th:nth-child(2) {
+  padding-left: 0;
+  padding-right: 0;
 }
 
 .alarm-level-cell-inner:not(.selection-mode) .alarm-row-check-placeholder {
@@ -3080,7 +3130,7 @@ h2 {
 
 .alarm-group-table {
   width: 100%;
-  min-width: 760px;
+  min-width: 720px;
   border-collapse: collapse;
 }
 
@@ -3113,7 +3163,7 @@ h2 {
 .alarm-group-table td:nth-child(4),
 .alarm-group-table th:nth-child(5),
 .alarm-group-table td:nth-child(5) {
-  width: 190px;
+  width: 164px;
 }
 
 .alarm-group-table th:nth-child(6),
@@ -3410,6 +3460,38 @@ h2 {
   font-size: 13px;
   font-weight: 600;
   line-height: 1.45;
+}
+
+.closed-summary-panel {
+  display: grid;
+  grid-template-columns: 0.72fr 1.25fr 1.6fr 0.92fr 1fr;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.closed-summary-panel div {
+  min-width: 0;
+  min-height: 58px;
+  padding: 9px 11px;
+  border: 1px solid rgba(73, 91, 128, 0.44);
+  border-radius: 4px;
+  background: rgba(16, 20, 31, 0.64);
+}
+
+.closed-summary-panel span {
+  display: block;
+  margin-bottom: 6px;
+  color: #8f99ad;
+  font-size: 12px;
+}
+
+.closed-summary-panel strong {
+  display: block;
+  color: #e7eef9;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
 }
 
 .alarm-process-panel {

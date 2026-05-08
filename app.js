@@ -620,13 +620,17 @@ function createAlarms(stations) {
 
   const stationHandledGroupIds = new Set();
   alarms.forEach((alarm) => {
-    if (alarm.source === "站端" && alarm.linkGroupId) {
+    if (alarm.source === "站端" && alarm.linkGroupId && alarm.stationId !== "K-0005") {
       const index = Number(alarm.linkGroupId.replace("pair-", ""));
       if (Number.isFinite(index) && index % 4 === 1) stationHandledGroupIds.add(alarm.linkGroupId);
     }
   });
   alarms.forEach((alarm) => {
-    const shouldMarkStandalone = alarm.source === "站端" && !alarm.linkGroupId && Number(alarm.id.split("-").pop()) % 11 === 0;
+    const shouldMarkStandalone =
+      alarm.source === "站端" &&
+      alarm.stationId !== "K-0005" &&
+      !alarm.linkGroupId &&
+      Number(alarm.id.split("-").pop()) % 11 === 0;
     if (stationHandledGroupIds.has(alarm.linkGroupId) || shouldMarkStandalone) {
       const closedAt = alarm.closedAt || formatFullDateTime(new Date(alarmTimestamp(alarm) + 46 * 60 * 1000));
       Object.assign(alarm, {
@@ -1475,7 +1479,7 @@ function renderAlarmDetailPage() {
             ${
               state.detailAlarmSelectionMode
                 ? `<label class="alarm-row-check"><input type="checkbox" data-check-id="${group.id}" ${state.detailAlarmSelectedIds.has(group.id) ? "checked" : ""} /><i></i></label>`
-                : '<span class="alarm-row-check-placeholder"></span>'
+                : ""
             }
             <span class="alarm-level-table alarm-${alarm.type}">${alarm.level}</span>
           </div>
@@ -1681,6 +1685,27 @@ function renderStationHandledPanel(alarm) {
   `;
 }
 
+function renderClosedAlarmSummary(alarm) {
+  if (!String(alarm.status || "").includes("关闭")) return "";
+  const srNo = alarm.srNo || "--";
+  const guide = alarm.srGuide || (alarm.stationHandled ? "站端已完成现场处理，无需下发 SR。" : "--");
+  const conclusion =
+    alarm.srConclusion ||
+    alarm.stationConclusion ||
+    (alarm.closeReason ? `预警已按“${alarm.closeReason}”关闭。` : "预警已关闭，闭环信息已归档。");
+  const accuracy = alarm.srCloseReason || (alarm.stationHandled ? "站端已处理" : "--");
+  const failureMode = alarm.srFailureMode || (alarm.stationHandled ? "站端现场处置" : "--");
+  return `
+    <div class="closed-summary-panel">
+      <div><span>SR编号</span><strong>${srNo}</strong></div>
+      <div><span>操作指导</span><strong>${guide}</strong></div>
+      <div><span>排查结论</span><strong>${conclusion}</strong></div>
+      <div><span>预警准确/不准确</span><strong>${accuracy}</strong></div>
+      <div><span>失效类型</span><strong>${failureMode}</strong></div>
+    </div>
+  `;
+}
+
 function renderSrResultReview(group) {
   const alarm = group.latest;
   return `
@@ -1849,6 +1874,7 @@ function renderAlarmInspector(alarmOrGroup) {
       <div><span>位置</span><strong>${alarm.location}</strong></div>
     </div>
     ${renderStationHandledPanel(group.latest)}
+    ${renderClosedAlarmSummary(group.latest)}
     <div class="alarm-group-table-wrap">
       <table class="alarm-group-table">
         <thead>
