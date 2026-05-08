@@ -2432,15 +2432,18 @@ h2 {
 .alarm-detail-main {
   min-width: 0;
   padding: 16px;
+  overflow: visible;
 }
 
 .alarm-detail-filterbar {
+  position: relative;
+  z-index: 30;
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
   align-items: center;
   margin-top: 12px;
-  overflow-x: hidden;
+  overflow: visible;
 }
 
 .alarm-detail-filterbar input,
@@ -2463,8 +2466,8 @@ h2 {
 }
 
 #alarmDetailStatus {
-  flex: 0 0 236px;
-  min-width: 236px;
+  flex: 0 0 150px;
+  min-width: 150px;
 }
 
 .alarm-detail-date {
@@ -2491,7 +2494,8 @@ h2 {
 }
 
 #alarmDetailStatus .alarm-multi-menu {
-  min-width: 236px;
+  width: 276px;
+  min-width: 276px;
 }
 
 #alarmDetailStatus .selector-option span {
@@ -2547,6 +2551,10 @@ h2 {
   background: #171a24;
   box-shadow: 0 24px 52px rgba(0, 0, 0, 0.68), 0 0 0 1px rgba(18, 152, 255, 0.2);
   padding: 8px;
+}
+
+.alarm-multi-select.open {
+  z-index: 2147483000;
 }
 
 .alarm-multi-select.searchable .alarm-multi-menu {

@@ -1695,6 +1695,7 @@ function renderClosedAlarmSummary(alarm) {
     (alarm.closeReason ? `预警已按“${alarm.closeReason}”关闭。` : "预警已关闭，闭环信息已归档。");
   const accuracy = alarm.srCloseReason || (alarm.stationHandled ? "站端已处理" : "--");
   const failureMode = alarm.srFailureMode || (alarm.stationHandled ? "站端现场处置" : "--");
+  const rootCause = alarm.rootCause || "";
   return `
     <div class="closed-summary-panel">
       <div><span>SR编号</span><strong>${srNo}</strong></div>
@@ -1702,6 +1703,7 @@ function renderClosedAlarmSummary(alarm) {
       <div><span>排查结论</span><strong>${conclusion}</strong></div>
       <div><span>预警准确/不准确</span><strong>${accuracy}</strong></div>
       <div><span>失效类型</span><strong>${failureMode}</strong></div>
+      ${rootCause ? `<div class="closed-summary-root-cause"><span>根因</span><strong>${rootCause}</strong></div>` : ""}
     </div>
   `;
 }
@@ -1719,7 +1721,7 @@ function renderSrResultReview(group) {
       ${
         alarm.pendingRootCause
           ? `<label class="sr-full-field"><span>根因补充</span><textarea id="processRootCauseInput" placeholder="请输入根因说明，例如：装配力矩不足导致铜排螺栓松动，复紧后绝缘恢复正常。">${alarm.rootCause || ""}</textarea></label>`
-          : `<label class="sr-full-field"><span>根因</span><textarea readonly>${alarm.rootCause || "无需补充根因"}</textarea></label>`
+          : ""
       }
     </div>
     ${
