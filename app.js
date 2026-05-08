@@ -2038,9 +2038,9 @@ function handleAlarmProcessAction(action) {
       pendingFinalStatus: finalStatus,
     });
     state.alarmProcessMode = null;
+    closeAlarmProcessModal();
     renderAlarmInspector(state.selectedAlarmGroup);
     renderAlarmTable();
-    closeAlarmProcessModal();
   }
 }
 
