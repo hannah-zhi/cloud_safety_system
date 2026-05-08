@@ -1721,7 +1721,7 @@ function renderAlarmInspector(alarmOrGroup) {
   const linked = alarm.linkedAlarmId ? state.allAlarms.find((item) => item.id === alarm.linkedAlarmId) : null;
   els.alarmInspectorBody.innerHTML = `
     <div class="alarm-detail-hero alarm-hero-${alarm.type}">
-      <span class="alarm-source-corner alarm-source-corner-${alarm.source === "云端" ? "cloud" : "station"}">${alarm.source}</span>
+      <span class="alarm-source-corner alarm-source-corner-${alarm.source === "云端" ? "cloud" : "station"}"><span>${alarm.source}</span></span>
       <strong>${alarm.title}</strong>
       <p>${alarm.level === "一级" ? "立即复核云端诊断结果并安排现场排查。" : alarm.level === "二级" ? "持续观察趋势，纳入当班巡检计划。" : "记录风险变化，按计划跟踪闭环。"}</p>
       ${
