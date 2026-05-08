@@ -346,7 +346,12 @@ function bindEvents() {
   els.alarmProcessModalClose?.addEventListener("click", closeAlarmProcessModal);
   els.alarmProcessModalMask?.addEventListener("click", closeAlarmProcessModal);
   els.alarmProcessBtn?.addEventListener("click", () => {
-    state.alarmProcessMode = state.selectedAlarmGroup?.srCompleted ? "srClose" : "choose";
+    const latest = state.selectedAlarmGroup?.latest;
+    state.alarmProcessMode = latest?.srCloseReason || latest?.pendingRootCause
+      ? "srResult"
+      : state.selectedAlarmGroup?.srCompleted
+        ? "srClose"
+        : "choose";
     renderAlarmProcessPanel();
   });
   els.alarmAnalysisBtn?.addEventListener("click", () => {});
@@ -1617,7 +1622,7 @@ function failureModeNeedsRootCause(mode) {
 }
 
 function renderRootCausePanel(alarm) {
-  if (alarm.status !== "关闭-待补充根因") return "";
+  if (!alarm.pendingRootCause) return "";
   return `
     <div class="root-cause-panel">
       <div>
@@ -1627,6 +1632,30 @@ function renderRootCausePanel(alarm) {
       <textarea id="alarmRootCauseInput" placeholder="请输入根因说明，例如：装配力矩不足导致铜排螺栓松动，复紧后绝缘恢复正常。">${alarm.rootCause || ""}</textarea>
       <button type="button" id="alarmRootCauseSubmit">提交根因</button>
     </div>
+  `;
+}
+
+function renderSrResultReview(group) {
+  const alarm = group.latest;
+  return `
+    <div class="process-head"><strong>SR 返回结果</strong></div>
+    <div class="sr-form-grid sr-return-grid">
+      <label><span>SR编号</span><input value="${alarm.srNo || ""}" readonly /></label>
+      <label><span>关联工单编号</span><input value="${alarm.srWorkOrderNo || alarm.workOrderNo || ""}" readonly /></label>
+      <label class="sr-full-field"><span>排查结论</span><textarea readonly>${alarm.srConclusion || srReturnConclusionForAlarm(alarm)}</textarea></label>
+      <label><span>确认结果</span><input value="${alarm.srCloseReason || ""}" readonly /></label>
+      <label><span>失效模式</span><input value="${alarm.srFailureMode || ""}" readonly /></label>
+      ${
+        alarm.pendingRootCause
+          ? `<label class="sr-full-field"><span>根因补充</span><textarea id="processRootCauseInput" placeholder="请输入根因说明，例如：装配力矩不足导致铜排螺栓松动，复紧后绝缘恢复正常。">${alarm.rootCause || ""}</textarea></label>`
+          : `<label class="sr-full-field"><span>根因</span><textarea readonly>${alarm.rootCause || "无需补充根因"}</textarea></label>`
+      }
+    </div>
+    ${
+      alarm.pendingRootCause
+        ? `<div class="process-actions"><button type="button" data-process-action="submit-root-cause">提交根因</button></div>`
+        : ""
+    }
   `;
 }
 
@@ -1944,6 +1973,8 @@ function renderAlarmProcessPanel() {
     els.alarmProcessPanel.innerHTML = renderSrIssueForm(group);
   } else if (state.alarmProcessMode === "srClose") {
     els.alarmProcessPanel.innerHTML = renderSrReturnConfirmation(group);
+  } else if (state.alarmProcessMode === "srResult") {
+    els.alarmProcessPanel.innerHTML = renderSrResultReview(group);
   }
   bindAlarmProcessPanel();
 }
@@ -2010,6 +2041,23 @@ function handleAlarmProcessAction(action) {
     updateAlarmGroup(group, { srCompleted: true });
     state.alarmProcessMode = "srClose";
     renderAlarmInspector(state.selectedAlarmGroup);
+    renderAlarmProcessPanel();
+    return;
+  }
+  if (action === "submit-root-cause") {
+    const rootCause = els.alarmProcessPanel.querySelector("#processRootCauseInput")?.value.trim() || "";
+    if (!rootCause) {
+      showAlarmProcessError("请输入根因说明");
+      return;
+    }
+    updateAlarmGroup(group, {
+      status: group.latest.pendingFinalStatus || "关闭-准确",
+      rootCause,
+      pendingRootCause: false,
+    });
+    state.alarmProcessMode = "srResult";
+    renderAlarmInspector(state.selectedAlarmGroup);
+    renderAlarmTable();
     renderAlarmProcessPanel();
     return;
   }
