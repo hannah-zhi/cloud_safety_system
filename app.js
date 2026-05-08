@@ -349,10 +349,7 @@ function bindEvents() {
     state.alarmProcessMode = state.selectedAlarmGroup?.srCompleted ? "srClose" : "choose";
     renderAlarmProcessPanel();
   });
-  els.alarmAnalysisBtn?.addEventListener("click", () => {
-    state.alarmProcessMode = "analysis";
-    renderAlarmProcessPanel();
-  });
+  els.alarmAnalysisBtn?.addEventListener("click", () => {});
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape") {
       if (els.alarmProcessModal?.classList.contains("show")) closeAlarmProcessModal();
@@ -580,6 +577,38 @@ function createAlarms(stations) {
       linkGroupId: pairId,
       linkedAlarmId: first.id,
     };
+  }
+
+  const historyLevels = [
+    { level: "二级", type: "level2", minutes: 80 },
+    { level: "三级", type: "level3", minutes: 155 },
+    { level: "一级", type: "level1", minutes: 230 },
+  ];
+  const historyGroupCount = Math.min(5, pairGroups);
+  for (let i = 0; i < historyGroupCount; i += 1) {
+    [i * 2, i * 2 + 1].forEach((baseIndex) => {
+      const base = alarms[baseIndex];
+      historyLevels.forEach((history, historyIndex) => {
+        const warningDate = new Date(alarmTimestamp(base) - history.minutes * 60 * 1000);
+        const eventDate = new Date(warningDate.getTime() - (16 + historyIndex * 9) * 60 * 1000);
+        alarms.push({
+          ...base,
+          id: `${base.id}-history-${historyIndex + 1}`,
+          level: history.level,
+          type: history.type,
+          dateISO: formatDateInput(warningDate),
+          eventTime: formatFullDateTime(eventDate),
+          warningTime: formatFullDateTime(warningDate),
+          time: `${String(warningDate.getMonth() + 1).padStart(2, "0")}-${String(warningDate.getDate()).padStart(2, "0")} ${String(warningDate.getHours()).padStart(2, "0")}:${String(warningDate.getMinutes()).padStart(2, "0")}`,
+          status: "待处理",
+          srIssued: false,
+          srCompleted: false,
+          srNo: "",
+          closeReason: "",
+          closeRemark: "",
+        });
+      });
+    });
   }
 
   return alarms.sort((a, b) => alarmOrder(a.type) - alarmOrder(b.type));
@@ -1552,6 +1581,17 @@ function beijingDateTimeLocal(date = new Date()) {
   return beijing.toISOString().slice(0, 16);
 }
 
+function addDaysToDateTimeLocal(value, days) {
+  const [datePart = "", timePart = "00:00"] = String(value || "").split("T");
+  const [year, month, day] = datePart.split("-").map(Number);
+  const [hour, minute] = timePart.split(":").map(Number);
+  const date = Number.isFinite(year) && Number.isFinite(month) && Number.isFinite(day)
+    ? new Date(year, month - 1, day, hour || 0, minute || 0)
+    : new Date();
+  date.setDate(date.getDate() + days);
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}T${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
+}
+
 function groupAlarmsForTable(alarms) {
   const map = new Map();
   alarms.forEach((alarm) => {
@@ -1729,15 +1769,11 @@ function renderAlarmProcessPanel() {
   els.alarmProcessModal?.setAttribute("aria-hidden", "false");
   els.alarmProcessPanel.classList.add("show");
   if (state.alarmProcessMode === "analysis") {
-    els.alarmProcessPanel.innerHTML = `
-      <div class="process-head"><strong>分析结论</strong><span>基于当前选中预警趋势</span></div>
-      <div class="process-note">建议结合 ${state.selectedAlarm?.module || "--"} 数据曲线、同位置历史预警和现场巡检记录确认根因。</div>
-    `;
     return;
   }
   if (state.alarmProcessMode === "choose") {
     els.alarmProcessPanel.innerHTML = `
-      <div class="process-head"><strong>处理方式</strong><span>请选择本组预警闭环路径</span></div>
+      <div class="process-head"><strong>处理方式</strong></div>
       <div class="process-choice-grid">
         <button type="button" data-process-action="close-now">关闭预警</button>
         <button type="button" data-process-action="open-sr">下发 SR</button>
@@ -1757,13 +1793,15 @@ function renderAlarmProcessPanel() {
   } else if (state.alarmProcessMode === "sr") {
     const srNo = group.latest.srNo || `S${263 + (group.latest.id.length % 70)}`;
     const srSendTime = group.latest.srSendDate || beijingDateTimeLocal();
+    const srDueTime = group.latest.srDueDate || addDaysToDateTimeLocal(srSendTime, 14);
     els.alarmProcessPanel.innerHTML = `
       <div class="process-head"><strong>下发 SR</strong></div>
       <div class="sr-form-grid">
-        <label><span>SR编号</span><input id="srNoInput" value="${srNo}" /></label>
-        <label><span>SR发出时间</span><input id="srSendDateInput" type="datetime-local" value="${srSendTime}" /></label>
-        <label><span>期望完成时间</span><input id="srDueDateInput" type="date" value="2026-03-31" /></label>
-        <label class="sr-guide-field"><span>操作指导</span><textarea id="srGuideInput"></textarea><span class="sr-attachment-label">附件</span><input id="srAttachmentInput" type="file" multiple /></label>
+        <label class="sr-full-field"><span>SR编号</span><input id="srNoInput" value="${srNo}" /></label>
+        <label class="sr-guide-field"><span>操作指导</span><textarea id="srGuideInput"></textarea></label>
+        <label class="sr-full-field"><span>附件</span><input id="srAttachmentInput" type="file" multiple /></label>
+        <label><span>SR下发时间</span><input id="srSendDateInput" type="datetime-local" value="${srSendTime}" /></label>
+        <label><span>期望完成时间</span><input id="srDueDateInput" type="datetime-local" value="${srDueTime}" /></label>
       </div>
       <div class="process-actions">
         <button type="button" data-process-action="submit-sr">确认下发</button>

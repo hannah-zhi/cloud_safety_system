@@ -2943,7 +2943,7 @@ h2 {
   position: relative;
   overflow: hidden;
   min-height: 112px;
-  padding: 34px 14px 16px 14px;
+  padding: 18px 14px 16px 86px;
   border: 1px solid rgba(73, 91, 128, 0.72);
   border-radius: 4px;
   background:
@@ -2989,12 +2989,12 @@ h2 {
   position: absolute;
   top: 0;
   left: 0;
-  width: 76px;
-  height: 60px;
+  width: 72px;
+  height: 100%;
   display: flex;
   align-items: flex-start;
   justify-content: flex-start;
-  padding: 6px 0 0 8px;
+  padding: 10px 0 0 10px;
   color: #fff;
   font-size: 12px;
   font-weight: 700;
@@ -3006,15 +3006,19 @@ h2 {
   position: absolute;
   top: 0;
   left: 0;
-  width: 0;
-  height: 0;
-  border-top: 62px solid rgba(18, 152, 255, 0.92);
-  border-right: 62px solid transparent;
+  width: 72px;
+  height: 100%;
+  border: 0;
+  background:
+    linear-gradient(135deg, rgba(18, 152, 255, 0.95) 0 48%, transparent 49%),
+    linear-gradient(90deg, rgba(18, 152, 255, 0.3), transparent 72%);
   z-index: -1;
 }
 
 .alarm-source-corner-station::before {
-  border-top-color: rgba(19, 199, 129, 0.92);
+  background:
+    linear-gradient(135deg, rgba(19, 199, 129, 0.95) 0 48%, transparent 49%),
+    linear-gradient(90deg, rgba(19, 199, 129, 0.3), transparent 72%);
 }
 
 .alarm-group-table-wrap {
@@ -3039,6 +3043,23 @@ h2 {
   font-size: 12px;
   text-align: left;
   white-space: nowrap;
+}
+
+.alarm-group-table th:nth-child(1),
+.alarm-group-table td:nth-child(1) {
+  width: 54px;
+}
+
+.alarm-group-table th:nth-child(2),
+.alarm-group-table td:nth-child(2) {
+  width: 72px;
+}
+
+.alarm-group-table th:nth-child(3),
+.alarm-group-table td:nth-child(3),
+.alarm-group-table th:nth-child(4),
+.alarm-group-table td:nth-child(4) {
+  width: 190px;
 }
 
 .alarm-group-table th {
@@ -3418,12 +3439,9 @@ h2 {
   resize: vertical;
 }
 
+.sr-full-field,
 .sr-guide-field {
   grid-column: span 2;
-}
-
-.sr-attachment-label {
-  margin-top: 10px;
 }
 
 .sr-return-card {
