@@ -2040,7 +2040,7 @@ function handleAlarmProcessAction(action) {
     state.alarmProcessMode = null;
     renderAlarmInspector(state.selectedAlarmGroup);
     renderAlarmTable();
-    renderAlarmProcessPanel();
+    closeAlarmProcessModal();
   }
 }
 
