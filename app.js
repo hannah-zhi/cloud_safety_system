@@ -1390,7 +1390,7 @@ function renderAlarmDetailFilters() {
   const optionMap = {
     level: { el: els.alarmDetailLevel, label: "全部等级", searchable: false, options: ["一级", "二级", "三级"] },
     status: { el: els.alarmDetailStatus, label: "全部状态", searchable: false, options: statusOptions },
-    module: { el: els.alarmDetailModule, label: "全部设备模块", searchable: false, options: ["电池系统", "电气系统", "环控系统", "消防系统"] },
+    module: { el: els.alarmDetailModule, label: "全部模块", searchable: false, options: ["电池系统", "电气系统", "环控系统", "消防系统"] },
     name: { el: els.alarmDetailName, label: "全部预警名称", searchable: true, options: uniqueSorted(alarms.map((alarm) => alarm.title)) },
     station: { el: els.alarmDetailStation, label: "全部场站", searchable: true, options: uniqueSorted(alarms.map((alarm) => `${alarm.stationId}${alarm.stationName}`)) },
     location: { el: els.alarmDetailLocation, label: "全部位置", searchable: true, options: uniqueSorted(alarms.map((alarm) => alarm.location)) },
