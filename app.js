@@ -1613,17 +1613,18 @@ function renderAlarmInspector(alarmOrGroup) {
   els.alarmInspectorBody.innerHTML = `
     <div class="alarm-detail-hero alarm-hero-${alarm.type}">
       <span class="alarm-source-corner alarm-source-corner-${alarm.source === "云端" ? "cloud" : "station"}">${alarm.source}</span>
-      <div class="alarm-detail-badges">
-        <span class="alarm-level-table alarm-${alarm.type}">${alarm.level}</span>
-        <span class="alarm-module-pill">${alarm.module}</span>
-      </div>
       <strong>${alarm.title}</strong>
       <p>${alarm.level === "一级" ? "立即复核云端诊断结果并安排现场排查。" : alarm.level === "二级" ? "持续观察趋势，纳入当班巡检计划。" : "记录风险变化，按计划跟踪闭环。"}</p>
       ${
         linked
-          ? `<button class="alarm-linked-jump" type="button" data-linked-id="${linked.id}">${alarm.source === "云端" ? "查看关联站端预警" : "查看关联云端预警"}</button>`
+          ? `<button class="alarm-linked-jump alarm-linked-jump-${linked.source === "云端" ? "cloud" : "station"}" type="button" data-linked-id="${linked.id}">${alarm.source === "云端" ? "查看关联站端预警" : "查看关联云端预警"}</button>`
           : ""
       }
+    </div>
+    <div class="alarm-group-context">
+      <div><span>模块</span><strong>${alarm.module}</strong></div>
+      <div><span>场站</span><strong>${alarm.stationId}${alarm.stationName}</strong></div>
+      <div><span>位置</span><strong>${alarm.location}</strong></div>
     </div>
     <div class="alarm-group-table-wrap">
       <table class="alarm-group-table">
@@ -1631,7 +1632,6 @@ function renderAlarmInspector(alarmOrGroup) {
           <tr>
             <th>序号</th>
             <th>等级</th>
-            <th>位置</th>
             <th>事件时间</th>
             <th>预警时间</th>
             <th>持续时长</th>
@@ -1645,7 +1645,6 @@ function renderAlarmInspector(alarmOrGroup) {
             <tr class="${item.id === alarm.id ? "active" : ""}" data-alarm-id="${item.id}">
               <td>${index + 1}</td>
               <td><span class="alarm-level-table alarm-${item.type}">${item.level}</span></td>
-              <td>${item.location}</td>
               <td>${item.eventTime}</td>
               <td>${item.warningTime}</td>
               <td>${alarmDurationHours(item)} 小时</td>
