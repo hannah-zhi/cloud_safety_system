@@ -353,7 +353,9 @@ function bindEvents() {
       ? "srResult"
       : state.selectedAlarmGroup?.srCompleted
         ? "srClose"
-        : "choose";
+        : state.selectedAlarmGroup?.srIssued
+          ? "srSubmitted"
+          : "choose";
     renderAlarmProcessPanel();
   });
   els.alarmAnalysisBtn?.addEventListener("click", () => {});
